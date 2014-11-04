@@ -33,12 +33,11 @@ echo "
     <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.Default.css\">
     <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.css\">
     <script src=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/leaflet.markercluster.js\"></script>
-    <!--<script type=\"text/javascript\" src=\"https://rawgit.com/calvinmetcalf/leaflet-ajax/master/dist/leaflet.ajax.min.js\"></script>-->
-    <!--<script src=\"leaflet-ajax-master/dist/leaflet.ajax.min.js\"></script>-->
-    <!--<script src=\"https://code.jquery.com/jquery-2.1.1.js\"></script>-->
     <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
 
-    <!--<link rel=\"points\" type=\"application/json\" href=\"http://localhost/data/coastal_exposure.geojson\">-->
+    <script src=\"https://www.google.com/jsapi\"></script>
+    <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
+    <script src=\"../jquery.csv-0.71.js\"></script>
   </head>
   <body> ";
 
@@ -140,7 +139,8 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
       // Define vars
       var geojson,
         metadata = [],
-        geojsonPath = 'http://vulpes.sefs.uw.edu/ttapp/tmp/$sessid/coastal_exposure.geojson',
+        geojsonPath = 'http://localhost:8000/ttapp/tmp/$sessid/coastal_exposure.geojson',
+        csvPath = '$pathid/coastal_exposure.csv',
         categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
         //iconField = '5065', //This is the fieldame for marker icon
         popupFields = ['coastal_exposure'], //Popup will display these fields
@@ -406,6 +406,74 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
       //CVgrid.addTo(map);
     </script>
+
+    <!-- Google Charts stuff below -->
+
+   <h4> select a layer:</h4>
+   <select id="domain">
+   </select>
+   <div id="chart_div" style="width: 900px; height: 500px;"></div>
+
+    <script>
+
+      // load the visualization library from Google and set a listener
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      // wait till the DOM is loaded
+      
+      function drawChart() {
+         // grab the CSV
+         $.get(csvPath, function(csvString) {
+
+            // transform the CSV string into a 2-dimensional array
+            var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
+            // use arrayData to load the select elements with the appropriate options
+            for (var i = 0; i < arrayData[0].length; i++) {
+            // this adds the given option to both select elements
+            $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
+            }
+            // get the index of the coastal_exposure column to use in default plot
+            var colnum = arrayData[0].indexOf('coastal_exposure');
+            // set the default selection
+            // $("#range option[value='0']").attr("selected","selected");
+            $("#domain option[value='" + colnum + "']").attr("selected","selected");
+            //console.log(arrayData[0]);
+
+            // this new DataTable object holds all the data
+            var data = new google.visualization.arrayToDataTable(arrayData);
+
+            // this view can select a subset of the data at a time
+            var view = new google.visualization.DataView(data);
+
+            view.setColumns([colnum]);
+            //console.log(view);
+
+            var options = {
+               title: 'Distribution of Vulnerability',
+               legend: { position: 'none' },
+               colors: ['gray'],
+            };
+
+            var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+            chart.draw(view, options);
+
+            // set listener for the update button
+            $("select").change(function(){
+               // determine selected domain and range
+               var domain = +$("#domain option:selected").val();
+               // var range = +$("#range option:selected").val();
+               // update the view
+               view.setColumns([domain]);
+
+               // update the chart
+               chart.draw(view, options);
+            });
+
+         });
+      };
+
+   </script>
+
 
 <?php
 

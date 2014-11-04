@@ -43,5 +43,7 @@ LoadSpace <- function(ws, outpath){
 ## doit
 workspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
 outspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
+#workspace <- paste("http://localhost:8000/ttapp/tmp/", sess, "/", sep='')
+#outspace <- paste("http://localhost:8000/ttapp/tmp/", sess, "/", sep='')
 LoadSpace(workspace, outspace)
 
