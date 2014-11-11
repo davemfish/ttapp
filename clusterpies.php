@@ -83,7 +83,7 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   echo "<p><b> starting session... </b><p>";
   echo "<pre>";
   echo "Session ID: $sessid";
-  echo "Path ID: $pathid";
+  echo "   Path ID: $pathid";
   echo "</pre>";
   echo "<p><b> blah blah blah...</b><p>";
   flush();
@@ -96,7 +96,9 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   $sdir = "$pathid";
   if (!file_exists($sdir)) {
     echo "<pre>";
-    passthru("mkdir $pathid");
+    // passthru("mkdir $pathid");
+    echo $sdir;
+    mkdir($pathid);
     echo "</pre>";
   }
 
@@ -108,6 +110,7 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
     echo "exposure table was successfully uploaded. <p>";
   } else {
     echo "exposure table cannot be uploaded.";
+    echo $outloadfile;
   }
   // // aoi raster
   $outloadfile = $pathid . "00_PRE_aoi.tif";
@@ -139,16 +142,16 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
       // Define vars
       var geojson,
         metadata = [],
-        geojsonPath = 'http://localhost:8000/ttapp/tmp/$sessid/coastal_exposure.geojson',
+        geojsonPath = 'http://127.0.0.1/ttapp/tmp/$sessid/coastal_exposure.geojson',
         csvPath = '$pathid/coastal_exposure.csv',
         categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
         //iconField = '5065', //This is the fieldame for marker icon
-        popupFields = ['coastal_exposure'], //Popup will display these fields
+        popupFields = [], //Popup will display these fields
         tileServer = 'https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png',
         tileAttribution = 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>',
-        rmax = 30, //Maximum radius for cluster pies
+        rmax = 27, //Maximum radius for cluster pies
         markerclusters = L.markerClusterGroup({
-          maxClusterRadius: 2*rmax,
+          maxClusterRadius: 1*rmax,
           iconCreateFunction: defineClusterIcon //this is where the magic happens
         });
   ";
@@ -174,11 +177,37 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
               // for (var i = 0; i < feats.length; i++){
               //   metadata.push(feats[i].properties);
               // }
-              //console.log(data.features.properties);
+              
+              popupFields.push(Object.keys(geojson.features[0].properties)); //Popup will display these fields
+              console.log(popupFields);
+              // feature popup function relies on this callback function
+              function defineFeaturePopup(feature, layer) {
+                var props = feature.properties,
+                  fields = popupFields,
+                  popupContent = '';
+//console.log(popupFields[0]);
+                  //console.log(props[popupFields[0]]);
+                  
+                popupFields[0].map( function(key) {
+                  if (props[key]) {
+                    var val = props[key],
+                      //label = fields[key].name;
+                      label = key;
+                    // if (fields[key].lookup) {
+                    //   val = fields[key].lookup[val];
+                    // }
+                    popupContent += '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
+                  }
+                });
+                popupContent = '<div class="map-popup">'+popupContent+'</div>';
+                layer.bindPopup(popupContent,{offset: L.point(1,-2)});
+              }
+
               var markers = L.geoJson(geojson, {
-          pointToLayer: defineFeature
-          //onEachFeature: defineFeaturePopup
-              });
+                pointToLayer: defineFeature,
+                onEachFeature: defineFeaturePopup
+                    });
+
               markerclusters.addLayer(markers);
               map.fitBounds(markers.getBounds());
               //map.attributionControl.addAttribution(metadata.attribution);
@@ -198,31 +227,14 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
           });
           return L.marker(latlng, {icon: myIcon});
       }
-
-      // function defineFeaturePopup(feature, layer) {
-      //   var props = feature.properties,
-      //     fields = metadata.fields,
-      //     popupContent = '';
-          
-      //   popupFields.map( function(key) {
-      //     if (props[key]) {
-      //       var val = props[key],
-      //         label = fields[key].name;
-      //       if (fields[key].lookup) {
-      //         val = fields[key].lookup[val];
-      //       }
-      //       popupContent += '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
-      //     }
-      //   });
-      //   popupContent = '<div class="map-popup">'+popupContent+'</div>';
-      //   layer.bindPopup(popupContent,{offset: L.point(1,-2)});
-      // }
+//console.log(popupFields);
+      
 
       function defineClusterIcon(cluster) {
         var children = cluster.getAllChildMarkers(),
             n = children.length, //Get number of markers in cluster
             strokeWidth = 1, //Set clusterpie stroke width
-            r = rmax-2*strokeWidth-(n<10?12:n<100?8:n<1000?4:0), //Calculate clusterpie radius...
+            r = rmax-2*strokeWidth-(n<10?14:n<100?13:n<1000?12:10), //Calculate clusterpie radius...
             iconDim = (r+strokeWidth)*2, //...and divIcon dimensions (leaflet really want to know the size)
             data = d3.nest() //Build a dataset for the pie chart
               .key(function(d) { return d.feature.properties[categoryField]; })
@@ -232,7 +244,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
                                 valueFunc: function(d){return d.values.length;},
                                 strokeWidth: 1,
                                 outerRadius: r,
-                                innerRadius: r-10,
+                                innerRadius: r-9,
                                 pieClass: 'cluster-pie',
                                 pieLabel: n,
                                 pieLabelClass: 'marker-cluster-pie-label',
@@ -295,15 +307,15 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
               // .append('svg:title')
               //   .text(pathTitleFunc);
                       
-          vis.append('text')
-              .attr('x',origo)
-              .attr('y',origo)
-              .attr('class', pieLabelClass)
-              .attr('text-anchor', 'middle')
-              //.attr('dominant-baseline', 'central')
-              /*IE doesn't seem to support dominant-baseline, but setting dy to .3em does the trick*/
-              .attr('dy','.3em')
-              .text(pieLabel);
+          // vis.append('text')
+          //     .attr('x',origo)
+          //     .attr('y',origo)
+          //     .attr('class', pieLabelClass)
+          //     .attr('text-anchor', 'middle')
+          //     //.attr('dominant-baseline', 'central')
+          //     /*IE doesn't seem to support dominant-baseline, but setting dy to .3em does the trick*/
+          //     .attr('dy','.3em')
+          //     .text(pieLabel);
           //Return the svg-markup rather than the actual element
           return serializeXmlNode(svg);
       }
@@ -338,73 +350,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
           return "";
       }
       
-      // L.tileLayer('https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png', {
-      // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-      // maxZoom: 18
-      // }).addTo(map);
-
-      //mbtiles.addTo(map);
-
-      // var CVstyle = {
-      //   "color": 'feature.properties.col',
-      //   "weight": 5,
-      //   "opacity": 0.65
-      // };
-
      
-
-      //var coastal_exposure = L.geoJson.ajax("http://localhost/data/coastal_exposure.geojson")
-      // coastal_exposure.refilter(function(feature){
-      //   return L.CircleMarker(latlng, {
-      //         radius: 4,
-      //         fillColor: 'white',    
-      //         color: '#000',
-      //         weight: 1,
-      //         fillOpacity: 0.8
-      //       })
-      // });
-
-      // $.getJSON("http://localhost/data/coastal_exposure.geojson", function(data) {
-      //   var clusters = new L.MarkerClusterGroup({
-      //     maxClusterRadius: 40
-      //     iconCreateFunction: function (cluster) {
-      //       //return L.divIcon({ html: cluster.getChildCount(), className: 'mycluster', iconSize: L.point(40, 40) });
-      //       var children = cluster.getAllChildMarkers();
-      //       var n = 0;
-      //       for (var i = 0; i < markers.length; i++) {
-      //         n += markers[i].number;
-      //       }
-      //       //var val = n / markers.length
-      //       return L.divIcon({ html: n, className: 'mycluster', iconSize: L.point(40, 40) });
-      // },
-      //   });
-      //   var points = new L.geoJson(data.features, {
-      //     pointToLayer: function (feature, latlng){
-      //       var marker = new L.CircleMarker(latlng, {
-      //         radius: 4,
-      //         fillColor: feature.properties.cols || 'white',    
-      //         color: '#000',
-      //         weight: 1,
-      //         fillOpacity: 0.8
-      //       });
-      //       clusters.addLayer(marker);
-      //       return clusters;
-      //     }
-      //   }).addTo(map);
-      // });
-
-      
-      // var map = L.map('map').fitBounds(coastal_exposure.getBounds());
-      
-      //coastal_exposure.addTo(map);
-
-      //var CVgrid = new L.LayerGroup();
-      //var markers = new L.MarkerClusterGroup();
-
-      //markers.addLayer(coastal_exposure);
-      //map.addLayer(markers);
-
-      //CVgrid.addTo(map);
     </script>
 
     <!-- Google Charts stuff below -->
@@ -467,6 +413,8 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
                // update the chart
                chart.draw(view, options);
+
+               // re-set geojsonpath and reload map.
             });
 
          });

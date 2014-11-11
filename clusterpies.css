@@ -39,9 +39,9 @@
 
 /*Markers*/
 .marker {
-  width: 18px;
-  height: 18px;
-  border-width: 2px;
+  width: 9px;
+  height: 9px;
+  border-width: 1px;
   border-radius:10px;
   margin-top: -10px;
   margin-left: -10px;
@@ -59,42 +59,83 @@
 }
 
 /*marker categories*/
+.category-hexFECC5C{
+  fill: #FECC5C;
+  stroke: #FECC5C;
+  background: #FECC5C;
+  border-color: #FECC5C;
+}
 .category-hexFD8D3C{
-  fill: #F88;
-  stroke: #800;
-  background: #F88;
-  border-color: #800;
+  fill: #FD8D3C;
+  stroke: #FD8D3C;
+  background: #FD8D3C;
+  border-color: #FD8D3C;
 }
-.category-hexFEB24C{
-  fill: #FA0;
-  stroke: #B60;
-  background: #FA0;
-  border-color: #B60;
+.category-hexE31A1C{
+  fill: #E31A1C;
+  stroke: #E31A1C;
+  background: #E31A1C;
+  border-color: #E31A1C;
 }
-.category-hexF03B20{
-  fill: #FF3;
-  stroke: #D80;
-  background: #FF3;
-  border-color: #D80;
+.category-hexFFFFB2{
+  fill: #FFFFB2;
+  stroke: #FFFFB2;
+  background: #FFFFB2;
+  border-color: #FFFFB2;
 }
-.category-4{
-  fill: #BFB;
-  stroke: #070;
-  background: #BFB;
-  border-color: #070;
+.category-hex2166ac{
+  fill: #2166ac;
+  stroke: #2166ac;
+  background: #2166ac;
+  border-color: #2166ac;
 }
-.category-5{
-  fill: #9DF;
-  stroke: #007;
-  background: #9DF;
-  border-color: #007;
+
+/*binary exposure*/
+.category-hex92c5de{
+  fill: #92c5de;
+  stroke: #92c5de;
+  background: #92c5de;
+  border-color: #92c5de;
 }
-.category-6{
-  fill: #CCC;
-  stroke: #444;
-  background: #CCC;
-  border-color: #444;
+.category-hexf4a582{
+  fill: #f4a582;
+  stroke: #f4a582;
+  background: #f4a582;
+  border-color: #f4a582;
 }
+
+/* habitat_role */
+.category-hexd3d3d3{
+  fill: none;
+  stroke: #d3d3d3;
+  background: none;
+  border-color: #d3d3d3;
+}
+.category-hex6A51A3{
+  fill: #6A51A3;
+  stroke: #6A51A3;
+  background: #6A51A3;
+  border-color: #6A51A3;
+}
+.category-hex9E9AC8{
+  fill: #9E9AC8;
+  stroke: #9E9AC8;
+  background: #9E9AC8;
+  border-color: #9E9AC8;
+}
+.category-hexCBC9E2{
+  fill: #CBC9E2;
+  stroke: #CBC9E2;
+  background: #CBC9E2;
+  border-color: #CBC9E2;
+}
+.category-hexF2F0F7{
+  fill: #F2F0F7;
+  stroke: #F2F0F7;
+  background: #F2F0F7;
+  border-color: #F2F0F7;
+}
+
 
 /*marker icons*/
 .icon-1{
@@ -119,7 +160,7 @@
 }
 
 /*Popup*/
-/*.map-popup span.heading {
+.map-popup span.heading {
   display: block;
   font-size: 1.2em;
   font-weight: bold;
@@ -129,4 +170,4 @@
 }
 .map-popup span.label {
   font-weight: bold;
-}*/
+}
