@@ -158,6 +158,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
    <select id=\"domain\">
    </select>
    <div id=\"chart_div\" style=\"width: 900px; height: 500px;\"></div>
+   <div id=\"table_div\"></div>
 
   ";
 ?>
@@ -179,6 +180,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
       // load the visualization library from Google and set a listener
       google.load("visualization", "1", {packages:["corechart"]});
+      google.load("visualization", "1", {packages:["table"]});
       google.setOnLoadCallback(drawChart);
       // wait till the DOM is loaded
       
@@ -188,6 +190,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
             // transform the CSV string into a 2-dimensional array
             var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
+            
             // use arrayData to load the select elements with the appropriate options
             for (var i = 0; i < arrayData[0].length; i++) {
             // this adds the given option to both select elements
@@ -202,6 +205,11 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
             // this new DataTable object holds all the data
             var data = new google.visualization.arrayToDataTable(arrayData);
+            console.log(data);
+
+            var table = new google.visualization.Table(document.getElementById('table_div'));
+
+            table.draw(data, {showRowNumber: true, page: 'enable'});
 
             // this view can select a subset of the data at a time
             var view = new google.visualization.DataView(data);
