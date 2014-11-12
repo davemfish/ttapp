@@ -26,6 +26,7 @@ $pathid = "./tmp/" . $sessid . "/";
 echo "
 <html>
   <head>
+    <meta charset=\"UTF-8\">
     <script src=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js\"></script> 
     <link rel=\"stylesheet\" href=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css\" />
     <link rel=\"stylesheet\" href=\"clusterpies.css\">
@@ -34,10 +35,10 @@ echo "
     <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.css\">
     <script src=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/leaflet.markercluster.js\"></script>
     <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
-
     <script src=\"https://www.google.com/jsapi\"></script>
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"../jquery.csv-0.71.js\"></script>
+    <script type=\"text/javascript\" src=\"../leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
   </head>
   <body> ";
 
@@ -96,7 +97,7 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   $sdir = "$pathid";
   if (!file_exists($sdir)) {
     echo "<pre>";
-    // passthru("mkdir $pathid");
+    //passthru("mkdir $pathid");
     echo $sdir;
     mkdir($pathid);
     echo "</pre>";
@@ -142,21 +143,103 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
       // Define vars
       var geojson,
         metadata = [],
-        geojsonPath = 'http://127.0.0.1/ttapp/tmp/$sessid/coastal_exposure.geojson',
+        sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/'
+        geojsonPath = sessPath + 'coastal_exposure.geojson',
         csvPath = '$pathid/coastal_exposure.csv',
         categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
         //iconField = '5065', //This is the fieldame for marker icon
         popupFields = [], //Popup will display these fields
         tileServer = 'https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png',
-        tileAttribution = 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>',
-        rmax = 27, //Maximum radius for cluster pies
+        tileAttribution = 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>'
+      ;
+    </script>
+
+   <h4> select a layer:</h4>
+   <select id=\"domain\">
+   </select>
+   <div id=\"chart_div\" style=\"width: 900px; height: 500px;\"></div>
+
+  ";
+?>
+
+<script>
+      
+   var  rmax = 27, //Maximum radius for cluster pies
         markerclusters = L.markerClusterGroup({
           maxClusterRadius: 1*rmax,
           iconCreateFunction: defineClusterIcon //this is where the magic happens
         });
-  ";
+        markers = new L.geoJson();
+        overlays = {
+            "Markers": markerclusters,
+        };
+   ;
 
-?>
+
+
+      // load the visualization library from Google and set a listener
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      // wait till the DOM is loaded
+      
+      function drawChart() {
+         // grab the CSV
+         $.get(csvPath, function(csvString) {
+
+            // transform the CSV string into a 2-dimensional array
+            var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
+            // use arrayData to load the select elements with the appropriate options
+            for (var i = 0; i < arrayData[0].length; i++) {
+            // this adds the given option to both select elements
+            $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
+            }
+            // get the index of the coastal_exposure column to use in default plot
+            var colnum = arrayData[0].indexOf('coastal_exposure');
+            // set the default selection
+            // $("#range option[value='0']").attr("selected","selected");
+            $("#domain option[value='" + colnum + "']").attr("selected","selected");
+            //console.log(arrayData[0]);
+
+            // this new DataTable object holds all the data
+            var data = new google.visualization.arrayToDataTable(arrayData);
+
+            // this view can select a subset of the data at a time
+            var view = new google.visualization.DataView(data);
+
+            view.setColumns([colnum]);
+            //console.log(view);
+
+            var options = {
+               title: 'Distribution of Vulnerability',
+               legend: { position: 'none' },
+               colors: ['gray'],
+            };
+
+            var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+            chart.draw(view, options);
+
+            // set listener for the update button
+            $("select").change(function(){
+               // determine selected domain and range
+               var domain = +$("#domain option:selected").val();
+               // var range = +$("#range option:selected").val();
+               // update the view
+               view.setColumns([domain]);
+
+               // update the chart
+               chart.draw(view, options);
+              console.log(geojsonPath);
+               geojsonPath = sessPath + $("#domain option:selected").text() +'.geojson';
+               console.log(geojsonPath);
+
+               popupFields = [];
+               markerclusters.clearLayers();
+               geojsonLayer.refresh(geojsonPath);//add a new layer 
+               
+            });
+
+         });
+      };
 
       var map = L.map('map', {
         center: [30.505, -90],
@@ -164,14 +247,20 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
       });
 
       //Add basemap
-      L.tileLayer(tileServer, {attribution: tileAttribution,  maxZoom: 15}).addTo(map);
+      var geotiles = L.tileLayer(tileServer, {attribution: tileAttribution,  maxZoom: 15}).addTo(map);
+
+      var base = {
+        "Basemap": geotiles
+      };
       //and the empty markercluster layer
       map.addLayer(markerclusters);
 
+      L.control.layers(base, overlays).addTo(map);
+
       //Ready to go, load the geojson
-      d3.json(geojsonPath, function(error, data) {
-          if (!error) {
-              geojson = data;
+      var geojsonLayer = L.geoJson.ajax(geojsonPath,{
+        middleware:function(data){
+            geojson = data;
               // feats = data.features;
               // //var metadata
               // for (var i = 0; i < feats.length; i++){
@@ -206,16 +295,62 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
               var markers = L.geoJson(geojson, {
                 pointToLayer: defineFeature,
                 onEachFeature: defineFeaturePopup
-                    });
+              });
 
               markerclusters.addLayer(markers);
               map.fitBounds(markers.getBounds());
-              //map.attributionControl.addAttribution(metadata.attribution);
-              //renderLegend();
-          } else {
-        console.log('Could not load data...');
-          }
-      });
+        }
+    });
+      //popupFields = [];
+//       d3.json(geojsonPath, function(error, data) {
+//           if (!error) {
+//               geojson = data;
+//               // feats = data.features;
+//               // //var metadata
+//               // for (var i = 0; i < feats.length; i++){
+//               //   metadata.push(feats[i].properties);
+//               // }
+              
+//               popupFields.push(Object.keys(geojson.features[0].properties)); //Popup will display these fields
+//               console.log(popupFields);
+//               // feature popup function relies on this callback function
+//               function defineFeaturePopup(feature, layer) {
+//                 var props = feature.properties,
+//                   fields = popupFields,
+//                   popupContent = '';
+// //console.log(popupFields[0]);
+//                   //console.log(props[popupFields[0]]);
+                  
+//                 popupFields[0].map( function(key) {
+//                   if (props[key]) {
+//                     var val = props[key],
+//                       //label = fields[key].name;
+//                       label = key;
+//                     // if (fields[key].lookup) {
+//                     //   val = fields[key].lookup[val];
+//                     // }
+//                     popupContent += '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
+//                   }
+//                 });
+//                 popupContent = '<div class="map-popup">'+popupContent+'</div>';
+//                 layer.bindPopup(popupContent,{offset: L.point(1,-2)});
+//               }
+
+//               var markers = L.geoJson(geojson, {
+//                 pointToLayer: defineFeature,
+//                 onEachFeature: defineFeaturePopup
+//                     });
+
+//               markerclusters.addLayer(markers);
+//               map.fitBounds(markers.getBounds());
+//               //map.attributionControl.addAttribution(metadata.attribution);
+//               //renderLegend();
+//           } else {
+//         console.log('Could not load data...');
+//           }
+//       });
+//     };
+
 
       function defineFeature(feature, latlng) {
         var categoryVal = feature.properties[categoryField];
@@ -355,72 +490,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
     <!-- Google Charts stuff below -->
 
-   <h4> select a layer:</h4>
-   <select id="domain">
-   </select>
-   <div id="chart_div" style="width: 900px; height: 500px;"></div>
-
-    <script>
-
-      // load the visualization library from Google and set a listener
-      google.load("visualization", "1", {packages:["corechart"]});
-      google.setOnLoadCallback(drawChart);
-      // wait till the DOM is loaded
-      
-      function drawChart() {
-         // grab the CSV
-         $.get(csvPath, function(csvString) {
-
-            // transform the CSV string into a 2-dimensional array
-            var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
-            // use arrayData to load the select elements with the appropriate options
-            for (var i = 0; i < arrayData[0].length; i++) {
-            // this adds the given option to both select elements
-            $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
-            }
-            // get the index of the coastal_exposure column to use in default plot
-            var colnum = arrayData[0].indexOf('coastal_exposure');
-            // set the default selection
-            // $("#range option[value='0']").attr("selected","selected");
-            $("#domain option[value='" + colnum + "']").attr("selected","selected");
-            //console.log(arrayData[0]);
-
-            // this new DataTable object holds all the data
-            var data = new google.visualization.arrayToDataTable(arrayData);
-
-            // this view can select a subset of the data at a time
-            var view = new google.visualization.DataView(data);
-
-            view.setColumns([colnum]);
-            //console.log(view);
-
-            var options = {
-               title: 'Distribution of Vulnerability',
-               legend: { position: 'none' },
-               colors: ['gray'],
-            };
-
-            var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-            chart.draw(view, options);
-
-            // set listener for the update button
-            $("select").change(function(){
-               // determine selected domain and range
-               var domain = +$("#domain option:selected").val();
-               // var range = +$("#range option:selected").val();
-               // update the view
-               view.setColumns([domain]);
-
-               // update the chart
-               chart.draw(view, options);
-
-               // re-set geojsonpath and reload map.
-            });
-
-         });
-      };
-
-   </script>
+   
 
 
 <?php
@@ -433,7 +503,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
   echo "
   <div id=formbody>
-    <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\">
+    <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
       <input type=hidden name=doit value=y>
       <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
       <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
