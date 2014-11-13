@@ -168,12 +168,28 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
    var  rmax = 27, //Maximum radius for cluster pies
         markerclusters = L.markerClusterGroup({
           maxClusterRadius: 1*rmax,
-          iconCreateFunction: defineClusterIcon //this is where the magic happens
+          iconCreateFunction: defineClusterIcon, //this is where the magic happens
+          disableClusteringAtZoom: 13
         });
         markers = new L.geoJson();
         overlays = {
             "Markers": markerclusters,
         };
+
+        map = L.map('map', {
+          center: [30.505, -90],
+          zoom: 7
+        });
+
+        //Add basemap
+        geotiles = L.tileLayer(tileServer, {attribution: tileAttribution,  maxZoom: 15}).addTo(map);
+        base = {
+          "Basemap": geotiles
+        };
+        //and the empty markercluster layer
+        map.addLayer(markerclusters);
+
+        L.control.layers(base, overlays).addTo(map);
    ;
 
 
@@ -249,21 +265,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
          });
       };
 
-      var map = L.map('map', {
-        center: [30.505, -90],
-        zoom: 7
-      });
-
-      //Add basemap
-      var geotiles = L.tileLayer(tileServer, {attribution: tileAttribution,  maxZoom: 15}).addTo(map);
-
-      var base = {
-        "Basemap": geotiles
-      };
-      //and the empty markercluster layer
-      map.addLayer(markerclusters);
-
-      L.control.layers(base, overlays).addTo(map);
+      
 
       //Ready to go, load the geojson
       var geojsonLayer = L.geoJson.ajax(geojsonPath,{
@@ -306,7 +308,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
               });
 
               markerclusters.addLayer(markers);
-              map.fitBounds(markers.getBounds());
+              //map.fitBounds(markers.getBounds());
         }
     });
       //popupFields = [];
