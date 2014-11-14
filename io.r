@@ -17,6 +17,13 @@ if(length(args)==0) {
 # sess <- "XXXXXXXXXXXXXXX"        # stick a test sessionID here for debugging
 print(paste("SessionID =",sess))
 
+Cut2Num <- function(x){
+  ids <- unique(as.numeric(x))
+  char.x <- as.character(levels(x))
+  num.x <- as.numeric(gsub(unlist(strsplit(char.x, split=",")), pattern='\\(|\\[|\\)|\\]', replacement=""))
+  return(list(brks=unique(num.x), ids=ids))
+}
+
 ## write geojson data
 LoadSpace <- function(ws, outpath){
   #ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/BigBC"
@@ -24,19 +31,43 @@ LoadSpace <- function(ws, outpath){
   aoi <- raster(file.path(ws, "intermediate/00_preprocessing/00_PRE_aoi.tif"))
   points.wgs84 <- rgdal::project(as.matrix(ce[,1:2]), proj=projection(aoi), inv=T)
   
+  leg.list <- list()
   ### add style to df, then create GeoJSON
-  for(i in 5:ncol(ce)){
-    nm <- names(ce)[i]
-    if (nm %in% c("coastal_exposure", "geomorphology", "natural_habitats", "wave_exposure", "surge_potential", "coastal_exposure_no_habitats")){
-      cols <- brewer.pal(4, "YlOrRd")[as.numeric(cut(ce[,nm], c(1,2,3,4,5), right=F, include.lowest=T))]
+  for(j in 5:ncol(ce)){
+    nm <- names(ce)[j]
+    if (nm %in% c("coastal_exposure", "geomorphology", "natural_habitats", "wave_exposure", "surge_potential", "coastal_exposure_no_habitats", "sea_level_rise")){
+      cats <- cut(ce[,nm], c(1,2,3,4,5), right=F, include.lowest=T)
+      cols <- brewer.pal(4, "YlOrRd")[as.numeric(cats)]
+      brks.list <- Cut2Num(cats)
+      num.brks <- brks.list[["brks"]]
+      legbrks <- round(num.brks, digits=3)
+      #legbrks[1] <- 0
+      ids <- brks.list[["ids"]]
+      ids <- ids[order(ids)]
+      #ids <- c(ids)
+      #legbrks <- legbrks[ids]
+      
+      leglabs <- list()
+      for (i in 2:length(legbrks)){
+#         if (i == 1) { 
+#           leglabs[[i]] <- legbrks[i] 
+#         } else {
+          leglabs[[i-1]] <- paste(legbrks[i-1], "-", legbrks[i])
+#        }
+      }
+      legcols <- brewer.pal(4, "YlOrRd")[ids]
+    leg.list[[j]] <- list(layer=nm, leglabs=unlist(leglabs), legcols=legcols)
+      
     }
     if (nm %in% c("shore_exposure", "erodible_shoreline")){
       cols <- c("#92c5de", "#f4a582")[ce[,nm]+1]
+      leg.list[[j]] <- list(layer=nm, leglabs=c("0 - No", "1 - Yes"), legcols=c("#92c5de", "#f4a582"))
     }
     if (nm == "habitat_role"){
       nonzero <- ce[which(ce[,nm] > 0),nm]
       brks <- quantile(nonzero, seq(0,1,.25))
-      cols <- brewer.pal(4, "Purples")[as.numeric(cut(ce[,nm], breaks=brks, right=F, include.lowest=T))]
+      cats <- cut(ce[,nm], breaks=brks, right=F, include.lowest=T)
+      cols <- brewer.pal(4, "Purples")[as.numeric(cats)]
       cols <- sapply(cols, FUN=function(x){
         if (is.na(x)){
           return("#d3d3d3")
@@ -44,6 +75,25 @@ LoadSpace <- function(ws, outpath){
           return(x)
         }
       })
+      brks.list <- Cut2Num(cats[!is.na(cats)])
+      num.brks <- brks.list[["brks"]]
+      legbrks <- round(num.brks, digits=3)
+      legbrks <- c(0, legbrks)
+      ids <- brks.list[["ids"]]
+      #ids <- ids[order(ids)]
+      #ids <- c(1, ids+1)
+      #legbrks <- legbrks[ids]
+      
+      leglabs <- list()
+      for (i in 1:(length(legbrks)-1)){
+                if (i == 1) { 
+                  leglabs[[i]] <- legbrks[i] 
+                } else {
+                  leglabs[[i]] <- paste(legbrks[i], "-", legbrks[i+1])
+                }
+      }
+      legcols <- c("#d3d3d3", brewer.pal(4, "Purples")[ids])
+      leg.list[[j]] <- list(layer=nm, leglabs=unlist(leglabs), legcols=legcols)
     }
     cols <- sub(cols, pattern="#", replacement="hex")
     df <- cbind(points.wgs84, data.frame(ce[,nm]), data.frame(cols))
@@ -53,13 +103,14 @@ LoadSpace <- function(ws, outpath){
     if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
       writeOGR(obj=spdf, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
     }
+  writeLines(toJSON(leg.list[5:length(leg.list)]), file.path(outpath, "legend.json"))
   }
 }
 
 ## doit
 workspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
 outspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
-#workspace <- paste("http://localhost:8000/ttapp/tmp/", sess, "/", sep='')
-#outspace <- paste("http://localhost:8000/ttapp/tmp/", sess, "/", sep='')
+workspace <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/BigBC"
+outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/1psife7laa3n7efqpg6kfp8f63/"
 LoadSpace(workspace, outspace)
 
