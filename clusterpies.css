@@ -2,7 +2,7 @@
   width:960px;
   height:500px;
 }
-#legend {
+/*#legend {
   position: absolute;
   top: 3px;
   left: 780px;
@@ -25,7 +25,7 @@
 .legenditem {
   padding: 2px;
   margin-bottom: 2px;
-}
+}*/
 
 /*Marker clusters*/
 .marker-cluster-pie g.arc{
@@ -138,7 +138,7 @@
 
 
 /*marker icons*/
-.icon-1{
+/*.icon-1{
   background-image: url('http://www.iconsdb.com/icons/download/black/running-16.png');
   background-repeat: no-repeat;
   background-position: 0px 1px;
@@ -157,7 +157,7 @@
   background-image: url('http://www.iconsdb.com/icons/download/black/car-16.png');
   background-repeat: no-repeat;
   background-position: 1px -2px;
-}
+}*/
 
 /*Popup*/
 .map-popup span.heading {
@@ -170,4 +170,30 @@
 }
 .map-popup span.label {
   font-weight: bold;
+}
+
+/*Legend*/
+.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+
+.info {
+    padding: 8px 10px;
+    /*font: 14px Arial;*/
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
 }
