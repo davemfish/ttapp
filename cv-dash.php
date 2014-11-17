@@ -143,7 +143,8 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
       // Define vars
       var geojson,
         metadata = [],
-        sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/'
+        sessPath = '$pathid'
+        //sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/'
         geojsonPath = sessPath + 'coastal_exposure.geojson',
         csvPath = '$pathid/coastal_exposure.csv',
         symbPath = sessPath + 'legend.json'
