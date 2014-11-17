@@ -15,7 +15,7 @@ if(length(args)==0) {
     eval(parse(text=args[[i]]))
   }
 }
-# sess <- "XXXXXXXXXXXXXXX"        # stick a test sessionID here for debugging
+# sess <- "gb5fkgf007rt73537e5cuinfu4"        # stick a test sessionID here for debugging
 print(paste("SessionID =",sess))
 
 Cut2Num <- function(x){
@@ -28,8 +28,8 @@ Cut2Num <- function(x){
 ## write geojson data
 LoadSpace <- function(ws, outpath){
   #ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/BigBC"
-  ce <- read.table(file.path(ws, "outputs/coastal_exposure/coastal_exposure.csv"), sep=",", colClasses="numeric", header=T)
-  aoi <- raster(file.path(ws, "intermediate/00_preprocessing/00_PRE_aoi.tif"))
+  ce <- read.table(file.path(ws, "coastal_exposure.csv"), sep=",", colClasses="numeric", header=T)
+  aoi <- raster(file.path(ws, "00_PRE_aoi.tif"))
   points.wgs84 <- rgdal::project(as.matrix(ce[,1:2]), proj=projection(aoi), inv=T)
   
   leg.list <- list()
