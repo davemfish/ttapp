@@ -146,6 +146,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
         sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/'
         geojsonPath = sessPath + 'coastal_exposure.geojson',
         csvPath = '$pathid/coastal_exposure.csv',
+        symbPath = sessPath + 'legend.json'
         categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
         //iconField = '5065', //This is the fieldame for marker icon
         popupFields = [], //Popup will display these fields
@@ -192,16 +193,29 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
   map.addLayer(markerclusters);
 
+
   // Initialize legend
   var legend = L.control({position: 'bottomright'});
+  //legend.addTo(map);
 
-  
+  //var leg = {};
+  var maplayer = 'coastal_exposure'
 
-  legend.onAdd = function (map) {
-
+function makeLegend(){
+     // update map legend
+   // load legend metadata
+  $.getJSON(symbPath, function(symbols){
+    console.log(symbols);
+    var leglayer = jQuery.grep(symbols, function(data) { 
+      return data.layer == maplayer
+    })
+    //console.log(leg);
+    //makeLegend(leg[0]);
+    legend.onAdd = function (map) {
+    console.log(leglayer[0]);
     var div = L.DomUtil.create('div', 'info legend'),
-        grades = ['1-2', '2-3', '3-4', '4-5'],
-        cols = ["#FFFFB2", "#FECC5C", "#FD8D3C", "#E31A1C"];
+        grades = leglayer[0]['leglabs'],
+        cols = leglayer[0]['legcols'];
         labels=[];
 
     //loop through our density intervals and generate a label with a colored square for each interval
@@ -211,11 +225,15 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
             grades[i] + '<br>';
             // grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
     }
-console.log(labels);
+    //console.log(labels);
     return div;
-  };
-
-  legend.addTo(map);
+    };
+    legend.addTo(map);
+  })
+};
+  //console.log(leg);
+  
+  makeLegend();
 
 
 
@@ -267,6 +285,8 @@ console.log(labels);
             var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
             chart.draw(view, options);
 
+            
+
             // set listener for the update button
             $("select").change(function(){
                // determine selected domain and range
@@ -277,13 +297,26 @@ console.log(labels);
 
                // update the chart
                chart.draw(view, options);
-              console.log(geojsonPath);
-               geojsonPath = sessPath + $("#domain option:selected").text() +'.geojson';
-               console.log(geojsonPath);
 
+               // update markers on map
                popupFields = [];
                markerclusters.clearLayers();
+               maplayer = $("#domain option:selected").text();
+               geojsonPath = sessPath + maplayer +'.geojson';
                geojsonLayer.refresh(geojsonPath);//add a new layer 
+
+               // $.getJSON(symbPath, function(symbols){
+               //    console.log(symbols);
+               //    leg[0] = jQuery.grep(symbols, function(data) { 
+               //      return data.layer == maplayer
+               //    })
+               //    console.log(leg[0]);
+               //    makeLegend(leg[0]);
+               //  })
+               legend.removeFrom(map);
+               makeLegend();
+               //legend.addTo(map);
+
                
             });
 
