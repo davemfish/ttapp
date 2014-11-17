@@ -4,6 +4,7 @@
 library(rgdal)
 library(raster)
 library(RColorBrewer)
+library(RJSONIO)
 
 ## SessionID is passed as an argument from PHP page
 args=(commandArgs(TRUE))
@@ -92,7 +93,7 @@ LoadSpace <- function(ws, outpath){
                   leglabs[[i]] <- paste(legbrks[i], "-", legbrks[i+1])
                 }
       }
-      legcols <- c("#d3d3d3", brewer.pal(4, "Purples")[ids])
+      legcols <- c("#d3d3d3", rev(brewer.pal(4, "Purples"))[ids])
       leg.list[[j]] <- list(layer=nm, leglabs=unlist(leglabs), legcols=legcols)
     }
     cols <- sub(cols, pattern="#", replacement="hex")
@@ -110,7 +111,7 @@ LoadSpace <- function(ws, outpath){
 ## doit
 workspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
 outspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
-workspace <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/BigBC"
-outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/1psife7laa3n7efqpg6kfp8f63/"
+#workspace <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/BigBC"
+#outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/1psife7laa3n7efqpg6kfp8f63/"
 LoadSpace(workspace, outspace)
 
