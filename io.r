@@ -36,7 +36,7 @@ LoadSpace <- function(ws, outpath){
   ### add style to df, then create GeoJSON
   for(j in 5:ncol(ce)){
     nm <- names(ce)[j]
-    if (nm %in% c("coastal_exposure", "geomorphology", "natural_habitats", "wave_exposure", "surge_potential", "coastal_exposure_no_habitats", "sea_level_rise")){
+    if (nm %in% c("coastal_exposure", "geomorphology", "natural_habitats", "wave_exposure", "surge_potential", "coastal_exposure_no_habitats", "sea_level_rise", "relief")){
       cats <- cut(ce[,nm], c(1,2,3,4,5), right=F, include.lowest=T)
       cols <- brewer.pal(4, "YlOrRd")[as.numeric(cats)]
       brks.list <- Cut2Num(cats)
