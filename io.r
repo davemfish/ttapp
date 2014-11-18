@@ -27,7 +27,7 @@ Cut2Num <- function(x){
 
 ## write geojson data
 LoadSpace <- function(ws, outpath){
-  ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/Florida_CV_inputs_WGS84/Florida_CV_inputs_WGS84/CV_out_200m"
+  #ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/Florida_CV_inputs_WGS84/Florida_CV_inputs_WGS84/CV_out_200m"
   ce <- read.table(file.path(ws, "coastal_exposure.csv"), sep=",", colClasses="numeric", header=T)
   aoi <- raster(file.path(ws, "00_PRE_aoi.tif"))
   points.wgs84 <- rgdal::project(as.matrix(ce[,1:2]), proj=projection(aoi), inv=T)
