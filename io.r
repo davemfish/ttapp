@@ -27,7 +27,7 @@ Cut2Num <- function(x){
 
 ## write geojson data
 LoadSpace <- function(ws, outpath){
-  #ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/BigBC"
+  ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/Florida_CV_inputs_WGS84/Florida_CV_inputs_WGS84/CV_out_200m"
   ce <- read.table(file.path(ws, "coastal_exposure.csv"), sep=",", colClasses="numeric", header=T)
   aoi <- raster(file.path(ws, "00_PRE_aoi.tif"))
   points.wgs84 <- rgdal::project(as.matrix(ce[,1:2]), proj=projection(aoi), inv=T)
@@ -81,7 +81,7 @@ LoadSpace <- function(ws, outpath){
       legbrks <- round(num.brks, digits=3)
       legbrks <- c(0, legbrks)
       ids <- brks.list[["ids"]]
-      #ids <- ids[order(ids)]
+      ids <- ids[order(ids)]
       #ids <- c(1, ids+1)
       #legbrks <- legbrks[ids]
       
@@ -93,7 +93,7 @@ LoadSpace <- function(ws, outpath){
                   leglabs[[i]] <- paste(legbrks[i], "-", legbrks[i+1])
                 }
       }
-      legcols <- c("#d3d3d3", rev(brewer.pal(4, "Purples"))[ids])
+      legcols <- c("#d3d3d3", brewer.pal(4, "Purples")[ids])
       leg.list[[j]] <- list(layer=nm, leglabs=unlist(leglabs), legcols=legcols)
     }
     cols <- sub(cols, pattern="#", replacement="hex")
