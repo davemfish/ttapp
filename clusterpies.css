@@ -160,7 +160,7 @@
 }*/
 
 /*Popup*/
-.map-popup span.heading {
+/*.map-popup span.heading {
   display: block;
   font-size: 1.2em;
   font-weight: bold;
@@ -170,6 +170,16 @@
 }
 .map-popup span.label {
   font-weight: bold;
+}*/
+
+.map-popup table.poptable{
+    width: 10%;
+    border: 0;
+    font-size:1em;
+    padding: 4px;
+}
+.map-popup table tbody td{
+    border-bottom: 1px solid #E1EEF4;
 }
 
 /*Legend*/
