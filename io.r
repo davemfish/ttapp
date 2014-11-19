@@ -111,7 +111,7 @@ LoadSpace <- function(ws, outpath){
 ## doit
 workspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
 outspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
-#workspace <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/BigBC"
-#outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/1psife7laa3n7efqpg6kfp8f63/"
+#workspace <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/Florida_CV_inputs_WGS84/Florida_CV_inputs_WGS84/CV_out_200m"
+#outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/e2vji6s7i8doeibat2h74md1l2/"
 LoadSpace(workspace, outspace)
 
