@@ -97,9 +97,9 @@ LoadSpace <- function(ws, outpath){
       leg.list[[j]] <- list(layer=nm, leglabs=unlist(leglabs), legcols=legcols)
     }
     cols <- sub(cols, pattern="#", replacement="hex")
-    df <- cbind(points.wgs84, data.frame(ce[,nm]), data.frame(cols))
-    names(df)[1:3] <- c("lng", "lat", nm)
-    spdf <- SpatialPointsDataFrame(points.wgs84, data=df)
+    df <- cbind(data.frame(ce[,nm]), data.frame(cols))
+    names(df)[1] <- c(nm)
+    spdf <- SpatialPointsDataFrame(round(points.wgs84, digits=6), data=df)
     jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
     if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
       writeOGR(obj=spdf, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
