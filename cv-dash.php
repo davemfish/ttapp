@@ -42,6 +42,8 @@ echo "
   </head>
   <body> ";
 
+// <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
+
 
  //
  // MESSAGE BAR
@@ -234,9 +236,7 @@ function makeLegend(){
 };
   //console.log(leg);
   
-  makeLegend();
-
-
+makeLegend();
 
       // load the visualization library from Google and set a listener
       google.load("visualization", "1", {packages:["corechart"]});
@@ -254,7 +254,7 @@ function makeLegend(){
             // use arrayData to load the select elements with the appropriate options
             for (var i = 0; i < arrayData[0].length; i++) {
             // this adds the given option to both select elements
-            $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
+              $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
             }
             // get the index of the coastal_exposure column to use in default plot
             var colnum = arrayData[0].indexOf('coastal_exposure');
@@ -265,7 +265,7 @@ function makeLegend(){
 
             // this new DataTable object holds all the data
             var data = new google.visualization.arrayToDataTable(arrayData);
-            console.log(data);
+            console.log(arrayData[1]);
 
             var table = new google.visualization.Table(document.getElementById('table_div'));
 
@@ -286,7 +286,60 @@ function makeLegend(){
             var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
             chart.draw(view, options);
 
-            
+            // feature popup function relies on this callback function
+            function defineFeaturePopup(feature, layer) {
+              //var props = feature.properties,
+                //fields = popupFields,
+               var popupContent = '',
+                id = feature.id,
+                val = arrayData[id],
+                label = arrayData[0],
+                poptable = "<table class='table poptable'>";
+                for (var i=4; i < val.length; i=i+1) {                
+                    poptable += "<tr><td>" + label[i] + "</td>";  
+                    //if(i+1 < val.length){
+                        poptable += "<td>" + val[i] + "</td></tr>";  
+                    //} else {
+                        //poptable += "<td></td></tr>";   
+                    //}
+                }
+                
+              // popupFields[0].map( function(key) {
+              //   if (props[key]) {
+              //     //var val = props[key],
+              //           //label = key;
+              //     var val = arrayData[id],
+              //       label = arrayData[0];
+              //     // if (fields[key].lookup) {
+              //     //   val = fields[key].lookup[val];
+              //     // }
+                  
+              //   }
+              // });
+              //popupContent = '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
+              //popupContent = '<span class="attribute">'+poptable+'</span>';
+              //console.log(popupContent);
+              popupContent = '<div class="map-popup">'+ poptable +'</div>';
+              layer.bindPopup(popupContent,{offset: L.point(-3,-2)});
+            }
+
+                  //Ready to go, load the geojson
+            var geojsonLayer = L.geoJson.ajax(geojsonPath,{
+              middleware:function(data){
+                  geojson = data;
+                    
+                    //popupFields.push(Object.keys(geojson.features[0].properties)); //Popup will display these fields
+                    //console.log(popupFields);
+
+                    var markers = L.geoJson(geojson, {
+                      pointToLayer: defineFeature,
+                      onEachFeature: defineFeaturePopup
+                    });
+
+                    markerclusters.addLayer(markers);
+                    //map.fitBounds(markers.getBounds());
+              }
+            });
 
             // set listener for the update button
             $("select").change(function(){
@@ -326,50 +379,7 @@ function makeLegend(){
 
       
 
-      //Ready to go, load the geojson
-      var geojsonLayer = L.geoJson.ajax(geojsonPath,{
-        middleware:function(data){
-            geojson = data;
-              // feats = data.features;
-              // //var metadata
-              // for (var i = 0; i < feats.length; i++){
-              //   metadata.push(feats[i].properties);
-              // }
-              
-              popupFields.push(Object.keys(geojson.features[0].properties)); //Popup will display these fields
-              console.log(popupFields);
-              // feature popup function relies on this callback function
-              function defineFeaturePopup(feature, layer) {
-                var props = feature.properties,
-                  fields = popupFields,
-                  popupContent = '';
-//console.log(popupFields[0]);
-                  //console.log(props[popupFields[0]]);
-                  
-                popupFields[0].map( function(key) {
-                  if (props[key]) {
-                    var val = props[key],
-                      //label = fields[key].name;
-                      label = key;
-                    // if (fields[key].lookup) {
-                    //   val = fields[key].lookup[val];
-                    // }
-                    popupContent += '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
-                  }
-                });
-                popupContent = '<div class="map-popup">'+popupContent+'</div>';
-                layer.bindPopup(popupContent,{offset: L.point(1,-2)});
-              }
 
-              var markers = L.geoJson(geojson, {
-                pointToLayer: defineFeature,
-                onEachFeature: defineFeaturePopup
-              });
-
-              markerclusters.addLayer(markers);
-              //map.fitBounds(markers.getBounds());
-        }
-    });
       //popupFields = [];
 //       d3.json(geojsonPath, function(error, data) {
 //           if (!error) {
