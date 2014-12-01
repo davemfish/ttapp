@@ -31,19 +31,44 @@ echo "
     <link rel=\"stylesheet\" href=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css\" />
     <link rel=\"stylesheet\" href=\"clusterpies.css\">
 
-    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.Default.css\">
-    <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.css\">
-    <script src=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/leaflet.markercluster.js\"></script>
-    <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
-    <script src=\"https://www.google.com/jsapi\"></script>
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"../jquery.csv-0.71.js\"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
+
+    <!-- Optional theme -->
+    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>
+
+    
+
+    <link rel=\"stylesheet\" type=\"text/css\" href=\"../Leaflet.markercluster-master/dist/MarkerCluster.Default.css\">
+    <link rel=\"stylesheet\" type=\"text/css\" href=\"../Leaflet.markercluster-master/dist/MarkerCluster.css\">
+    <script src=\"../Leaflet.markercluster-master/dist/leaflet.markercluster.js\"></script>
+
+
+    <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
+    <script src=\"https://www.google.com/jsapi\"></script>
+
     <script type=\"text/javascript\" src=\"../leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
   </head>
   <body> ";
 
 // <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
 
+  // these pages down, linking to local versions
+    // <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.Default.css\">
+    // <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.css\">
+    // <script src=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/leaflet.markercluster.js\"></script>
+
+echo "
+<div class=\"container\">
+  <div id=\"content\"> ";
+
+echo "<h1>Coastal Vulnerability Dashboard</h2>";
 
  //
  // MESSAGE BAR
@@ -258,6 +283,11 @@ makeLegend();
             }
             // get the index of the coastal_exposure column to use in default plot
             var colnum = arrayData[0].indexOf('coastal_exposure');
+            // get the col numbers of all that should appear in table
+            var collist = [];
+            for (var i = 4; i <= arrayData[0].length - 1; i++) {
+                collist.push(i);
+            }
             // set the default selection
             // $("#range option[value='0']").attr("selected","selected");
             $("#domain option[value='" + colnum + "']").attr("selected","selected");
@@ -269,12 +299,16 @@ makeLegend();
 
             var table = new google.visualization.Table(document.getElementById('table_div'));
 
-            table.draw(data, {showRowNumber: true, page: 'enable'});
+            var tableview = new google.visualization.DataView(data);
+
+            tableview.setColumns(collist);
+
+            table.draw(tableview, {showRowNumber: true, page: 'enable'});
 
             // this view can select a subset of the data at a time
-            var view = new google.visualization.DataView(data);
+            var chartview = new google.visualization.DataView(data);
 
-            view.setColumns([colnum]);
+            chartview.setColumns([colnum]);
             //console.log(view);
 
             var options = {
@@ -284,7 +318,7 @@ makeLegend();
             };
 
             var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-            chart.draw(view, options);
+            chart.draw(chartview, options);
 
             // feature popup function relies on this callback function
             function defineFeaturePopup(feature, layer) {
@@ -347,10 +381,10 @@ makeLegend();
                var domain = +$("#domain option:selected").val();
                // var range = +$("#range option:selected").val();
                // update the view
-               view.setColumns([domain]);
+               chartview.setColumns([domain]);
 
                // update the chart
-               chart.draw(view, options);
+               chart.draw(chartview, options);
 
                // update markers on map
                popupFields = [];
@@ -599,6 +633,9 @@ makeLegend();
  //
 
 echo "
+    </div>
+  </div>
+
   </body>
 </html> ";
 
