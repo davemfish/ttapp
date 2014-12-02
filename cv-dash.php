@@ -216,7 +216,7 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   echo "
   <script>
     $(function () {
-      $('#mytabs a[href=\"#one\"]').tab('show')
+      $('#mytabs a:second').tab('show')
     })
   </script> ";
 }
