@@ -87,7 +87,7 @@ unset($_SESSION["message"]);
 <div class=\"container\" style=\"margin-bottom: 18px; margin-top: 18px;\">
   <div role=\"tabpanel\" id=\"content\"> 
 
-  <h1>Coastal Vulnerability Dashboard</h2>
+  <h3>Coastal Vulnerability Dashboard</h3>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
@@ -109,13 +109,19 @@ unset($_SESSION["message"]);
   </div>
 
   <div role=\"tabpanel\" class=\"tab-pane active\" id=\"one\"> 
-    <div id=\"map\"></div>
-    <h4> select a layer:</h4>
-    <select id=\"domain\"></select>
+    <div class=\"row\">
+      <div class=\"col-md-7\">
+        <div id=\"map\"></div>
+        <h5> select a layer to map:</h5>
+        <select id=\"domain\"></select>
+      </div>
+      <div class=\"col-md-5\">
+        <div id=\"chart_div\"></div>
+      </div>
+  </div>
   </div>
 
   <div role=\"tabpanel\" class=\"tab-pane active\" id=\"two\"> 
-    <div id=\"chart_div\" style=\"width: 900px; height: 500px;\"></div>
     <div id=\"table_div\"></div>
   </div>
   
@@ -364,7 +370,7 @@ makeLegend();
             //console.log(view);
 
             var options = {
-               title: 'Distribution of Vulnerability',
+               title: 'Distribution of Exposure Index',
                legend: { position: 'none' },
                colors: ['gray'],
             };
