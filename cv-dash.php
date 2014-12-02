@@ -101,9 +101,16 @@ unset($_SESSION["message"]);
     <div id=formbody>
       <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
         <input type=hidden name=doit value=y>
-        <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
-        <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
-        <p><input type=Submit name=junk value=\"yah go for it\">
+        <br></br>
+        <input name=\"expfile\" type=\"file\">
+        <b>coastal_exposure.csv </b>
+        <p>from 'YOUR WORKSPACE' / outputs / coastal_exposure / coastal_exposure.csv :</p>
+
+        <input name=\"aoifile\" type=\"file\">
+        <b>00_PRE_aoi.tif </b>
+        <p>from 'YOUR WORKSPACE' / intermediate / 00_preprocessing / 00_PRE_aoi.tif :</p>
+        <br></br>
+        <input type=Submit name=junk value=\"Upload Results\">
       </form>
     </div>
   </div>
@@ -263,8 +270,8 @@ $('#two a').click(function (e) {
         };
 
         map = L.map('map', {
-          center: [30.505, -90],
-          zoom: 7
+          center: [0, 0],
+          zoom: 2
         });
 
         //Add basemap
@@ -386,7 +393,7 @@ makeLegend();
                 id = feature.id,
                 val = arrayData[id],
                 label = arrayData[0],
-                poptable = "<table class='table poptable'>";
+                poptable = "<table class='table table-condensed'>";
                 for (var i=4; i < val.length; i=i+1) {                
                     poptable += "<tr><td>" + label[i] + "</td>";  
                     //if(i+1 < val.length){
@@ -429,9 +436,12 @@ makeLegend();
                     });
 
                     markerclusters.addLayer(markers);
-                    //map.fitBounds(markers.getBounds());
+                    map.fitBounds(markers.getBounds());
               }
             });
+            console.log(markers.getBounds());
+            console.log(markerclusters.getBounds());
+            //map.fitBounds(markerclusters.getBounds());
 
             // set listener for the update button
             $("select").change(function(){
