@@ -90,8 +90,8 @@ unset($_SESSION["message"]);
   <h3>Coastal Vulnerability Dashboard</h3>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
-    <li role=\"presentation\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
-    <li role=\"presentation\" class=\"active\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
+    <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
+    <li role=\"presentation\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
     <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
   </ul> ";
 
