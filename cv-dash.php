@@ -43,11 +43,11 @@ echo "
     <!-- Latest compiled and minified JavaScript -->
     <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>
 
-    
 
     <link rel=\"stylesheet\" type=\"text/css\" href=\"../Leaflet.markercluster-master/dist/MarkerCluster.Default.css\">
     <link rel=\"stylesheet\" type=\"text/css\" href=\"../Leaflet.markercluster-master/dist/MarkerCluster.css\">
     <script src=\"../Leaflet.markercluster-master/dist/leaflet.markercluster.js\"></script>
+
 
 
     <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
@@ -60,15 +60,12 @@ echo "
 // <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
 
   // these pages down, linking to local versions
+    
     // <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.Default.css\">
     // <link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/MarkerCluster.css\">
     // <script src=\"https://cdn.rawgit.com/Leaflet/Leaflet.markercluster/v0.4.0/dist/leaflet.markercluster.js\"></script>
 
-echo "
-<div class=\"container\">
-  <div id=\"content\"> ";
 
-echo "<h1>Coastal Vulnerability Dashboard</h2>";
 
  //
  // MESSAGE BAR
@@ -163,8 +160,43 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
 // If data already exists, map it yah!
 if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PRE_aoi.tif")) {
 
-    echo "
+ echo "
+<div class=\"container\" style=\"margin-bottom: 18px; margin-top: 18px;\">
+  <div role=\"tabpanel\" id=\"content\"> 
+
+  <h1>Coastal Vulnerability Dashboard</h2>
+
+  <div id=formbody>
+    <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
+      <input type=hidden name=doit value=y>
+      <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
+      <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
+      <p><input type=Submit name=junk value=\"yah go for it\">
+    </form>
+  </div> 
+
+  <ul class=\"nav nav-tabs\" role=\"tablist\">
+    <li role=\"presentation\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
+    <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">something else</a></li>
+  </ul> ";
+
+  echo "
+  <div class=\"tab-content\">
+  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"one\"> 
+
     <div id=\"map\"></div>
+    <h4> select a layer:</h4>
+    <select id=\"domain\"></select>
+  </div>
+  <div class=\"tab-pane active\" id=\"two\"> 
+    <div id=\"chart_div\" style=\"width: 900px; height: 500px;\"></div>
+    <div id=\"table_div\"></div>
+  </div>
+  
+  </div>
+</div> ";
+
+  echo "
     <script>
 
       // Define vars
@@ -183,16 +215,25 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
       ;
     </script>
 
-   <h4> select a layer:</h4>
-   <select id=\"domain\">
-   </select>
-   <div id=\"chart_div\" style=\"width: 900px; height: 500px;\"></div>
-   <div id=\"table_div\"></div>
+
+
+
 
   ";
 ?>
 
 <script>
+
+// load tab content upon click
+$('#one a').click(function (e) {
+  e.preventDefault()
+  $(this).tab('show')
+})
+
+$('#two a').click(function (e) {
+  e.preventDefault()
+  $(this).tab('show')
+})
       
    var  rmax = 27, //Maximum radius for cluster pies
         markerclusters = L.markerClusterGroup({
@@ -220,6 +261,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
    ;
 
   map.addLayer(markerclusters);
+
 
 
   // Initialize legend
@@ -614,15 +656,15 @@ makeLegend();
   //  FORM SCREEN
   //
 
-  echo "
-  <div id=formbody>
-    <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
-      <input type=hidden name=doit value=y>
-      <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
-      <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
-      <p><input type=Submit name=junk value=\"yah go for it\">
-    </form>
-  </div> ";
+  // echo "
+  // <div id=formbody>
+  //   <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
+  //     <input type=hidden name=doit value=y>
+  //     <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
+  //     <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
+  //     <p><input type=Submit name=junk value=\"yah go for it\">
+  //   </form>
+  // </div> ";
 
 }
 
@@ -633,8 +675,6 @@ makeLegend();
  //
 
 echo "
-    </div>
-  </div>
 
   </body>
 </html> ";
