@@ -184,15 +184,16 @@
   font-weight: bold;
 }*/
 
-.map-popup table.poptable{
+.map-popup table.table-condensed{
     width: 10%;
     border: 0;
     font-size:1em;
     padding: 4px;
 }
-.map-popup table tbody td{
+/*.map-popup table tbody td{
     border-bottom: 1px solid #E1EEF4;
-}
+    padding: 0px;
+}*/
 
 /*Legend*/
 .legend {
