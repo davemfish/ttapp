@@ -1,6 +1,10 @@
 #map {
-  width:960px;
-  height:500px;
+  width:650px;
+  height:450px;
+}
+#chart_div {
+  width:600px;
+  height:400px;
 }
 /*#legend {
   position: absolute;
