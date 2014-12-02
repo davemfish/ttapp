@@ -211,6 +211,14 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   echo "</pre>";
   flush();
   ob_flush();
+
+  // after upload and R completes, switch to map tab
+  echo "
+  <script>
+    $(function () {
+      $('#mytabs a[href=\"#one\"]').tab('show')
+    })
+  </script> ";
 }
 
 
