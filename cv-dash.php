@@ -215,6 +215,7 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   // after upload and R completes, switch to map tab
   echo "
   <script>
+  console.log('switching?');
     $(function () {
       $('#mytabs a:second').tab('show')
     })
