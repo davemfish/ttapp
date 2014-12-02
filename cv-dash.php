@@ -92,7 +92,7 @@ unset($_SESSION["message"]);
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
     <li role=\"presentation\" class=\"active\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
-    <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">something else</a></li>
+    <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
   </ul> ";
 
   echo "
@@ -134,6 +134,9 @@ unset($_SESSION["message"]);
   
   </div>
 </div> ";
+
+// <button onclick=\"Mapquery()\">Update</button>
+
 
 // UPLOAD 
 if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FILES['aoifile']['tmp_name'])) {
@@ -241,6 +244,7 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 ?>
 
 <script>
+
 
 // load tab content upon click
 $('#upload a').click(function (e) {
@@ -362,13 +366,49 @@ makeLegend();
             var data = new google.visualization.arrayToDataTable(arrayData);
             console.log(arrayData[1]);
 
+
+            // map.on('move', function() {
+            //     // Construct an empty list to fill with onscreen markers.
+            //     var inBounds = [],
+            //     // Get the map bounds - the top-left and bottom-right locations.
+            //         bounds = map.getBounds();
+
+            //     // For each marker, consider whether it is currently visible by comparing
+            //     // with the current map bounds.
+            //     myLayer.eachLayer(function(marker) {
+            //         if (bounds.contains(marker.getLatLng())) {
+            //             inBounds.push(marker.options.title);
+            //         }
+            //     });
+
+            //     // Display a list of markers.
+            //     document.getElementById('coordinates').innerHTML = inBounds.join('\n');
+            // });
+
             var table = new google.visualization.Table(document.getElementById('table_div'));
 
             var tableview = new google.visualization.DataView(data);
 
+            // function Mapquery() {
+            //     bounds = map.getBounds();
+
+            //     // For each marker, consider whether it is currently visible by comparing
+            //     // with the current map bounds.
+            //     var inBounds = [];
+            //     myLayer.eachLayer(function(marker) {
+            //         if (bounds.contains(marker.getLatLng())) {
+            //             inBounds.push(marker.options.title);
+            //         }
+            //     });
+            //     tableview.setColumns(collist);
+            //     tableview.setRows(inBounds);
+            //     table.draw(tableview, {showRowNumber: true, page: 'enable'});
+            //     console.log(inBounds);
+            // };
+
             tableview.setColumns(collist);
 
-            table.draw(tableview, {showRowNumber: true, page: 'enable'});
+            table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
 
             // this view can select a subset of the data at a time
             var chartview = new google.visualization.DataView(data);
@@ -439,8 +479,8 @@ makeLegend();
                     map.fitBounds(markers.getBounds());
               }
             });
-            console.log(markers.getBounds());
-            console.log(markerclusters.getBounds());
+            //console.log(markers.getBounds());
+            //console.log(markerclusters.getBounds());
             //map.fitBounds(markerclusters.getBounds());
 
             // set listener for the update button
