@@ -81,6 +81,47 @@ unset($_SESSION["message"]);
  // MAP SCREEN
  //
 
+
+
+ echo "
+<div class=\"container\" style=\"margin-bottom: 18px; margin-top: 18px;\">
+  <div role=\"tabpanel\" id=\"content\"> 
+
+  <h1>Coastal Vulnerability Dashboard</h2>
+
+  <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
+    <li role=\"presentation\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
+    <li role=\"presentation\" class=\"active\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
+    <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">something else</a></li>
+  </ul> ";
+
+  echo "
+  <div class=\"tab-content\">
+  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"upload\"> 
+    <div id=formbody>
+      <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
+        <input type=hidden name=doit value=y>
+        <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
+        <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
+        <p><input type=Submit name=junk value=\"yah go for it\">
+      </form>
+    </div>
+  </div>
+
+  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"one\"> 
+    <div id=\"map\"></div>
+    <h4> select a layer:</h4>
+    <select id=\"domain\"></select>
+  </div>
+
+  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"two\"> 
+    <div id=\"chart_div\" style=\"width: 900px; height: 500px;\"></div>
+    <div id=\"table_div\"></div>
+  </div>
+  
+  </div>
+</div> ";
+
 // UPLOAD 
 if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FILES['aoifile']['tmp_name'])) {
   // File Quality Control
@@ -160,33 +201,6 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
 // If data already exists, map it yah!
 if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PRE_aoi.tif")) {
 
- echo "
-<div class=\"container\" style=\"margin-bottom: 18px; margin-top: 18px;\">
-  <div role=\"tabpanel\" id=\"content\"> 
-
-  <h1>Coastal Vulnerability Dashboard</h2>
-
-  <ul class=\"nav nav-tabs\" role=\"tablist\">
-    <li role=\"presentation\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
-    <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">something else</a></li>
-  </ul> ";
-
-  echo "
-  <div class=\"tab-content\">
-  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"one\"> 
-
-    <div id=\"map\"></div>
-    <h4> select a layer:</h4>
-    <select id=\"domain\"></select>
-  </div>
-  <div class=\"tab-pane active\" id=\"two\"> 
-    <div id=\"chart_div\" style=\"width: 900px; height: 500px;\"></div>
-    <div id=\"table_div\"></div>
-  </div>
-  
-  </div>
-</div> ";
-
   echo "
     <script>
 
@@ -216,6 +230,11 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 <script>
 
 // load tab content upon click
+$('#upload a').click(function (e) {
+  e.preventDefault()
+  $(this).tab('show')
+})
+
 $('#one a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
@@ -643,19 +662,25 @@ makeLegend();
 
 } else {
 
+  echo "
+  <script>
+    $(function () {
+      $('#mytabs a:first').tab('show')
+    })
+  </script> ";
   //
   //  FORM SCREEN
   //
 
-  echo "
-  <div id=formbody>
-    <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
-      <input type=hidden name=doit value=y>
-      <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
-      <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
-      <p><input type=Submit name=junk value=\"yah go for it\">
-    </form>
-  </div> ";
+  // echo "
+  // <div id=formbody>
+  //   <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
+  //     <input type=hidden name=doit value=y>
+  //     <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
+  //     <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
+  //     <p><input type=Submit name=junk value=\"yah go for it\">
+  //   </form>
+  // </div> ";
 
 }
 
