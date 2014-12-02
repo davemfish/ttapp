@@ -166,15 +166,6 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
   <h1>Coastal Vulnerability Dashboard</h2>
 
-  <div id=formbody>
-    <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
-      <input type=hidden name=doit value=y>
-      <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
-      <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
-      <p><input type=Submit name=junk value=\"yah go for it\">
-    </form>
-  </div> 
-
   <ul class=\"nav nav-tabs\" role=\"tablist\">
     <li role=\"presentation\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
     <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">something else</a></li>
@@ -656,15 +647,15 @@ makeLegend();
   //  FORM SCREEN
   //
 
-  // echo "
-  // <div id=formbody>
-  //   <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
-  //     <input type=hidden name=doit value=y>
-  //     <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
-  //     <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
-  //     <p><input type=Submit name=junk value=\"yah go for it\">
-  //   </form>
-  // </div> ";
+  echo "
+  <div id=formbody>
+    <form enctype=\"multipart/form-data\" id=\"form1\" name=\"form1\" method=\"post\" action=\"$_SERVER[PHP_SELF]\" accept-charset=utf-8>
+      <input type=hidden name=doit value=y>
+      <p><b>coastal_exposure.csv from CV outputs:</b><input name=\"expfile\" type=\"file\">
+      <p><b>00_PRE_aoi.tif from CV intermediate:</b><input name=\"aoifile\" type=\"file\">
+      <p><input type=Submit name=junk value=\"yah go for it\">
+    </form>
+  </div> ";
 
 }
 
