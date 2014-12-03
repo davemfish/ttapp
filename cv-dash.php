@@ -129,7 +129,8 @@ unset($_SESSION["message"]);
   </div>
 
   <div role=\"tabpanel\" class=\"tab-pane active\" id=\"two\"> 
-    <button id=\"tablebutton\">Update</button>
+    <button id=\"tablebutton\" title=\"Limit the table to display points currently visible on the map\">Query by map view</button>
+    <button id=\"tableselect\" title=\"Zoom the map to the rows selected in the table \">Zoom To</button>
     <div id=\"table_div\"></div>
   </div>
   
@@ -436,8 +437,30 @@ makeLegend();
                 });
                 tableview.setColumns(collist);
                 tableview.setRows(inBounds);
-                table.draw(tableview, {showRowNumber: true, page: 'enable'});
+                table.draw(tableview, {showRowNumber: true, page: 'enable', pageSize:25});
                 console.log(inBounds);
+            });
+
+            $("#tableselect").click(function () {
+              //console.log(geojsonLayer);
+              //bounds = map.getBounds();
+              var selrows = table.getSelection();
+              if (selrows.length === 0){
+                alert("no rows are selected");
+              } else if (selrows.length === 1){
+                // from underlying tableview, get feature ID which is in selected row, col 0
+                var ptid = tableview.getValue(selrows[0]["row"], 0);
+
+                console.log(ptid);
+                map._layers[ptid].openPopup();
+
+                $('#mytabs a[href="#one"]').tab('show')
+
+                //map.panTo(e.marker.getLatLng());
+              } else {
+                console.log(selrows);
+
+              }
             });
 
             tableview.setColumns(collist);
