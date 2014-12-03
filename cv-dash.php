@@ -129,6 +129,7 @@ unset($_SESSION["message"]);
   </div>
 
   <div role=\"tabpanel\" class=\"tab-pane active\" id=\"two\"> 
+    <button id=\"tablebutton\">Update</button>
     <div id=\"table_div\"></div>
   </div>
   
@@ -355,7 +356,7 @@ makeLegend();
             var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
             
             // use arrayData to load the select elements with the appropriate options
-            for (var i = 0; i < arrayData[0].length; i++) {
+            for (var i = 5; i < arrayData[0].length; i++) {
             // this adds the given option to both select elements
               $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
             }
@@ -366,6 +367,8 @@ makeLegend();
             for (var i = 4; i <= arrayData[0].length - 1; i++) {
                 collist.push(i);
             }
+            var ar = [0];
+            collist = ar.concat(collist); 
             // set the default selection
             // $("#range option[value='0']").attr("selected","selected");
             $("#domain option[value='" + colnum + "']").attr("selected","selected");
@@ -413,7 +416,29 @@ makeLegend();
             //     tableview.setRows(inBounds);
             //     table.draw(tableview, {showRowNumber: true, page: 'enable'});
             //     console.log(inBounds);
-            // };
+            // }
+
+            // var b = document.getElementById("tablebutton");
+            // b.setAttribute("onclick", "Mapquery();");
+
+            $("#tablebutton").click(function () {
+              console.log(geojsonLayer);
+              bounds = map.getBounds();
+
+                // For each marker, consider whether it is currently visible by comparing
+                // with the current map bounds.
+                var inBounds = [];
+                markerclusters.eachLayer(function(marker) {
+                    if (bounds.contains(marker.getLatLng())) {
+                      console.log(marker);
+                        inBounds.push(marker.feature.id);
+                    }
+                });
+                tableview.setColumns(collist);
+                tableview.setRows(inBounds);
+                table.draw(tableview, {showRowNumber: true, page: 'enable'});
+                console.log(inBounds);
+            });
 
             tableview.setColumns(collist);
 
