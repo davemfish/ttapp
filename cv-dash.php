@@ -456,10 +456,17 @@ makeLegend();
                 markerclusters.eachLayer(function(marker) { 
                   if (marker["feature"]["id"] === ptid){ 
                     map.setZoom(noclusterzoom);
-                    map.panTo(marker.getLatLng());
+                    setTimeout(function() {
+                      map.panTo(marker.getLatLng());
+
+                      setTimeout(function() {
+                        marker.openPopup();
+                      }, 500);
+                    }, 500);
+                    
                     
                     $('#mytabs a[href="#one"]').tab('show')
-                    marker.openPopup();
+                    
                   }
                 });
                 //map._layers[ptid].openPopup();
