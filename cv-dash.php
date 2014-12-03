@@ -274,10 +274,11 @@ $('#two a').click(function (e) {
 })
       
    var  rmax = 27, //Maximum radius for cluster pies
+        noclusterzoom = 13,
         markerclusters = L.markerClusterGroup({
           maxClusterRadius: 1*rmax,
           iconCreateFunction: defineClusterIcon, //this is where the magic happens
-          disableClusteringAtZoom: 13
+          disableClusteringAtZoom: noclusterzoom
         });
         markers = new L.geoJson();
         overlays = {
@@ -454,10 +455,8 @@ makeLegend();
                 console.log(ptid);
                 markerclusters.eachLayer(function(marker) { 
                   if (marker["feature"]["id"] === ptid){ 
-                    marker.zoomToShowLayer(m, function() {
-                        m.openPopup();
-                    });
-                    //marker.openPopup();
+                    map.setZoom(noclusterzoom);
+                    marker.openPopup();
                     $('#mytabs a[href="#one"]').tab('show')
                   }
                 });
