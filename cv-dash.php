@@ -364,7 +364,7 @@ makeLegend();
             var colnum = arrayData[0].indexOf('coastal_exposure');
             // get the col numbers of all that should appear in table
             var collist = [];
-            for (var i = 4; i <= arrayData[0].length - 1; i++) {
+            for (var i = 5; i <= arrayData[0].length - 1; i++) {
                 collist.push(i);
             }
             var ar = [0];
@@ -468,14 +468,16 @@ makeLegend();
                 val = arrayData[id],
                 label = arrayData[0],
                 poptable = "<table class='table table-condensed'>";
-                for (var i=4; i < val.length; i=i+1) {                
+                for (var i=5; i < val.length; i=i+1) {
+                  if (label[i] === maplayer){
+                    poptable += "<tr><td><b>" + label[i] + "</b></td>";  
+                    poptable += "<td><b>" + val[i] + "</b></td></tr>"; 
+                  } else {
                     poptable += "<tr><td>" + label[i] + "</td>";  
-                    //if(i+1 < val.length){
-                        poptable += "<td>" + val[i] + "</td></tr>";  
-                    //} else {
-                        //poptable += "<td></td></tr>";   
-                    //}
+                    poptable += "<td>" + val[i] + "</td></tr>";  
+                  } 
                 }
+                poptable += "<tr><td>" + "ID" + "</td><td>" + id + "</td></tr>"
                 
               // popupFields[0].map( function(key) {
               //   if (props[key]) {
