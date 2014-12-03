@@ -30,8 +30,9 @@ LoadSpace <- function(ws, outpath){
   #ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/Florida_CV_inputs_WGS84/Florida_CV_inputs_WGS84/CV_out_200m"
   ce <- read.table(file.path(ws, "coastal_exposure.csv"), sep=",", colClasses="numeric", header=T, check.names=F)
   tmp.ce <- ce
-  tmp.cd$ID <- seq(1,nrow(ce),1)
-  write.table(tmp.ce, file.path(ws, "coastal_exposure.csv"), sep=",")
+  tmp.ce$ID <- seq(1,nrow(ce),1)
+  tmp.ce <- tmp.ce[,c("ID", names(ce))]
+  write.table(tmp.ce, file.path(outpath, "coastal_exposure.csv"), sep=",", row.names=F)
   aoi <- raster(file.path(ws, "00_PRE_aoi.tif"))
   points.wgs84 <- rgdal::project(as.matrix(ce[,1:2]), proj=projection(aoi), inv=T)
   
@@ -150,9 +151,9 @@ LoadSpace <- function(ws, outpath){
 }
 
 ## doit
-workspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
-outspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
-#workspace <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/CV"
-#outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/9dhb5qmmjoku93biblcvilfit2/"
+#workspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
+#outspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
+workspace <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/CV"
+outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/7e5tv0fule1bljoohvfka1ts80/"
 LoadSpace(workspace, outspace)
 
