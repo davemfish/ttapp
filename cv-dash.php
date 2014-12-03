@@ -454,7 +454,10 @@ makeLegend();
                 console.log(ptid);
                 markerclusters.eachLayer(function(marker) { 
                   if (marker["feature"]["id"] === ptid){ 
-                    marker.openPopup();
+                    marker.zoomToShowLayer(m, function() {
+                        m.openPopup();
+                    });
+                    //marker.openPopup();
                     $('#mytabs a[href="#one"]').tab('show')
                   }
                 });
