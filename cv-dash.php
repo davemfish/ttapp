@@ -452,9 +452,15 @@ makeLegend();
                 var ptid = tableview.getValue(selrows[0]["row"], 0);
 
                 console.log(ptid);
-                map._layers[ptid].openPopup();
+                markerclusters.eachLayer(function(marker) { 
+                  if (marker["feature"]["id"] === ptid){ 
+                    marker.openPopup();
+                    $('#mytabs a[href="#one"]').tab('show')
+                  }
+                });
+                //map._layers[ptid].openPopup();
 
-                $('#mytabs a[href="#one"]').tab('show')
+                
 
                 //map.panTo(e.marker.getLatLng());
               } else {
