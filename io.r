@@ -29,6 +29,9 @@ Cut2Num <- function(x){
 LoadSpace <- function(ws, outpath){
   #ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/Florida_CV_inputs_WGS84/Florida_CV_inputs_WGS84/CV_out_200m"
   ce <- read.table(file.path(ws, "coastal_exposure.csv"), sep=",", colClasses="numeric", header=T, check.names=F)
+  tmp.ce <- ce
+  tmp.cd$ID <- seq(1,nrow(ce),1)
+  write.table(tmp.ce, file.path(ws, "coastal_exposure.csv"), sep=",")
   aoi <- raster(file.path(ws, "00_PRE_aoi.tif"))
   points.wgs84 <- rgdal::project(as.matrix(ce[,1:2]), proj=projection(aoi), inv=T)
   
@@ -136,6 +139,7 @@ LoadSpace <- function(ws, outpath){
     cols <- sub(cols, pattern="#", replacement="hex")
     df <- cbind(data.frame(ce[,nm]), data.frame(cols))
     names(df)[1] <- c(nm)
+    df$ID <- tmp.ce$ID
     spdf <- SpatialPointsDataFrame(round(points.wgs84, digits=6), data=df)
     jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
     if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
