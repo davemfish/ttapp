@@ -115,7 +115,7 @@ unset($_SESSION["message"]);
     </div>
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"one\"> 
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
     <div class=\"row\">
       <div class=\"col-md-7\">
         <div id=\"map\"></div>
@@ -128,7 +128,7 @@ unset($_SESSION["message"]);
   </div>
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"two\"> 
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"two\"> 
     <button id=\"tablebutton\" title=\"Limit the table to display points currently visible on the map\">Query by map view</button>
     <button id=\"tableselect\" title=\"Zoom the map to the rows selected in the table \">Zoom To</button>
     <div id=\"table_div\"></div>
@@ -219,7 +219,7 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   <script>
   console.log('switching?');
     $(function () {
-      $('#mytabs a:second').tab('show')
+      $('#mytabs a[href=\"#one\"]').tab('show')
     })
   </script> ";
 }
