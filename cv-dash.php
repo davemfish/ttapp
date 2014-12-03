@@ -456,6 +456,7 @@ makeLegend();
                 markerclusters.eachLayer(function(marker) { 
                   if (marker["feature"]["id"] === ptid){ 
                     map.setZoom(noclusterzoom);
+                    map.panTo(marker.getLatLng)
                     marker.openPopup();
                     $('#mytabs a[href="#one"]').tab('show')
                   }
