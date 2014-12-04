@@ -459,19 +459,19 @@ makeLegend();
                 var ptid = tableview.getValue(selrows[0]["row"], 0);
 
                 console.log(ptid);
+                $('#mytabs a[href="#one"]').tab('show')
+
                 markerclusters.eachLayer(function(marker) { 
                   if (marker["feature"]["id"] === ptid){ 
-                    map.setZoom(noclusterzoom);
+                    
+                    map.panTo(marker.getLatLng());
                     setTimeout(function() {
-                      map.panTo(marker.getLatLng());
+                      map.setZoom(noclusterzoom);
 
                       setTimeout(function() {
                         marker.openPopup();
                       }, 500);
                     }, 500);
-                    
-                    
-                    $('#mytabs a[href="#one"]').tab('show')
                     
                   }
                 });
