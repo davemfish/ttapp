@@ -61,7 +61,7 @@ LoadSpace <- function(ws, outpath){
           #        }
         }
         legcols <- brewer.pal(4, "YlOrRd")[ids]
-        leg.list[[j]] <- list(layer=nm, leglabs=unlist(leglabs), legcols=legcols)
+        leg.list[[j]] <- list(layer=nm, leglabs=unlist(leglabs[ids]), legcols=legcols)
       } else {
         legcols <- c(brewer.pal(4, "YlOrRd")[ids], NA)
         leglabs <- c(as.character(legbrks)[ids], NA)
