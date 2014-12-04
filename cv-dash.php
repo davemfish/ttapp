@@ -115,7 +115,7 @@ unset($_SESSION["message"]);
     </div>
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
+  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"one\"> 
     <div class=\"row\">
       <div class=\"col-md-7\">
         <div id=\"map\"></div>
@@ -300,11 +300,14 @@ $('#two a').click(function (e) {
    ;
 
    // a hack to solve bug in mapviewer matching size of div holding it?
-  $('a[data-toggle="tab"]').on("shown.bs.tab", function() {
-    console.log("invalidate");
-      map.invalidateSize(false);
-      map.fitBounds(markerclusters.getBounds());
-  });
+  // $('a[data-toggle="tab"]').on("shown.bs.tab", function() {
+  //      console.log("invalidate");
+  // //     extent = map.getBounds();
+  //      map.invalidateSize(false);
+  //      map.setView([0,0],2);
+  //     map.fitBounds(extent);
+       // map.fitBounds(markerclusters.getBounds());
+  // });
   // and this is a hack to resize the map div and avoid weird conflicts with bootstrap
   // var mapmargin = 50;
   // $('#map').css("height", ($(window).height() - mapmargin));
