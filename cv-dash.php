@@ -129,8 +129,8 @@ unset($_SESSION["message"]);
   </div>
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"two\"> 
-    <button id=\"tablebutton\" title=\"Limit the table to display points currently visible on the map\">Query by map view</button>
-    <button id=\"tableselect\" title=\"Zoom the map to the rows selected in the table \">Zoom To</button>
+    <button id=\"tablebutton\" title=\"Limit the table to display points currently visible on the map\">Query table by map view</button>
+    <button id=\"tableselect\" title=\"Zoom the map to the row selected in the table \">Zoom To Point</button>
     <div id=\"table_div\"></div>
   </div>
   
@@ -481,7 +481,7 @@ makeLegend();
 
                 //map.panTo(e.marker.getLatLng());
               } else {
-                console.log(selrows);
+                alert("select only 1 row at a time");
 
               }
             });
