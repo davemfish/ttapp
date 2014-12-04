@@ -154,6 +154,6 @@ LoadSpace <- function(ws, outpath){
 workspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
 outspace <- paste("/var/www/html/ttapp/tmp/", sess, "/", sep='')
 #workspace <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/CV"
-#outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/uaggv8tg518c7dvdc6806vec04/"
+#outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp/c6bg64k71ef48vbqtdpmcbou50/"
 LoadSpace(workspace, outspace)
 
