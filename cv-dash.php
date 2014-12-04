@@ -84,7 +84,7 @@ unset($_SESSION["message"]);
 
 
  echo "
-<div class=\"container\" style=\"margin-bottom: 18px; margin-top: 18px;\">
+<div class=\"container\" style=\"margin-bottom: 18px; margin-top: 12px;\">
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Coastal Vulnerability Dashboard</h3>
@@ -299,6 +299,29 @@ $('#two a').click(function (e) {
         L.control.layers(base, overlays).addTo(map);
    ;
 
+   // a hack to solve bug in mapviewer matching size of div holding it?
+  $('a[data-toggle="tab"]').on("shown.bs.tab", function() {
+    console.log("invalidate");
+      map.invalidateSize(false);
+      map.fitBounds(markerclusters.getBounds());
+  });
+  // and this is a hack to resize the map div and avoid weird conflicts with bootstrap
+  // var mapmargin = 50;
+  // $('#map').css("height", ($(window).height() - mapmargin));
+  // $(window).on("resize", resize);
+  // resize();
+  // function resize(){
+
+  //     if($(window).width()>=980){
+  //         $('#map').css("height", ($(window).height() - mapmargin));    
+  //         $('#map').css("margin-top",50);
+  //     }else{
+  //         $('#map').css("height", ($(window).height() - (mapmargin+12)));    
+  //         $('#map').css("margin-top",-21);
+  //     }
+
+  // }
+
   map.addLayer(markerclusters);
 
 
@@ -402,26 +425,6 @@ makeLegend();
             var table = new google.visualization.Table(document.getElementById('table_div'));
 
             var tableview = new google.visualization.DataView(data);
-
-            // function Mapquery() {
-            //     bounds = map.getBounds();
-
-            //     // For each marker, consider whether it is currently visible by comparing
-            //     // with the current map bounds.
-            //     var inBounds = [];
-            //     myLayer.eachLayer(function(marker) {
-            //         if (bounds.contains(marker.getLatLng())) {
-            //             inBounds.push(marker.options.title);
-            //         }
-            //     });
-            //     tableview.setColumns(collist);
-            //     tableview.setRows(inBounds);
-            //     table.draw(tableview, {showRowNumber: true, page: 'enable'});
-            //     console.log(inBounds);
-            // }
-
-            // var b = document.getElementById("tablebutton");
-            // b.setAttribute("onclick", "Mapquery();");
 
             $("#tablebutton").click(function () {
               console.log(geojsonLayer);
