@@ -115,7 +115,7 @@ unset($_SESSION["message"]);
     </div>
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"one\"> 
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
     <div class=\"row\">
       <div class=\"col-md-7\">
         <div id=\"map\"></div>
@@ -220,6 +220,7 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   console.log('switching?');
     $(function () {
       $('#mytabs a[href=\"#one\"]').tab('show')
+	map.invalidateSize(false);
     })
   </script> ";
 }
