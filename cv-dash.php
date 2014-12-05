@@ -71,10 +71,7 @@ echo "
  // MESSAGE BAR
  //
 
-if (isset($_SESSION["message"])) {
-  echo "<hr><div id=message>".$_SESSION["message"]."</div><hr>";
-}
-unset($_SESSION["message"]);
+
 
 
  //
@@ -112,7 +109,12 @@ unset($_SESSION["message"]);
         <br></br>
         <input type=Submit name=junk value=\"Upload Results\">
       </form>
-    </div>
+    </div>";
+    if (isset($_SESSION["message"])) {
+      echo "<div id=message>".$_SESSION["message"]."</div>";
+      }
+    unset($_SESSION["message"]);
+  echo "
   </div>
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
@@ -274,68 +276,42 @@ $('#two a').click(function (e) {
   $(this).tab('show')
 })
       
-   var  rmax = 27, //Maximum radius for cluster pies
-        noclusterzoom = 13,
-        markerclusters = L.markerClusterGroup({
-          maxClusterRadius: 1*rmax,
-          iconCreateFunction: defineClusterIcon, //this is where the magic happens
-          disableClusteringAtZoom: noclusterzoom
-        });
-        markers = new L.geoJson();
-        overlays = {
-            "Markers": markerclusters,
-        };
+var  rmax = 27, //Maximum radius for cluster pies
+    noclusterzoom = 13,
+    markerclusters = L.markerClusterGroup({
+      maxClusterRadius: 1*rmax,
+      iconCreateFunction: defineClusterIcon, //this is where the magic happens
+      disableClusteringAtZoom: noclusterzoom
+    });
+    markers = new L.geoJson();
+    overlays = {
+        "Markers": markerclusters,
+    };
 
-        map = L.map('map', {
-          center: [0, 0],
-          zoom: 2
-        });
+    map = L.map('map', {
+      center: [0, 0],
+      zoom: 2
+    });
 
-        //Add basemap
-        geotiles = L.tileLayer(tileServer, {attribution: tileAttribution,  maxZoom: 15}).addTo(map);
-        base = {
-          "Basemap": geotiles
-        };
-        
-        L.control.layers(base, overlays).addTo(map);
-   ;
+    //Add basemap
+    geotiles = L.tileLayer(tileServer, {attribution: tileAttribution,  maxZoom: 15}).addTo(map);
+    base = {
+      "Basemap": geotiles
+    };
+    
+    L.control.layers(base, overlays).addTo(map);
+;
 
-   // a hack to solve bug in mapviewer matching size of div holding it?
-  // $('a[data-toggle="tab"]').on("shown.bs.tab", function() {
-  //      console.log("invalidate");
-  // //     extent = map.getBounds();
-  //      map.invalidateSize(false);
-  //      map.setView([0,0],2);
-  //     map.fitBounds(extent);
-       // map.fitBounds(markerclusters.getBounds());
-  // });
-  // and this is a hack to resize the map div and avoid weird conflicts with bootstrap
-  // var mapmargin = 50;
-  // $('#map').css("height", ($(window).height() - mapmargin));
-  // $(window).on("resize", resize);
-  // resize();
-  // function resize(){
-
-  //     if($(window).width()>=980){
-  //         $('#map').css("height", ($(window).height() - mapmargin));    
-  //         $('#map').css("margin-top",50);
-  //     }else{
-  //         $('#map').css("height", ($(window).height() - (mapmargin+12)));    
-  //         $('#map').css("margin-top",-21);
-  //     }
-
-  // }
-
-  map.addLayer(markerclusters);
+map.addLayer(markerclusters);
 
 
 
-  // Initialize legend
-  var legend = L.control({position: 'bottomright'});
-  //legend.addTo(map);
+// Initialize legend
+var legend = L.control({position: 'bottomright'});
+//legend.addTo(map);
 
-  //var leg = {};
-  var maplayer = 'coastal_exposure'
+//var leg = {};
+var maplayer = 'coastal_exposure'
 
 function makeLegend(){
      // update map legend
@@ -371,434 +347,327 @@ function makeLegend(){
   
 makeLegend();
 
-      // load the visualization library from Google and set a listener
-      google.load("visualization", "1", {packages:["corechart"]});
-      google.load("visualization", "1", {packages:["table"]});
-      google.setOnLoadCallback(drawChart);
-      // wait till the DOM is loaded
+// load the visualization library from Google and set a listener
+google.load("visualization", "1", {packages:["corechart"]});
+google.load("visualization", "1", {packages:["table"]});
+google.setOnLoadCallback(drawChart);
+// wait till the DOM is loaded
+
+
+//// A lot happens in here because this is the ajax call that reads the csv
+//// anything relying on the csv data must go in here
+function drawChart() {
+   // grab the CSV
+   $.get(csvPath, function(csvString) {
+
+      // transform the CSV string into a 2-dimensional array
+      var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
       
-      function drawChart() {
-         // grab the CSV
-         $.get(csvPath, function(csvString) {
+      // use arrayData to load the select elements with the appropriate options
+      for (var i = 5; i < arrayData[0].length; i++) {
+      // this adds the given option to both select elements
+        $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
+      }
+      // get the index of the coastal_exposure column to use in default plot
+      var colnum = arrayData[0].indexOf('coastal_exposure');
+      // get the col numbers of all that should appear in table
+      var collist = [];
+      for (var i = 5; i <= arrayData[0].length - 1; i++) {
+          collist.push(i);
+      }
+      var ar = [0];
+      collist = ar.concat(collist); 
+      // set the default selection
+      // $("#range option[value='0']").attr("selected","selected");
+      $("#domain option[value='" + colnum + "']").attr("selected","selected");
+      //console.log(arrayData[0]);
 
-            // transform the CSV string into a 2-dimensional array
-            var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
-            
-            // use arrayData to load the select elements with the appropriate options
-            for (var i = 5; i < arrayData[0].length; i++) {
-            // this adds the given option to both select elements
-              $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
-            }
-            // get the index of the coastal_exposure column to use in default plot
-            var colnum = arrayData[0].indexOf('coastal_exposure');
-            // get the col numbers of all that should appear in table
-            var collist = [];
-            for (var i = 5; i <= arrayData[0].length - 1; i++) {
-                collist.push(i);
-            }
-            var ar = [0];
-            collist = ar.concat(collist); 
-            // set the default selection
-            // $("#range option[value='0']").attr("selected","selected");
-            $("#domain option[value='" + colnum + "']").attr("selected","selected");
-            //console.log(arrayData[0]);
+      // this new DataTable object holds all the data
+      var data = new google.visualization.arrayToDataTable(arrayData);
+      console.log(arrayData[1]);
 
-            // this new DataTable object holds all the data
-            var data = new google.visualization.arrayToDataTable(arrayData);
-            console.log(arrayData[1]);
+      var table = new google.visualization.Table(document.getElementById('table_div'));
 
+      var tableview = new google.visualization.DataView(data);
 
-            // map.on('move', function() {
-            //     // Construct an empty list to fill with onscreen markers.
-            //     var inBounds = [],
-            //     // Get the map bounds - the top-left and bottom-right locations.
-            //         bounds = map.getBounds();
+      $("#tablebutton").click(function () {
+        //console.log(geojsonLayer);
+        bounds = map.getBounds();
 
-            //     // For each marker, consider whether it is currently visible by comparing
-            //     // with the current map bounds.
-            //     myLayer.eachLayer(function(marker) {
-            //         if (bounds.contains(marker.getLatLng())) {
-            //             inBounds.push(marker.options.title);
-            //         }
-            //     });
-
-            //     // Display a list of markers.
-            //     document.getElementById('coordinates').innerHTML = inBounds.join('\n');
-            // });
-
-            var table = new google.visualization.Table(document.getElementById('table_div'));
-
-            var tableview = new google.visualization.DataView(data);
-
-            $("#tablebutton").click(function () {
-              //console.log(geojsonLayer);
-              bounds = map.getBounds();
-
-                // For each marker, consider whether it is currently visible by comparing
-                // with the current map bounds.
-                var inBounds = [];
-                markerclusters.eachLayer(function(marker) {
-                    if (bounds.contains(marker.getLatLng())) {
-                      console.log(marker);
-                        inBounds.push(marker.feature.id);
-                    }
-                });
-                tableview.setColumns(collist);
-                tableview.setRows(inBounds);
-                table.draw(tableview, {showRowNumber: true, page: 'enable', pageSize:25});
-                console.log(inBounds);
-            });
-
-            $("#tableselect").click(function () {
-              //console.log(geojsonLayer);
-              //bounds = map.getBounds();
-              var selrows = table.getSelection();
-              if (selrows.length === 0){
-                alert("no rows are selected");
-              } else if (selrows.length === 1){
-                // from underlying tableview, get feature ID which is in selected row, col 0
-                var ptid = tableview.getValue(selrows[0]["row"], 0);
-
-                console.log(ptid);
-                $('#mytabs a[href="#one"]').tab('show')
-
-                markerclusters.eachLayer(function(marker) { 
-                  if (marker["feature"]["id"] === ptid){ 
-                    
-                    map.panTo(marker.getLatLng());
-                    setTimeout(function() {
-                      map.setZoom(noclusterzoom);
-
-                      setTimeout(function() {
-                        marker.openPopup();
-                      }, 500);
-                    }, 500);
-                    
-                  }
-                });
-                //map._layers[ptid].openPopup();
-
-                
-
-                //map.panTo(e.marker.getLatLng());
-              } else {
-                alert("select only 1 row at a time");
-
+          // For each marker, consider whether it is currently visible by comparing
+          // with the current map bounds.
+          var inBounds = [];
+          markerclusters.eachLayer(function(marker) {
+              if (bounds.contains(marker.getLatLng())) {
+                console.log(marker);
+                  inBounds.push(marker.feature.id);
               }
-            });
+          });
+          tableview.setColumns(collist);
+          tableview.setRows(inBounds);
+          table.draw(tableview, {showRowNumber: true, page: 'enable', pageSize:25});
+          console.log(inBounds);
+      });
 
-            tableview.setColumns(collist);
+      $("#tableselect").click(function () {
+        //console.log(geojsonLayer);
+        //bounds = map.getBounds();
+        var selrows = table.getSelection();
+        if (selrows.length === 0){
+          alert("no rows are selected");
+        } else if (selrows.length === 1){
+          // from underlying tableview, get feature ID which is in selected row, col 0
+          var ptid = tableview.getValue(selrows[0]["row"], 0);
 
-            table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
+          console.log(ptid);
+          $('#mytabs a[href="#one"]').tab('show')
 
-            // this view can select a subset of the data at a time
-            var chartview = new google.visualization.DataView(data);
+          markerclusters.eachLayer(function(marker) { 
+            if (marker["feature"]["id"] === ptid){ 
+              
+              map.panTo(marker.getLatLng());
+              setTimeout(function() {
+                map.setZoom(noclusterzoom);
 
-            chartview.setColumns([colnum]);
-            //console.log(view);
-
-            var options = {
-               title: 'Distribution of Exposure Index',
-               legend: { position: 'none' },
-               colors: ['gray'],
-            };
-
-            var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-            chart.draw(chartview, options);
-
-            // feature popup function relies on this callback function
-            function defineFeaturePopup(feature, layer) {
-              //var props = feature.properties,
-                //fields = popupFields,
-               var popupContent = '',
-                id = feature.id,
-                val = arrayData[id],
-                label = arrayData[0],
-                poptable = "<table class='table table-condensed'>";
-                for (var i=5; i < val.length; i=i+1) {
-                  if (label[i] === maplayer){
-                    poptable += "<tr><td><b>" + label[i] + "</b></td>";  
-                    poptable += "<td><b>" + val[i] + "</b></td></tr>"; 
-                  } else {
-                    poptable += "<tr><td>" + label[i] + "</td>";  
-                    poptable += "<td>" + val[i] + "</td></tr>";  
-                  } 
-                }
-                poptable += "<tr><td>" + "ID" + "</td><td>" + id + "</td></tr>"
-                
-              // popupFields[0].map( function(key) {
-              //   if (props[key]) {
-              //     //var val = props[key],
-              //           //label = key;
-              //     var val = arrayData[id],
-              //       label = arrayData[0];
-              //     // if (fields[key].lookup) {
-              //     //   val = fields[key].lookup[val];
-              //     // }
-                  
-              //   }
-              // });
-              //popupContent = '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
-              //popupContent = '<span class="attribute">'+poptable+'</span>';
-              //console.log(popupContent);
-              popupContent = '<div class="map-popup">'+ poptable +'</div>';
-              layer.bindPopup(popupContent,{offset: L.point(-3,-2)});
+                setTimeout(function() {
+                  marker.openPopup();
+                }, 500);
+              }, 500);
+              
             }
+          });
 
-            //Ready to go, load the geojson
-            // There are 2 almost identical load calls
-            // This first one calls map.fitBounds
-            // The second one doesn't fit the map view because that
-            // one is called inside the select dropdown listener
+        } else {
+          alert("select only 1 row at a time");
 
-            var geojsonFirst = L.geoJson.ajax(geojsonPath,{
-              middleware:function(data){
-                  geojson = data;
+        }
+      });
 
-                    var markers = L.geoJson(geojson, {
-                      pointToLayer: defineFeature,
-                      onEachFeature: defineFeaturePopup
-                    });
+      tableview.setColumns(collist);
 
-                    markerclusters.addLayer(markers);
-                    map.fitBounds(markers.getBounds());
-              }
-            });
+      table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
 
+      // this view can select a subset of the data at a time
+      var chartview = new google.visualization.DataView(data);
 
+      chartview.setColumns([colnum]);
+      //console.log(view);
 
-            // set listener for the update button
-            $("select").change(function(){
-               // determine selected domain and range
-               var domain = +$("#domain option:selected").val();
-               // var range = +$("#range option:selected").val();
-               // update the view
-               chartview.setColumns([domain]);
-
-               // update the chart
-               chart.draw(chartview, options);
-
-               // update markers on map
-               popupFields = [];
-               markerclusters.clearLayers();
-               maplayer = $("#domain option:selected").text();
-               geojsonPath = sessPath + maplayer +'.geojson';
-               // geojsonLayer.refresh(geojsonPath);//add a new layer 
-
-              var geojsonLayer = L.geoJson.ajax(geojsonPath,{
-                middleware:function(data){
-                    geojson = data;
-
-                      var markers = L.geoJson(geojson, {
-                        pointToLayer: defineFeature,
-                        onEachFeature: defineFeaturePopup
-                      });
-
-                      markerclusters.addLayer(markers);
-                      //map.fitBounds(markers.getBounds());
-                }
-              });
-
-
-               legend.removeFrom(map);
-               makeLegend();
-               //legend.addTo(map);
-
-               
-            });
-
-         });
+      var options = {
+         title: 'Distribution of Exposure Index',
+         legend: { position: 'none' },
+         colors: ['gray'],
       };
 
-      
+      var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+      chart.draw(chartview, options);
 
-
-      //popupFields = [];
-//       d3.json(geojsonPath, function(error, data) {
-//           if (!error) {
-//               geojson = data;
-//               // feats = data.features;
-//               // //var metadata
-//               // for (var i = 0; i < feats.length; i++){
-//               //   metadata.push(feats[i].properties);
-//               // }
-              
-//               popupFields.push(Object.keys(geojson.features[0].properties)); //Popup will display these fields
-//               console.log(popupFields);
-//               // feature popup function relies on this callback function
-//               function defineFeaturePopup(feature, layer) {
-//                 var props = feature.properties,
-//                   fields = popupFields,
-//                   popupContent = '';
-// //console.log(popupFields[0]);
-//                   //console.log(props[popupFields[0]]);
-                  
-//                 popupFields[0].map( function(key) {
-//                   if (props[key]) {
-//                     var val = props[key],
-//                       //label = fields[key].name;
-//                       label = key;
-//                     // if (fields[key].lookup) {
-//                     //   val = fields[key].lookup[val];
-//                     // }
-//                     popupContent += '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
-//                   }
-//                 });
-//                 popupContent = '<div class="map-popup">'+popupContent+'</div>';
-//                 layer.bindPopup(popupContent,{offset: L.point(1,-2)});
-//               }
-
-//               var markers = L.geoJson(geojson, {
-//                 pointToLayer: defineFeature,
-//                 onEachFeature: defineFeaturePopup
-//                     });
-
-//               markerclusters.addLayer(markers);
-//               map.fitBounds(markers.getBounds());
-//               //map.attributionControl.addAttribution(metadata.attribution);
-//               //renderLegend();
-//           } else {
-//         console.log('Could not load data...');
-//           }
-//       });
-//     };
-
-
-      function defineFeature(feature, latlng) {
-        var categoryVal = feature.properties[categoryField];
-          //iconVal = feature.properties[iconField];
-          var myClass = 'marker category-'+categoryVal;
-          var myIcon = L.divIcon({
-              className: myClass,
-              iconSize:null
-          });
-          return L.marker(latlng, {icon: myIcon});
-      }
-//console.log(popupFields);
-      
-
-      function defineClusterIcon(cluster) {
-        var children = cluster.getAllChildMarkers(),
-            n = children.length, //Get number of markers in cluster
-            strokeWidth = 1, //Set clusterpie stroke width
-            r = rmax-2*strokeWidth-(n<10?14:n<100?13:n<1000?12:10), //Calculate clusterpie radius...
-            iconDim = (r+strokeWidth)*2, //...and divIcon dimensions (leaflet really want to know the size)
-            data = d3.nest() //Build a dataset for the pie chart
-              .key(function(d) { return d.feature.properties[categoryField]; })
-              .entries(children, d3.map),
-            //bake some svg markup
-            html = bakeThePie({data: data,
-                                valueFunc: function(d){return d.values.length;},
-                                strokeWidth: 1,
-                                outerRadius: r,
-                                innerRadius: r-9,
-                                pieClass: 'cluster-pie',
-                                pieLabel: n,
-                                pieLabelClass: 'marker-cluster-pie-label',
-                                pathClassFunc: function(d){return "category-"+d.data.key;}
-                                // pathTitleFunc: function(d){return metadata.fields[categoryField].lookup[d.data.key]+' ('+d.data.values.length+' accident'+(d.data.values.length!=1?'s':'')+')';}
-                              }),
-            //Create a new divIcon and assign the svg markup to the html property
-            myIcon = new L.DivIcon({
-                html: html,
-                className: 'marker-cluster', 
-                iconSize: new L.Point(iconDim, iconDim)
-            });
-              //console.log(myIcon);
-              //console.log(d.feature.properties[categoryField]);
-        return myIcon;
-    }
-
-    /*function that generates a svg markup for the pie chart*/
-      function bakeThePie(options) {
-          /*data and valueFunc are required*/
-          if (!options.data || !options.valueFunc) {
-              return '';
+      // feature popup function relies on this callback function
+      function defineFeaturePopup(feature, layer) {
+        //var props = feature.properties,
+          //fields = popupFields,
+         var popupContent = '',
+          id = feature.id,
+          val = arrayData[id],
+          label = arrayData[0],
+          poptable = "<table class='table table-condensed'>";
+          for (var i=5; i < val.length; i=i+1) {
+            if (label[i] === maplayer){
+              poptable += "<tr><td><b>" + label[i] + "</b></td>";  
+              poptable += "<td><b>" + val[i] + "</b></td></tr>"; 
+            } else {
+              poptable += "<tr><td>" + label[i] + "</td>";  
+              poptable += "<td>" + val[i] + "</td></tr>";  
+            } 
           }
-          var data = options.data,
-              valueFunc = options.valueFunc,
-              r = options.outerRadius?options.outerRadius:28, //Default outer radius = 28px
-              rInner = options.innerRadius?options.innerRadius:r-10, //Default inner radius = r-10
-              strokeWidth = options.strokeWidth?options.strokeWidth:1, //Default stroke is 1
-              pathClassFunc = options.pathClassFunc?options.pathClassFunc:function(){return '';}, //Class for each path
-              //pathTitleFunc = options.pathTitleFunc?options.pathTitleFunc:function(){return '';}, //Title for each path
-              pieClass = options.pieClass?options.pieClass:'marker-cluster-pie', //Class for the whole pie
-              pieLabel = options.pieLabel?options.pieLabel:d3.sum(data,valueFunc), //Label for the whole pie
-              pieLabelClass = options.pieLabelClass?options.pieLabelClass:'marker-cluster-pie-label',//Class for the pie label
-              
-              origo = (r+strokeWidth), //Center coordinate
-              w = origo*2, //width and height of the svg element
-              h = w,
-              donut = d3.layout.pie(),
-              arc = d3.svg.arc().innerRadius(rInner).outerRadius(r);
-              
-          //Create an svg element
-          var svg = document.createElementNS(d3.ns.prefix.svg, 'svg');
-          //Create the pie chart
-          var vis = d3.select(svg)
-              .data([data])
-              .attr('class', pieClass)
-              .attr('width', w)
-              .attr('height', h);
-              
-          var arcs = vis.selectAll('g.arc')
-              .data(donut.value(valueFunc))
-              .enter().append('svg:g')
-              .attr('class', 'arc')
-              .attr('transform', 'translate(' + origo + ',' + origo + ')');
+          poptable += "<tr><td>" + "ID" + "</td><td>" + id + "</td></tr>"
           
-          arcs.append('svg:path')
-              .attr('class', pathClassFunc)
-              .attr('stroke-width', strokeWidth)
-              .attr('d', arc);
-              // .append('svg:title')
-              //   .text(pathTitleFunc);
-                      
-          // vis.append('text')
-          //     .attr('x',origo)
-          //     .attr('y',origo)
-          //     .attr('class', pieLabelClass)
-          //     .attr('text-anchor', 'middle')
-          //     //.attr('dominant-baseline', 'central')
-          //     /*IE doesn't seem to support dominant-baseline, but setting dy to .3em does the trick*/
-          //     .attr('dy','.3em')
-          //     .text(pieLabel);
-          //Return the svg-markup rather than the actual element
-          return serializeXmlNode(svg);
+        //popupContent = '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
+        //popupContent = '<span class="attribute">'+poptable+'</span>';
+        //console.log(popupContent);
+        popupContent = '<div class="map-popup">'+ poptable +'</div>';
+        layer.bindPopup(popupContent,{offset: L.point(-3,-2)});
       }
 
-      // function renderLegend() {
-      //   var data = d3.entries(metadata.fields[categoryField].lookup),
-      //     legenddiv = d3.select('body').append('div')
-      //       .attr('id','legend');
-            
-      //   var heading = legenddiv.append('div')
-      //       .classed('legendheading', true)
-      //       .text(metadata.fields[categoryField].name);
+      //Ready to go, load the geojson
+      // There are 2 almost identical load calls
+      // This first one calls map.fitBounds
+      // The second one doesn't fit the map view because that
+      // one is called inside the select dropdown listener
 
-      //   var legenditems = legenddiv.selectAll('.legenditem')
-      //       .data(data);
-            
-      //   legenditems
-      //       .enter()
-      //       .append('div')
-      //       .attr('class',function(d){return 'category-'+d.key;})
-      //       .classed({'legenditem': true})
-      //       .text(function(d){return d.value;});
-      // }
+      var geojsonFirst = L.geoJson.ajax(geojsonPath,{
+        middleware:function(data){
+            geojson = data;
 
-    /*Helper function*/
-      function serializeXmlNode(xmlNode) {
-          if (typeof window.XMLSerializer != "undefined") {
-              return (new window.XMLSerializer()).serializeToString(xmlNode);
-          } else if (typeof xmlNode.xml != "undefined") {
-              return xmlNode.xml;
+              var markers = L.geoJson(geojson, {
+                pointToLayer: defineFeature,
+                onEachFeature: defineFeaturePopup
+              });
+
+              markerclusters.addLayer(markers);
+              map.fitBounds(markers.getBounds());
+        }
+      });
+
+
+
+      // set listener for the update button
+      $("select").change(function(){
+         // determine selected domain and range
+         var domain = +$("#domain option:selected").val();
+         // var range = +$("#range option:selected").val();
+         // update the view
+         chartview.setColumns([domain]);
+
+         // update the chart
+         chart.draw(chartview, options);
+
+         // update markers on map
+         popupFields = [];
+         markerclusters.clearLayers();
+         maplayer = $("#domain option:selected").text();
+         geojsonPath = sessPath + maplayer +'.geojson';
+         // geojsonLayer.refresh(geojsonPath);//add a new layer 
+
+        var geojsonLayer = L.geoJson.ajax(geojsonPath,{
+          middleware:function(data){
+              geojson = data;
+
+                var markers = L.geoJson(geojson, {
+                  pointToLayer: defineFeature,
+                  onEachFeature: defineFeaturePopup
+                });
+
+                markerclusters.addLayer(markers);
+                //map.fitBounds(markers.getBounds());
           }
-          return "";
-      }
-      
-     
-    </script>
+        });
+        legend.removeFrom(map);
+        makeLegend();
+        //legend.addTo(map);
+      });
+
+   });
+};  /// end of ajax call read csv
+
+/// All js below is functions for creating the marker cluster symbols
+
+function defineFeature(feature, latlng) {
+  var categoryVal = feature.properties[categoryField];
+    //iconVal = feature.properties[iconField];
+    var myClass = 'marker category-'+categoryVal;
+    var myIcon = L.divIcon({
+        className: myClass,
+        iconSize:null
+    });
+    return L.marker(latlng, {icon: myIcon});
+}
+//console.log(popupFields);
+
+
+function defineClusterIcon(cluster) {
+  var children = cluster.getAllChildMarkers(),
+      n = children.length, //Get number of markers in cluster
+      strokeWidth = 1, //Set clusterpie stroke width
+      r = rmax-2*strokeWidth-(n<10?14:n<100?13:n<1000?12:10), //Calculate clusterpie radius...
+      iconDim = (r+strokeWidth)*2, //...and divIcon dimensions (leaflet really want to know the size)
+      data = d3.nest() //Build a dataset for the pie chart
+        .key(function(d) { return d.feature.properties[categoryField]; })
+        .entries(children, d3.map),
+      //bake some svg markup
+      html = bakeThePie({data: data,
+                          valueFunc: function(d){return d.values.length;},
+                          strokeWidth: 1,
+                          outerRadius: r,
+                          innerRadius: r-9,
+                          pieClass: 'cluster-pie',
+                          pieLabel: n,
+                          pieLabelClass: 'marker-cluster-pie-label',
+                          pathClassFunc: function(d){return "category-"+d.data.key;}
+                          // pathTitleFunc: function(d){return metadata.fields[categoryField].lookup[d.data.key]+' ('+d.data.values.length+' accident'+(d.data.values.length!=1?'s':'')+')';}
+                        }),
+      //Create a new divIcon and assign the svg markup to the html property
+      myIcon = new L.DivIcon({
+          html: html,
+          className: 'marker-cluster', 
+          iconSize: new L.Point(iconDim, iconDim)
+      });
+        //console.log(myIcon);
+        //console.log(d.feature.properties[categoryField]);
+  return myIcon;
+}
+
+/*function that generates a svg markup for the pie chart*/
+function bakeThePie(options) {
+    /*data and valueFunc are required*/
+    if (!options.data || !options.valueFunc) {
+        return '';
+    }
+    var data = options.data,
+        valueFunc = options.valueFunc,
+        r = options.outerRadius?options.outerRadius:28, //Default outer radius = 28px
+        rInner = options.innerRadius?options.innerRadius:r-10, //Default inner radius = r-10
+        strokeWidth = options.strokeWidth?options.strokeWidth:1, //Default stroke is 1
+        pathClassFunc = options.pathClassFunc?options.pathClassFunc:function(){return '';}, //Class for each path
+        //pathTitleFunc = options.pathTitleFunc?options.pathTitleFunc:function(){return '';}, //Title for each path
+        pieClass = options.pieClass?options.pieClass:'marker-cluster-pie', //Class for the whole pie
+        pieLabel = options.pieLabel?options.pieLabel:d3.sum(data,valueFunc), //Label for the whole pie
+        pieLabelClass = options.pieLabelClass?options.pieLabelClass:'marker-cluster-pie-label',//Class for the pie label
+        
+        origo = (r+strokeWidth), //Center coordinate
+        w = origo*2, //width and height of the svg element
+        h = w,
+        donut = d3.layout.pie(),
+        arc = d3.svg.arc().innerRadius(rInner).outerRadius(r);
+        
+    //Create an svg element
+    var svg = document.createElementNS(d3.ns.prefix.svg, 'svg');
+    //Create the pie chart
+    var vis = d3.select(svg)
+        .data([data])
+        .attr('class', pieClass)
+        .attr('width', w)
+        .attr('height', h);
+        
+    var arcs = vis.selectAll('g.arc')
+        .data(donut.value(valueFunc))
+        .enter().append('svg:g')
+        .attr('class', 'arc')
+        .attr('transform', 'translate(' + origo + ',' + origo + ')');
+    
+    arcs.append('svg:path')
+        .attr('class', pathClassFunc)
+        .attr('stroke-width', strokeWidth)
+        .attr('d', arc);
+        // .append('svg:title')
+        //   .text(pathTitleFunc);
+                
+    // vis.append('text')
+    //     .attr('x',origo)
+    //     .attr('y',origo)
+    //     .attr('class', pieLabelClass)
+    //     .attr('text-anchor', 'middle')
+    //     //.attr('dominant-baseline', 'central')
+    //     /*IE doesn't seem to support dominant-baseline, but setting dy to .3em does the trick*/
+    //     .attr('dy','.3em')
+    //     .text(pieLabel);
+    //Return the svg-markup rather than the actual element
+    return serializeXmlNode(svg);
+}
+
+
+/*Helper function*/
+function serializeXmlNode(xmlNode) {
+    if (typeof window.XMLSerializer != "undefined") {
+        return (new window.XMLSerializer()).serializeToString(xmlNode);
+    } else if (typeof xmlNode.xml != "undefined") {
+        return xmlNode.xml;
+    }
+    return "";
+}
+  
+ 
+</script>
 
     <!-- Google Charts stuff below -->
 
