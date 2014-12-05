@@ -431,7 +431,7 @@ makeLegend();
             var tableview = new google.visualization.DataView(data);
 
             $("#tablebutton").click(function () {
-              console.log(geojsonLayer);
+              //console.log(geojsonLayer);
               bounds = map.getBounds();
 
                 // For each marker, consider whether it is currently visible by comparing
@@ -545,13 +545,15 @@ makeLegend();
               layer.bindPopup(popupContent,{offset: L.point(-3,-2)});
             }
 
-                  //Ready to go, load the geojson
-            var geojsonLayer = L.geoJson.ajax(geojsonPath,{
+            //Ready to go, load the geojson
+            // There are 2 almost identical load calls
+            // This first one calls map.fitBounds
+            // The second one doesn't fit the map view because that
+            // one is called inside the select dropdown listener
+
+            var geojsonFirst = L.geoJson.ajax(geojsonPath,{
               middleware:function(data){
                   geojson = data;
-                    
-                    //popupFields.push(Object.keys(geojson.features[0].properties)); //Popup will display these fields
-                    //console.log(popupFields);
 
                     var markers = L.geoJson(geojson, {
                       pointToLayer: defineFeature,
@@ -562,9 +564,8 @@ makeLegend();
                     map.fitBounds(markers.getBounds());
               }
             });
-            //console.log(markers.getBounds());
-            //console.log(markerclusters.getBounds());
-            //map.fitBounds(markerclusters.getBounds());
+
+
 
             // set listener for the update button
             $("select").change(function(){
@@ -582,16 +583,23 @@ makeLegend();
                markerclusters.clearLayers();
                maplayer = $("#domain option:selected").text();
                geojsonPath = sessPath + maplayer +'.geojson';
-               geojsonLayer.refresh(geojsonPath);//add a new layer 
+               // geojsonLayer.refresh(geojsonPath);//add a new layer 
 
-               // $.getJSON(symbPath, function(symbols){
-               //    console.log(symbols);
-               //    leg[0] = jQuery.grep(symbols, function(data) { 
-               //      return data.layer == maplayer
-               //    })
-               //    console.log(leg[0]);
-               //    makeLegend(leg[0]);
-               //  })
+              var geojsonLayer = L.geoJson.ajax(geojsonPath,{
+                middleware:function(data){
+                    geojson = data;
+
+                      var markers = L.geoJson(geojson, {
+                        pointToLayer: defineFeature,
+                        onEachFeature: defineFeaturePopup
+                      });
+
+                      markerclusters.addLayer(markers);
+                      //map.fitBounds(markers.getBounds());
+                }
+              });
+
+
                legend.removeFrom(map);
                makeLegend();
                //legend.addTo(map);
