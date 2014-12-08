@@ -405,7 +405,7 @@ function drawChart() {
           });
           tableview.setColumns(collist);
           tableview.setRows(inBounds);
-          table.draw(tableview, {showRowNumber: true, page: 'enable', pageSize:25});
+          table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
           console.log(inBounds);
       });
 
