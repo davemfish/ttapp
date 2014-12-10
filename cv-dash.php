@@ -90,6 +90,7 @@ echo "
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
     <li role=\"presentation\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
     <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
+    <li role=\"presentation\"><a href=\"#three\" aria-controls=\"three\" role=\"tab\" data-toggle=\"tab\">About</a></li>
   </ul> ";
 
   echo "
@@ -135,6 +136,23 @@ echo "
     <button id=\"tableselect\" title=\"Zoom the map to the row selected in the table \">Zoom To Point</button>
     <div id=\"table_div\"></div>
   </div>
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"three\"> 
+
+    <h3>About this application</h3>
+
+    <p>This application allows an InVEST user to view a set of model results interactively in a web browser. 
+    All the data displayed in this app come from the <em>coastal_exposure.csv</em> file in the outputs folder of an InVEST workspace.</p>
+    <br>
+    <p>The raw data from this csv is viewable on the Table tab and on the Map at high zoom levels. 
+    At lower zoom levels data-points are clustered together, and clicking a cluster reveals all the individual coastal segments.</p>
+    <br>
+    <p>Not all of the results produced by the Coastal Vulnerability model are displayed in this application.
+    You may wish to explore and analyze your results further with GIS or data analysis software.</p>
+    <br>
+    <p>This application is built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
+    you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></p>
+
+  </div>
   
   </div>
 </div> ";
@@ -166,6 +184,9 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   // // // i don't know how to check a tif mime type
 
   // Report some things to screen
+  // echo "<script>
+  //   document.getElementById('//message//').innerHTML=\"<p><b> starting session... </b><p><pre>Session ID: $sessid Path ID: $pathid</pre>\"
+  // </script>";
   echo "<p><b> starting session... </b><p>";
   echo "<pre>";
   echo "Session ID: $sessid";
@@ -272,6 +293,11 @@ $('#one a').click(function (e) {
 })
 
 $('#two a').click(function (e) {
+  e.preventDefault()
+  $(this).tab('show')
+})
+
+$('#three a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
