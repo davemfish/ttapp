@@ -243,7 +243,7 @@ if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FI
   console.log('switching?');
     $(function () {
       $('#mytabs a[href=\"#one\"]').tab('show')
-	map.invalidateSize(false);
+	    map.invalidateSize(false);
     })
   </script> ";
 }
@@ -258,16 +258,14 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
       // Define vars
       var geojson,
         metadata = [],
-        sessPath = '$pathid'
-        //sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/'
+        sessPath = '$pathid',
+        //sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/',
         geojsonPath = sessPath + 'coastal_exposure.geojson',
         csvPath = '$pathid/coastal_exposure.csv',
-        symbPath = sessPath + 'legend.json'
+        symbPath = sessPath + 'legend.json',
         categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
         //iconField = '5065', //This is the fieldame for marker icon
-        popupFields = [], //Popup will display these fields
-        tileServer = 'https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png',
-        tileAttribution = 'Map data &copy; <a href=\"http://openstreetmap.org\">OpenStreetMap</a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"http://mapbox.com\">Mapbox</a>'
+        popupFields = [] //Popup will display these fields
       ;
     </script>
 
@@ -316,18 +314,30 @@ var  rmax = 27, //Maximum radius for cluster pies
 
     map = L.map('map', {
       center: [0, 0],
-      zoom: 2
+      zoom: 2,
+      maxZoom:15
     });
 
     //Add basemap
-    geotiles = L.tileLayer(tileServer, {attribution: tileAttribution,  maxZoom: 15}).addTo(map);
+    MapBoxSat = L.tileLayer('https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png', {
+      minZoom: 0,
+      maxZoom: 15,
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
+    })
+    OpenMapSurfer_Roads = L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/roads/x={x}&y={y}&z={z}', {
+      minZoom: 0,
+      maxZoom: 15,
+      attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    })
+    
     base = {
-      "Basemap": geotiles
+      "Satellite": MapBoxSat,
+      "Physical/Political": OpenMapSurfer_Roads
     };
     
     L.control.layers(base, overlays).addTo(map);
 ;
-
+map.addLayer(OpenMapSurfer_Roads);
 map.addLayer(markerclusters);
 
 
