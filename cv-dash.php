@@ -428,7 +428,7 @@ function drawChart() {
       var tableview = new google.visualization.DataView(data);
 
       $("#tablereset").click(function () {
-          var tableview = google.visualization.DataView(data);
+          var tableview = new google.visualization.DataView(data);
           table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
       });
 
