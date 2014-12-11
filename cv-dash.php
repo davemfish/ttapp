@@ -436,7 +436,7 @@ function drawChart() {
           markerclusters.eachLayer(function(marker) {
               if (bounds.contains(marker.getLatLng())) {
                 console.log(marker);
-                  inBounds.push(marker.feature.properties.id); 
+                  inBounds.push(marker.feature.properties.ID); 
               }
           });
           tableview.setColumns(collist);
@@ -459,7 +459,7 @@ function drawChart() {
           $('#mytabs a[href="#one"]').tab('show')
 
           markerclusters.eachLayer(function(marker) { 
-            if (marker["feature"]["properties"]["id"] === ptid){ 
+            if (marker["feature"]["properties"]["ID"] === ptid){ 
               
               map.panTo(marker.getLatLng());
               setTimeout(function() {
@@ -503,7 +503,7 @@ function drawChart() {
         //var props = feature.properties,
           //fields = popupFields,
          var popupContent = '',
-          id = feature.properties.id,
+          id = feature.properties.ID,
           val = arrayData[id],
           label = arrayData[0],
           poptable = "<table class='table table-condensed'>";
