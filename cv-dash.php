@@ -134,6 +134,7 @@ echo "
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"two\"> 
     <button id=\"tablebutton\" title=\"Limit the table to display points currently visible on the map\">Query table by map view</button>
     <button id=\"tableselect\" title=\"Zoom the map to the row selected in the table \">Zoom To Point</button>
+    <button id=\"tablereset\" title=\"Reset table to all rows \">Reset</button>
     <div id=\"table_div\"></div>
   </div>
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"three\"> 
@@ -425,6 +426,11 @@ function drawChart() {
       var table = new google.visualization.Table(document.getElementById('table_div'));
 
       var tableview = new google.visualization.DataView(data);
+
+      $("#tablereset").click(function () {
+          tableview = google.visualization.DataView(data);
+          table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
+      });
 
       $("#tablebutton").click(function () {
         //console.log(geojsonLayer);
