@@ -120,12 +120,12 @@ echo "
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
     <div class=\"row\">
-      <div class=\"col-md-7\">
+      <div class=\"col-lg-7\">
         <div id=\"map\"></div>
         <h5> select a layer to map:</h5>
         <select id=\"domain\"></select>
       </div>
-      <div class=\"col-md-5\">
+      <div class=\"col-lg-5\">
         <div id=\"chart_div\"></div>
       </div>
   </div>
