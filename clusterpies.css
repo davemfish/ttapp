@@ -6,10 +6,18 @@
   width:500px;
   height:400px;
 }
-
-.col-md-5.no-float {
-    float: none; /* thanks baxabbit */
+/*#map {
+  width:650px;
+  height:450px;
 }
+#chart_div {
+  width:auto;
+  height:auto;
+}*/
+
+/*.col-md-5.no-float {
+    float: none;
+}*/
 
 /*#legend {
   position: absolute;
