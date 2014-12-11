@@ -30,7 +30,7 @@ LoadSpace <- function(ws, outpath){
   #ws <- "C:/Users/dfisher5/Documents/Shiny/CoastalVulnerability/data/Florida_CV_inputs_WGS84/Florida_CV_inputs_WGS84/CV_out_200m"
   ce <- read.table(file.path(ws, "coastal_exposure.csv"), sep=",", colClasses="numeric", header=T, check.names=F)
   tmp.ce <- ce
-  tmp.ce$ID <- seq(1,nrow(ce),1)
+  tmp.ce$ID <- seq(0,nrow(ce)-1,1) # start IDs at 0 to match js array indexing
   tmp.ce <- tmp.ce[,c("ID", names(ce))]
   write.table(tmp.ce, file.path(outpath, "coastal_exposure.csv"), sep=",", row.names=F)
   aoi <- raster(file.path(ws, "00_PRE_aoi.tif"))
