@@ -429,6 +429,7 @@ function drawChart() {
 
       $("#tablereset").click(function () {
           var tableview = new google.visualization.DataView(data);
+          tableview.setColumns(collist);
           table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
       });
 
