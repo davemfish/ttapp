@@ -29,7 +29,7 @@ echo "
     <meta charset=\"UTF-8\">
     <script src=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js\"></script> 
     <link rel=\"stylesheet\" href=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css\" />
-    <link rel=\"stylesheet\" href=\"clusterpies.css\">
+    <link rel=\"stylesheet\" href=\"cv-dash.css\">
 
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"./libs/jquery.csv-0.71.js\"></script>
