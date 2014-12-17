@@ -1,4 +1,7 @@
-Coastal Vulnerability Dashboard 
+News: ttapp-rec repo is now obsolete, files and outstanding issues were moved to this repo.
+*some files were renamed, including 'tmp' directory where R output goes. So to develop locally, make 'tmp-rec' and 'tmp-cv' in your cloned repo.
+
+InVEST Dashboard 
 =====
 
 About this application
