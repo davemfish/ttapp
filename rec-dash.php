@@ -217,7 +217,7 @@ if (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name'])) {
   flush();
   ob_flush();
   echo "<pre>";
-  passthru("R -q --vanilla '--args sess=\"$sessid\"' < io.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
+  passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
   echo "</pre>";
   flush();
   ob_flush();
