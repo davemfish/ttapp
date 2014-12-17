@@ -32,7 +32,7 @@ echo "
     <link rel=\"stylesheet\" href=\"clusterpies.css\">
 
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
-    <script src=\"../jquery.csv-0.71.js\"></script>
+    <script src=\"./libs/jquery.csv-0.71.js\"></script>
 
     <!-- Latest compiled and minified CSS -->
     <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
@@ -44,16 +44,16 @@ echo "
     <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>
 
 
-    <link rel=\"stylesheet\" type=\"text/css\" href=\"../Leaflet.markercluster-master/dist/MarkerCluster.Default.css\">
-    <link rel=\"stylesheet\" type=\"text/css\" href=\"../Leaflet.markercluster-master/dist/MarkerCluster.css\">
-    <script src=\"../Leaflet.markercluster-master/dist/leaflet.markercluster.js\"></script>
+    <link rel=\"stylesheet\" type=\"text/css\" href=\"./libs/Leaflet.markercluster-master/dist/MarkerCluster.Default.css\">
+    <link rel=\"stylesheet\" type=\"text/css\" href=\"./libs/Leaflet.markercluster-master/dist/MarkerCluster.css\">
+    <script src=\"./libs/Leaflet.markercluster-master/dist/leaflet.markercluster.js\"></script>
 
 
 
     <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
     <script src=\"https://www.google.com/jsapi\"></script>
 
-    <script type=\"text/javascript\" src=\"../leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
+    <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
   </head>
   <body> ";
 
