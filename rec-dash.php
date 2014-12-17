@@ -72,13 +72,9 @@ echo "
  //
 
 
-
-
  //
  // MAP SCREEN
  //
-
-
 
  echo "
 <div class=\"container\" style=\"margin-bottom: 18px; margin-top: 12px;\">
@@ -108,10 +104,63 @@ echo "
         <input type=Submit name=junk value=\"Upload Results\">
       </form>
     </div>";
-    if (isset($_SESSION["message"])) {
-      echo "<div id=message>".$_SESSION["message"]."</div>";
-      }
-    unset($_SESSION["message"]);
+    if (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name'])) {
+    // File Quality Control
+    // // check for errors
+    if ($_FILES["logfile"]["error"] > 0) {
+      echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["logfile"]["error"] . "</div>";
+      die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
+    }
+
+    echo "<div class=\"alert alert-info\" role=\"alert\">starting session... </div>";
+    echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
+    flush();
+    ob_flush();
+
+    // set the time limit to XX seconds
+    set_time_limit(300);
+
+    // Create session directory and cd to it
+    $sdir = "$pathid";
+    if (!file_exists($sdir)) {
+      echo "<pre>";
+      //passthru("mkdir $pathid");
+      echo $sdir;
+      mkdir($pathid);
+      echo "</pre>";
+    }
+
+     // Upload the tables
+    echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
+    // // exposure table
+    $outloadfile = $pathid . "rec_logfile.txt";
+    if (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
+      echo "<div class=\"alert alert-success\" role=\"alert\">logfile was successfully uploaded.</div>";
+    } else {
+      echo "<div class=\"alert alert-danger\" role=\"alert\">logfile cannot be uploaded.</div>";
+    }
+
+    // Run local R script
+    echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
+    flush();
+    ob_flush();
+    echo "<div class=\"alert alert-info\" role=\"alert\">";
+    passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
+    echo "</div>";
+    flush();
+    ob_flush();
+
+    // after upload and R completes, switch to map tab
+    echo "
+    <script>
+    console.log('switching?');
+      $(function () {
+        $('#mytabs a[href=\"#one\"]').tab('show')
+    map.invalidateSize(false);
+      })
+    </script> ";
+    }
+
   echo "
   </div>
 
@@ -157,81 +206,6 @@ echo "
 </div> ";
 
 // <button onclick=\"Mapquery()\">Update</button>
-
-
-// UPLOAD 
-if (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name'])) {
-  // File Quality Control
-  // // check for errors
-  if ($_FILES["logfile"]["error"] > 0) {
-    $_SESSION['message'] = "ERROR: " . $_FILES["logfile"]["error"];
-    header("Location:rec-dash.php");
-    die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
-  }
-  // // check mime type
-//  $mimes = array('text/plain','text/csv');
-//  if(!in_array($_FILES['expfile']['type'],$mimes)) {
-//    $_SESSION['message'] =  "Input does not appear to be a csv file.";
-//    header("Location:clusterpies.php");
-//    die;
-//  }
-  // // // i don't know how to check a tif mime type
-
-  // Report some things to screen
-  echo "<p><b> starting session... </b><p>";
-  echo "<pre>";
-  echo "Session ID: $sessid";
-  echo "   Path ID: $pathid";
-  echo "</pre>";
-  echo "<p><b> blah blah blah...</b><p>";
-  flush();
-  ob_flush();
-
-  // set the time limit to XX seconds
-  set_time_limit(300);
-
-  // Create session directory and cd to it
-  $sdir = "$pathid";
-  if (!file_exists($sdir)) {
-    echo "<pre>";
-    //passthru("mkdir $pathid");
-    echo $sdir;
-    mkdir($pathid);
-    echo "</pre>";
-  }
-
-  // Upload the tables
-  echo "<p><b> uploading inputs... </b><p>";
-  // // exposure table
-  $outloadfile = $pathid . "rec_logfile.txt";
-  if (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
-    echo "logfile was successfully uploaded. <p>";
-  } else {
-    echo "logfile cannot be uploaded.";
-    echo $outloadfile;
-  }
-
-
-  // Run local R script
-  echo "<p><b> creating geojson files... </b><p>";
-  flush();
-  ob_flush();
-  echo "<pre>";
-  passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
-  echo "</pre>";
-  flush();
-  ob_flush();
-
-  // after upload and R completes, switch to map tab
-  echo "
-  <script>
-  console.log('switching?');
-    $(function () {
-      $('#mytabs a[href=\"#one\"]').tab('show')
-  map.invalidateSize(false);
-    })
-  </script> ";
-}
 
 
 // If data already exists, map it yah!
