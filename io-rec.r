@@ -157,8 +157,8 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
 
 ## doit
 ### these are 2 different vars only so its easier to test locally
-workspace <- paste("/var/www/html/ttapp-rec/tmp/", sess, sep='') # where R finds the uploaded logfile
-outspace <- paste("/var/www/html/ttapp-rec/tmp/", sess, sep='')
+workspace <- paste("/var/www/html/ttapp-rec/tmp-rec/", sess, sep='') # where R finds the uploaded logfile
+outspace <- paste("/var/www/html/ttapp-rec/tmp-rec/", sess, sep='')
 #workspace <- "C:/Users/dfisher5/Documents/Shiny/www/data/OR"
 #outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp-rec/tmp/testingio"
 LoadSpace(workspace, outspace)

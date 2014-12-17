@@ -20,7 +20,7 @@ date_default_timezone_set('America/Los_Angeles');
 // make a unique folder for each run
 // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
 $sessid = session_id();
-$pathid = "./tmp/" . $sessid . "/";
+$pathid = "./tmp_rec/" . $sessid . "/";
 
 // Header
 echo "
