@@ -17,6 +17,19 @@ session_start();
 // set time zone
 date_default_timezone_set('America/Los_Angeles');
 
+// Check for IE 
+$agent = $_SERVER['HTTP_USER_AGENT'];
+if (!preg_match("/Firefox/i", $agent) && !preg_match("/Chrome/i", $agent)) {
+  echo "
+  <hr>
+  <div id=message>
+    You must use Mozilla Firefox or Google Chrome to access the page.
+    <br>Download <a href=\"http://www.mozilla.com/\">Firefox</a> or <a href=\"http://www.google.com/chrome\">Chrome</a>.
+  </div>
+  <hr> ";
+  exit();
+}
+
 // make a unique folder for each run
 // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
 $sessid = session_id();
