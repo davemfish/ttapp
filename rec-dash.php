@@ -5,6 +5,7 @@ session_start();
 /// version 2:  switch to php and incorporate fxns to upload files and batch the r code (SAW)
 ///  20141030
 ///
+/// markercluster pie charts borrow heavily from http://bl.ocks.org/gisminister/10001728
 /// 
 /// TODO: somewhere this code should probably cleanup old sessions
 /// 
@@ -691,38 +692,80 @@ function defineFeature(feature, latlng) {
 }
 //console.log(popupFields);
 
-
+// simplify the cluster symbol -- no more pie.
 function defineClusterIcon(cluster) {
   var children = cluster.getAllChildMarkers(),
       n = children.length, //Get number of markers in cluster
+      v = [],
       strokeWidth = 1, //Set clusterpie stroke width
       r = rmax-2*strokeWidth-(n<10?14:n<100?13:n<1000?12:10), //Calculate clusterpie radius...
-      iconDim = (r+strokeWidth)*2, //...and divIcon dimensions (leaflet really want to know the size)
-      data = d3.nest() //Build a dataset for the pie chart
-        .key(function(d) { return d.feature.properties[categoryField]; })
-        .entries(children, d3.map),
-      //bake some svg markup
-      html = bakeThePie({data: data,
-                          valueFunc: function(d){return d.values.length;},
-                          strokeWidth: 1,
-                          outerRadius: r,
-                          innerRadius: r-9,
-                          pieClass: 'cluster-pie',
-                          pieLabel: n,
-                          pieLabelClass: 'marker-cluster-pie-label',
-                          pathClassFunc: function(d){return "category-"+d.data.key;}
-                          // pathTitleFunc: function(d){return metadata.fields[categoryField].lookup[d.data.key]+' ('+d.data.values.length+' accident'+(d.data.values.length!=1?'s':'')+')';}
-                        }),
-      //Create a new divIcon and assign the svg markup to the html property
-      myIcon = new L.DivIcon({
-          html: html,
-          className: 'marker-cluster', 
+      iconDim = (r+strokeWidth)*2; //...and divIcon dimensions (leaflet really want to know the size)
+  console.log(n);
+  // get all the children values in an array
+  for (var i=0; i < n; i++){
+    v.push(children[i].feature.properties[maplayer])
+  }
+  console.log(v);
+  var maxval = Math.max.apply(Math, v); // get max value of children
+  console.log(maxval);
+  // find a point that has max value and grab its color code
+  var maxchild = {};
+  console.log(maxchild);
+
+  // children.eachLayer(function(child) { 
+  //   console.log(child);
+  //   // if(child.feature.properties[maplayer] == maxval){
+  //   //   maxchild = child;
+  //   // };
+  //   //return match[0];
+  // });
+  for (var i=0; i < n; i++){
+    if(children[i].feature.properties[maplayer] == maxval){
+       maxchild = children[i];
+     };
+  }
+  console.log(maxchild);
+  var myIcon = new L.DivIcon({
+          //html: html,
+          className: 'marker category-'+maxchild.feature.properties.cols, 
           iconSize: new L.Point(iconDim, iconDim)
       });
         //console.log(myIcon);
         //console.log(d.feature.properties[categoryField]);
   return myIcon;
 }
+
+// function defineClusterIcon(cluster) {
+//   var children = cluster.getAllChildMarkers(),
+//       n = children.length, //Get number of markers in cluster
+//       strokeWidth = 1, //Set clusterpie stroke width
+//       r = rmax-2*strokeWidth-(n<10?14:n<100?13:n<1000?12:10), //Calculate clusterpie radius...
+//       iconDim = (r+strokeWidth)*2, //...and divIcon dimensions (leaflet really want to know the size)
+//       data = d3.nest() //Build a dataset for the pie chart
+//         .key(function(d) { return d.feature.properties[categoryField]; })
+//         .entries(children, d3.map),
+//       //bake some svg markup
+//       html = bakeThePie({data: data,
+//                           valueFunc: function(d){return d.values.length;},
+//                           strokeWidth: 1,
+//                           outerRadius: r,
+//                           innerRadius: r-9,
+//                           pieClass: 'cluster-pie',
+//                           pieLabel: n,
+//                           pieLabelClass: 'marker-cluster-pie-label',
+//                           pathClassFunc: function(d){return "category-"+d.data.key;}
+//                           // pathTitleFunc: function(d){return metadata.fields[categoryField].lookup[d.data.key]+' ('+d.data.values.length+' accident'+(d.data.values.length!=1?'s':'')+')';}
+//                         }),
+//       //Create a new divIcon and assign the svg markup to the html property
+//       myIcon = new L.DivIcon({
+//           html: html,
+//           className: 'marker-cluster', 
+//           iconSize: new L.Point(iconDim, iconDim)
+//       });
+//         //console.log(myIcon);
+//         //console.log(d.feature.properties[categoryField]);
+//   return myIcon;
+// }
 
 /*function that generates a svg markup for the pie chart*/
 function bakeThePie(options) {
