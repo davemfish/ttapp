@@ -696,38 +696,35 @@ function defineFeature(feature, latlng) {
 function defineClusterIcon(cluster) {
   var children = cluster.getAllChildMarkers(),
       n = children.length, //Get number of markers in cluster
-      v = [],
+      v = [];
+      c = [];
       strokeWidth = 1, //Set clusterpie stroke width
       r = rmax-2*strokeWidth-(n<10?14:n<100?13:n<1000?12:10), //Calculate clusterpie radius...
       iconDim = (r+strokeWidth)*2; //...and divIcon dimensions (leaflet really want to know the size)
-  console.log(n);
-  // get all the children values in an array
+  //console.log(n);
+
+  // get all the children values into a 2-D array-like thing, along with colorcode
   for (var i=0; i < n; i++){
     v.push(children[i].feature.properties[maplayer])
+    c.push(children[i].feature.properties.cols)
   }
-  console.log(v);
-  var maxval = Math.max.apply(Math, v); // get max value of children
-  console.log(maxval);
-  // find a point that has max value and grab its color code
-  var maxchild = {};
-  console.log(maxchild);
+  //console.log(v);
+  var ind = v.indexOf(Math.max.apply(Math, v)); // get max value of children
+  //console.log(v[ind], c[ind]);
+  
+  // var maxchild = {};
+  // console.log(maxchild);
 
-  // children.eachLayer(function(child) { 
-  //   console.log(child);
-  //   // if(child.feature.properties[maplayer] == maxval){
-  //   //   maxchild = child;
-  //   // };
-  //   //return match[0];
-  // });
-  for (var i=0; i < n; i++){
-    if(children[i].feature.properties[maplayer] == maxval){
-       maxchild = children[i];
-     };
-  }
-  console.log(maxchild);
+  // // loop through children again and find one with max value 
+  // for (var i=0; i < n; i++){
+  //   if(children[i].feature.properties[maplayer] == maxval){
+  //      maxchild = children[i];
+  //    };
+  // }
+  // console.log(maxchild);
   var myIcon = new L.DivIcon({
           //html: html,
-          className: 'marker category-'+maxchild.feature.properties.cols, 
+          className: 'marker category-'+c[ind], // define class for CSS based on maxchild colorcode
           iconSize: new L.Point(iconDim, iconDim)
       });
         //console.log(myIcon);
