@@ -35,6 +35,8 @@ Cut2Num <- function(x){
   return(list(brks=unique(num.x), ids=ids))
 }
 
+### The symbology scheme:
+
 LoadSpace <- function(workspace, outspace){ # x is the session ID
   logfile <- readLines(con=file.path(workspace, "rec_logfile.txt"), n=-1)
   blanks <- which(logfile=="")
@@ -64,6 +66,13 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
   for (j in 1:length(names(atts))){ ## loop through fields in table and make geojson for each
     nm <- names(atts)[j]
     dat <- atts[,nm]
+    ## if dat contains only 1 unique value, skip this attribute altogether.
+    ## it won't get a geojson for the map, but will still appear in table.
+    if (length(unique(dat)) < 2){
+      paste("WARN:", nm, "values are the same in every cell. Layer will not be mapped", sep=" ")
+      leg.list[[j]] <- list(layer=nm, leglabs="none", legcols="none")
+      next
+    }
     if (nm %in% c("usdyav", "usdyav_pr", "usdyav_est")){
       ramp <- "BuPu"
     } else {
@@ -72,23 +81,23 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
     
     if (nm %in% c("usdyav", "usdyav_est")){
       ## log transform data and make cuts
-      brks <- cut(log(dat+1), breaks=6)
-      ## assign colors from ramp to break categories
-      cols <- as.list(brewer.pal(6, ramp)[as.numeric(brks)])
-      ## manually assign color for zeros
-      cols[which(dat == 0)] <- "#d3d3d3"
-      ## convert brks factor to numeric, for use in legend
-      brks.list <- Cut2Num(brks)
-      num.brks <- brks.list[["brks"]]
-      ## back-transform numeric breaks to real values
-      legbrks <- round(exp(num.brks)-1, digits=3)
+        brks <- cut(log(dat+1), breaks=6)
+        ## assign colors from ramp to break categories
+        cols <- as.list(brewer.pal(6, ramp)[as.numeric(brks)])
+        ## manually assign color for zeros
+        cols[which(dat == 0)] <- "#d3d3d3"
+        ## convert brks factor to numeric, for use in legend
+        brks.list <- Cut2Num(brks)
+        num.brks <- brks.list[["brks"]]
+        ## back-transform numeric breaks to real values
+        legbrks <- round(exp(num.brks)-1, digits=3)
     } else { # same as above but without log transform
-      brks <- cut(dat, breaks=6) # fails if breaks not unique
-      cols <- as.list(brewer.pal(6, ramp)[as.numeric(brks)])
-      cols[which(dat == 0)] <- "#d3d3d3"
-      brks.list <- Cut2Num(brks)
-      num.brks <- brks.list[["brks"]]
-      legbrks <- round(num.brks, digits=3)
+        brks <- cut(dat, breaks=6) # fails if breaks not unique
+        cols <- as.list(brewer.pal(6, ramp)[as.numeric(brks)])
+        cols[which(dat == 0)] <- "#d3d3d3"
+        brks.list <- Cut2Num(brks)
+        num.brks <- brks.list[["brks"]]
+        legbrks <- round(num.brks, digits=3)
     }
     
     legbrks[1] <- round(min(dat), digits=3) ## set lower limit to min val.
@@ -115,6 +124,12 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
       }
       legcols <- brewer.pal(length(legbrks)-1, ramp)
     } 
+    ## if there are only 2 categories with data, 
+    ## limit the colors listed in legend to only 2
+    ## (colorBrewer pallette returns 3 minimum)
+    if (length(unlist(leglabs)) < length(legcols)){
+      legcols <- tail(legcols, length(unlist(leglabs)))
+    }
     
     
     leg.list[[j]] <- list(layer=nm, leglabs=unlist(leglabs), legcols=legcols)
