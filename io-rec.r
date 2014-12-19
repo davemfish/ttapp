@@ -44,7 +44,7 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
   sessid <- sub(sessid, pattern="\\.", replacement="")
   
   ## get results and unzip
-  #ws <- file.path(workspace)   ## test locally
+  #ws <- file.path(workspace, "results.zip")   ## test locally
   #unzip(file.path(ws, "results.zip"), exdir="C:/Users/dfisher5/Documents/Shiny/www/ttapp-rec/tmp/testingio")
   ws <- file.path("/mnt/recreation/public_html/data", sessid, "results.zip")
   #setwd(workspace)
@@ -83,7 +83,7 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
       ## back-transform numeric breaks to real values
       legbrks <- round(exp(num.brks)-1, digits=3)
     } else { # same as above but without log transform
-      brks <- cut(dat, breaks=6)
+      brks <- cut(dat, breaks=6) # fails if breaks not unique
       cols <- as.list(brewer.pal(6, ramp)[as.numeric(brks)])
       cols[which(dat == 0)] <- "#d3d3d3"
       brks.list <- Cut2Num(brks)
