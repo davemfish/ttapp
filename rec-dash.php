@@ -572,7 +572,10 @@ function drawChart() {
         //popupContent = '<span class="attribute">'+poptable+'</span>';
         //console.log(popupContent);
         popupContent = '<div class="map-popup">'+ poptable +'</div>';
-        layer.bindPopup(popupContent,{offset: L.point(-3,-2)});
+        layer.bindPopup(popupContent,{
+          offset: L.point(-3,-2),
+          maxHeight: 300
+        });
       }
 
       //Ready to go, load the geojson
