@@ -99,8 +99,8 @@ echo "
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
-    <li role=\"presentation\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
-    <li role=\"presentation\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
+    <li role=\"presentation\" class=\"disabledTab\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
+    <li role=\"presentation\" class=\"disabledTab\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
     <li role=\"presentation\"><a href=\"#three\" aria-controls=\"three\" role=\"tab\" data-toggle=\"tab\">About</a></li>
   </ul> ";
 
@@ -168,10 +168,13 @@ echo "
     ob_flush();
 
     // after upload and R completes, switch to map tab
+        //     $('#mytabs a[href=\"#one\"]').attr('data-toggle', 'tab')
+        // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
     echo "
     <script>
     console.log('switching?');
       $(function () {
+        $('ul.nav li').removeClass('disabledTab');
         $('#mytabs a[href=\"#one\"]').tab('show')
     map.invalidateSize(false);
       })
