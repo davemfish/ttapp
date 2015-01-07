@@ -194,6 +194,6 @@
     color: #777;
 }
 
-.disabledTab{
+.disabled{
     pointer-events: none;
 }

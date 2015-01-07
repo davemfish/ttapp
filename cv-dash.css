@@ -233,3 +233,7 @@
     margin: 0 0 5px;
     color: #777;
 }
+
+.disabled{
+    pointer-events: none;
+}

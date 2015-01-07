@@ -99,8 +99,8 @@ echo "
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
-    <li role=\"presentation\" class=\"disabledTab\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
-    <li role=\"presentation\" class=\"disabledTab\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
+    <li role=\"presentation\" class=\"disabled\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
+    <li role=\"presentation\" class=\"disabled\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
     <li role=\"presentation\"><a href=\"#three\" aria-controls=\"three\" role=\"tab\" data-toggle=\"tab\">About</a></li>
   </ul> ";
 
@@ -174,7 +174,7 @@ echo "
     <script>
     console.log('switching?');
       $(function () {
-        $('ul.nav li').removeClass('disabledTab');
+        $('ul.nav li').removeClass('disabled');
         $('#mytabs a[href=\"#one\"]').tab('show')
     map.invalidateSize(false);
       })
