@@ -578,7 +578,7 @@ function drawChart() {
         //console.log(popupContent);
         popupContent = '<div class="map-popup">'+ poptable +'</div>';
         layer.bindPopup(popupContent,{
-          offset: L.point(-3,-2),
+          offset: L.point(0,10),
           maxHeight: 300
         });
       }
