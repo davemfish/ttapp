@@ -116,8 +116,13 @@ echo "
         <ul><br>Select <b>recreation_client-log-<i>YYYY-MM-DD--HH_MM_SS</i>.txt</b> from your InVEST workspace</ul>
         <br>
         <input type=Submit name=junk value=\"Upload Results\">
+        <ul align=\"right\">
+          <br>Don't have your own set of results to view just yet?
+          <br><input type=Submit name=demoit value=\"View Sample Results\">
+        </ul>
       </form>
     </div>";
+    // IF 'doit' means if Upload button was clicked.
     if (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name'])) {
       // File Quality Control
       // // check for errors
@@ -155,7 +160,7 @@ echo "
 
       // Upload the tables
       echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
-      // // exposure table
+      // // logfile
       $outloadfile = $pathid . "rec_logfile.txt";
       if (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
         echo "<div class=\"alert alert-success\" role=\"alert\">logfile was successfully uploaded.</div>";
@@ -176,6 +181,40 @@ echo "
       // after upload and R completes, switch to map tab
           //     $('#mytabs a[href=\"#one\"]').attr('data-toggle', 'tab')
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
+      echo "
+      <script>
+      console.log('switching?');
+        $(function () {
+          $('ul.nav li').removeClass('disabled');
+          $('#mytabs a[href=\"#one\"]').tab('show')
+      map.invalidateSize(false);
+        })
+      </script> ";
+    }
+    // Load Demo Data
+    if (isset($_POST['demoit'])) {
+
+      echo "<div class=\"alert alert-info\" role=\"alert\">starting session... </div>";
+//       if (null != session_id()) {
+//       if(session_id() == '' || !isset($_SESSION)) {
+//         session_start();
+//       } else {
+//        session_start();
+//       session_regenerate_id(FALSE);
+//       }
+      // make a unique folder for each run
+      // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
+      $sessid = "processedRec";
+      $pathid = "./sample/" . $sessid . "/";
+
+      echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
+      flush();
+      ob_flush();
+
+      // set the time limit to XX seconds
+      set_time_limit(300);
+
+      echo "<div class=\"alert alert-info\" role=\"alert\">Loading sample data...</div>";
       echo "
       <script>
       console.log('switching?');
