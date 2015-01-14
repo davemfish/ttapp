@@ -123,6 +123,7 @@ echo "
       <div class=\"row\">
       <div class=\"col-lg-8\"></div>
       <div class=\"col-lg-4\">
+        <br>
         <div class=\"well well-sm\">
           <ul>
             <b>Don't have results to upload just yet?</b>
@@ -207,13 +208,7 @@ echo "
     if (isset($_POST['demoit'])) {
 
       echo "<div class=\"alert alert-info\" role=\"alert\">starting session... </div>";
-//       if (null != session_id()) {
-//       if(session_id() == '' || !isset($_SESSION)) {
-//         session_start();
-//       } else {
-//        session_start();
-//       session_regenerate_id(FALSE);
-//       }
+
       // make a unique folder for each run
       // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
       $sessid = "processedRec";
@@ -287,6 +282,7 @@ echo "
 
 
 // If data already exists, map it yah!
+if (isset($_POST['pathid'])){  // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
 if (file_exists($pathid . "rec_logfile.txt")) {
 
   echo "
@@ -931,6 +927,7 @@ function serializeXmlNode(xmlNode) {
   //   </form>
   // </div> ";
 
+}
 }
 
 
