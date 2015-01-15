@@ -397,7 +397,7 @@ var  rmax = 27, //Maximum radius for cluster pies
 
 // add stuff to the map
 
-map.addLayer(OpenMapSurfer_Roads);
+map.addLayer(MapBoxSat);
 if (pointdata){
   map.addLayer(markerclusters);
   overlays = {

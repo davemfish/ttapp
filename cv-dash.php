@@ -382,7 +382,7 @@ var  rmax = 27, //Maximum radius for cluster pies
     
     L.control.layers(base, overlays).addTo(map);
 ;
-map.addLayer(OpenMapSurfer_Roads);
+map.addLayer(MapBoxSat);
 map.addLayer(markerclusters);
 
 
