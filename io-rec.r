@@ -69,7 +69,7 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
     ## if dat contains only 1 unique value, skip this attribute altogether.
     ## it won't get a geojson for the map, but will still appear in table.
     if (length(unique(dat)) < 2){
-      paste("WARN:", nm, "values are the same in every cell. Layer will not be mapped", sep=" ")
+      #paste("WARN:", nm, "values are the same in every cell. Layer will not be mapped", sep=" ")
       leg.list[[j]] <- list(layer=nm, leglabs="none", legcols="none")
       next
     }
@@ -160,8 +160,8 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
     if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
       writeOGR(obj=spdf, dsn=file.path(outspace, paste(nm, ".geojson", sep="")), layer="layer", driver="GeoJSON", overwrite=T)
     }
-    print("QAQC:")
-    print(paste("WARN: Creating", paste(outspace, nm, ".geojson", sep="")))
+    #print("QAQC:")
+    #print(paste("WARN: Creating", paste(outspace, nm, ".geojson", sep="")))
   }
   writeLines(toJSON(leg.list), file.path(outspace, "legend.json"))
   writeLines(toJSON(init), file.path(outspace, "init.json"))
