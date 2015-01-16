@@ -476,10 +476,11 @@ function drawChart() {
       
       // use arrayData to load the select dropdown with the appropriate options
       // first remove cellArea from the array of columns
-      var cellarea = arrayData[0] .indexOf("cellArea");
+      var cellarea = arrayData[0].indexOf("cellArea");
+      var cellid = arrayData[0].indexOf("cellID");
 
       for (var i = 0; i < arrayData[0].length; i++) {
-        if (i === cellarea){
+        if (i === cellarea || i === cellid){
           continue;
         }
       // this adds the given option to select element
