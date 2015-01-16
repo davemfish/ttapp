@@ -257,23 +257,27 @@ echo "
     <div id=\"table_div\"></div>
   </div>
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"three\"> 
+    <div class=\"row\">
+      <div class=\"col-lg-7\">
 
-    <h3>About this application</h3>
+        <h3>About</h3>
 
-    <p>This application allows an InVEST user to view model results interactively in a web browser. 
-    All the data displayed in this app come from the <em>grid.shp</em> shapefile in the results zip file of an InVEST output workspace.</p>
-    <br>
-    <p>The raw data from the <em>grid.shp</em> is viewable on the Table tab and on the Map.
-    If your gridded AOI contains more than 3000 cells, the map will display cells as points,
-    which are clustered together at low zoom levels. A cluster's color represents the largest value point within the cluster.
-    Clicking a cluster reveals all its individual points.</p>
-    <br>
-    <p>Not all of the results produced by the Recreation model are displayed in this application.
-    You may wish to explore and analyze your results further with GIS or data analysis software.</p>
-    <br>
-    <p>This application is built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
-    you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></p>
-
+        <p>This application allows an <a href=\"http://www.naturalcapitalproject.org/InVEST.html\"> InVEST</a> user to view model results interactively in a web browser. 
+        All the data displayed in this app come from the <em>grid.shp</em> shapefile in the results zip file of an InVEST output workspace.</p>
+        <p>The raw data from the <em>grid.shp</em> is viewable on the Table tab and on the Map.
+        If your gridded AOI contains more than 3000 cells, the map will display cells as points,
+        which are clustered together at low zoom levels. A cluster's color represents the largest value point within the cluster.
+        Clicking a cluster reveals all its individual points.</p>
+        <p>Not all of the results produced by the Recreation model are displayed in this application.
+        You may wish to explore and analyze your results further with GIS or data analysis software.</p>
+        <h3> Compatibility </h3>
+        <p>For best results, please try Google Chrome or Mozilla Firefox web browsers.</p>
+        <p>This app has only been tested with InVEST versions 3.0.0+</p>
+        <br>
+        <small><i>Built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
+        you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></i></small>
+      </div>
+    </div>
   </div>
   
   </div>
