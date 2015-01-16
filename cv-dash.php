@@ -294,7 +294,7 @@ echo "
 
 
 // If data already exists, map it yah!
-if (isset($_POST['pathid'])){ // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
+//if (isset($_POST['pathid'])){ // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
 if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PRE_aoi.tif")) {
 
   echo "
@@ -786,7 +786,7 @@ function serializeXmlNode(xmlNode) {
   // </div> ";
 
 }
-}
+//}
 
 
 

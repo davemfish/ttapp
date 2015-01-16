@@ -228,10 +228,11 @@ echo "
         $(function () {
           $('ul.nav li').removeClass('disabled');
           $('#mytabs a[href=\"#one\"]').tab('show')
-      map.invalidateSize(false);
+          map.invalidateSize(false);
         })
       </script> ";
     }
+    //map.invalidateSize(false);
 
   echo "
   </div>
@@ -282,7 +283,7 @@ echo "
 
 
 // If data already exists, map it yah!
-if (isset($_POST['pathid'])){  // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
+//if (isset($_POST['pathid'])){  // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
 if (file_exists($pathid . "rec_logfile.txt")) {
 
   echo "
@@ -928,7 +929,7 @@ function serializeXmlNode(xmlNode) {
   // </div> ";
 
 }
-}
+//}
 
 
 
