@@ -186,7 +186,8 @@ echo "
       flush();
       ob_flush();
       echo "<div class=\"alert alert-info\" role=\"alert\">";
-      passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
+      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
+      passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log");  // -e "^ " -e "^\[" 
       echo "</div>";
       flush();
       ob_flush();
