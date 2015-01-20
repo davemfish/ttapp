@@ -80,12 +80,38 @@ LoadSpace <- function(ws, outpath){
   bbox <- bbox(aoi.wgs84)
   
   shps <- list.files(file.path(ws, "output/Maps"), pattern="*.shp$")
+  tifs <- list.files(file.path(ws, "output/Maps"), pattern="cum_risk.*tif$")
+  
+  ## list of tif filenames
+  ptm <- proc.time()
+  summlist <- list()
+  for (g in 1: length(tifs)){
+    nm1 <- sub(pattern=".tif", replacement="", tifs[g])
+    rast <- raster(file.path(ws, "output/Maps", tifs[g]))
+    regionlist <- list()
+    for (k in 1:length(aoi)){
+      region <- aoi[k,]
+      vals <- unlist(extract(rast, region))
+      #df <- as.data.frame(table(vals))
+      factorx <- factor(cut(vals, breaks=nclass.Sturges(vals)))
+      df <- as.data.frame(table(factorx))
+      df$Habitat <- nm1
+      df$Subregion <- as.character(region@data$name)
+      regionlist[[k]] <- df
+    }
+    summlist[[g]] <- do.call("rbind", regionlist)
+  }
+  habsummary <- do.call("rbind", summlist)
+  proc.time() - ptm
+  
   #mapdatalist <- list()
   leg.list <- list()
   
   ## for each shapefile in Maps directory
+  ptm <- proc.time()
   summ <- list()
-  for (j in 1:length(shps)){
+  #for (j in 1:length(shps)){
+  for (j in 1:4){
     
     nm <- sub(pattern=".shp", replacement="", shps[j])
     print("read shp")
@@ -131,14 +157,32 @@ LoadSpace <- function(ws, outpath){
     for (k in 1:length(aoi)){
       region <- aoi[k,]
       ## intersect risk class with current subregion
-      ptm <- proc.time()
       low.sect <- gIntersection(low, region, byid=F)
       med.sect <- gIntersection(med, region, byid=F)
       high.sect <- gIntersection(high, region, byid=F)
-      proc.time() - ptm
       
       ## sum areas of indiv pgons in each class
-      risk.areas <- c(sum(gArea(low.sect)), sum(gArea(med.sect)), sum(gArea(high.sect)))
+      ## some error handling in case an above intersection returns NULL
+      l <- tryCatch({
+        a <- sum(gArea(low.sect))
+      }, error=function(e){
+        a <- 0
+        return(a)
+      })
+      m <- tryCatch({
+        a <- sum(gArea(med.sect))
+      }, error=function(e){
+        a <- 0
+        return(a)
+      })
+      h <- tryCatch({
+        a <- sum(gArea(high.sect))
+      }, error=function(e){
+        a <- 0
+        return(a)
+      })
+      risk.areas <- c(l,m,h)
+      #risk.areas <- c(sum(gArea(low.sect)), sum(gArea(med.sect)), sum(gArea(high.sect)))
       ## total habitat area
       habitat.area <- sum(risk.areas)
       ## percent of habitat in each risk class
@@ -152,6 +196,9 @@ LoadSpace <- function(ws, outpath){
     
     ## append this habitat summary to a dataframe
     summ[[j]] <- do.call("rbind", tab.list)
+  } # next habitat
+  habsummary <- do.call("rbind", summ)
+  proc.time() - ptm
     
     ####### Transform to wgs84 and style ######
     shp.wgs84 <- spTransform(shp.prj, CRS("+proj=longlat +datum=WGS84 +no_defs"))
