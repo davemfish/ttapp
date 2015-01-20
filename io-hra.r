@@ -102,103 +102,22 @@ LoadSpace <- function(ws, outpath){
     summlist[[g]] <- do.call("rbind", regionlist)
   }
   habsummary <- do.call("rbind", summlist)
+  ## TODO -- formatting of habsummary content: transform counts to areas
+  
+  ## write habitat summary csv
+  write.csv(habsummary, file.path(outpath, "habsummary.csv"), row.names=F)
   proc.time() - ptm
   
   #mapdatalist <- list()
   leg.list <- list()
   
   ## for each shapefile in Maps directory
-  ptm <- proc.time()
-  summ <- list()
-  #for (j in 1:length(shps)){
-  for (j in 1:4){
+
+  for (j in 1:length(shps)){
     
     nm <- sub(pattern=".shp", replacement="", shps[j])
     print("read shp")
     shp.prj <- readOGR(dsn=file.path(ws, "output/Maps"), layer=nm)
-    
-    ## use projected habitat shp to build table of risk class/area
-    
-    ## initialize table stuff
-    summarytable <- data.frame(matrix(NA, nrow=3, ncol=4))
-    #tab.list[[j]] <- data.frame(summarytable)
-    names(summarytable) <- c("Habitat", "Risk", "Percent_ofHab", "Subregion")
-    summarytable$Habitat <- nm
-    summarytable$Risk <- c("LOW", "MED", "HIGH")
-    
-    ## subset hab shp into each risk class
-    low <- shp.prj[which(shp.prj@data$CLASSIFY=="LOW"),]
-    med <- shp.prj[which(shp.prj@data$CLASSIFY=="MED"),]
-    high <- shp.prj[which(shp.prj@data$CLASSIFY=="HIGH"),]
-    
-    ## check for invalid geometries
-    ## buffer by 0 -- a known workaround to fix this
-    if (!(gIsValid(low))){
-      print("buffering")
-      low <- gBuffer(low, width=0)
-    } else {
-      print("VALID")
-    }
-    if (!(gIsValid(med))){
-      print("buffering")
-      med <- gBuffer(med, width=0)
-    } else {
-      print("VALID")
-    }
-    if (!(gIsValid(high))){
-      print("buffering")
-      high <- gBuffer(high, width=0)
-    } else {
-      print("VALID")
-    }
-    
-    ## For each subregion in AOI
-    tab.list <- list()
-    for (k in 1:length(aoi)){
-      region <- aoi[k,]
-      ## intersect risk class with current subregion
-      low.sect <- gIntersection(low, region, byid=F)
-      med.sect <- gIntersection(med, region, byid=F)
-      high.sect <- gIntersection(high, region, byid=F)
-      
-      ## sum areas of indiv pgons in each class
-      ## some error handling in case an above intersection returns NULL
-      l <- tryCatch({
-        a <- sum(gArea(low.sect))
-      }, error=function(e){
-        a <- 0
-        return(a)
-      })
-      m <- tryCatch({
-        a <- sum(gArea(med.sect))
-      }, error=function(e){
-        a <- 0
-        return(a)
-      })
-      h <- tryCatch({
-        a <- sum(gArea(high.sect))
-      }, error=function(e){
-        a <- 0
-        return(a)
-      })
-      risk.areas <- c(l,m,h)
-      #risk.areas <- c(sum(gArea(low.sect)), sum(gArea(med.sect)), sum(gArea(high.sect)))
-      ## total habitat area
-      habitat.area <- sum(risk.areas)
-      ## percent of habitat in each risk class
-      ## TODO: percentage of AOI in each risk class
-      percentage <- risk.areas/habitat.area
-      summarytable$Percent_ofHab <- percentage
-      summarytable$Subregion <- as.character(region@data$name)
-      ## store result to list
-      tab.list[[k]] <- summarytable
-    } # next subregion
-    
-    ## append this habitat summary to a dataframe
-    summ[[j]] <- do.call("rbind", tab.list)
-  } # next habitat
-  habsummary <- do.call("rbind", summ)
-  proc.time() - ptm
     
     ####### Transform to wgs84 and style ######
     shp.wgs84 <- spTransform(shp.prj, CRS("+proj=longlat +datum=WGS84 +no_defs"))
@@ -280,10 +199,6 @@ LoadSpace <- function(ws, outpath){
   ## write legend json
   writeLines(toJSON(leg.list[1:length(leg.list)]), file.path(outpath, "legend.json"))
 
-  ## write habitat summary csv
-  habsummary <- do.call("rbind", summ)
-  habsummary$Percent_ofHab <- habsummary$Percent_ofHab*100
-  write.csv(habsummary, file.path(outpath, "habsummary.csv"), row.names=F)
 } # close function def
 
 #workspace <- paste("/var/www/html/ttapp/tmp-cv/", sess, "/", sep='')
