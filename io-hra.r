@@ -1,23 +1,37 @@
-## Data flow for HRA-dash:
-## client upload zip to server
+####### Data flow for HRA-dash: #################
+## client upload zip to server, including entire output workspace
 ## server unzip with php
-## server run some gdal commands to convert tif to shp:
 
-### For gdal_calc, '0' is interpreted as NoData and is left out of 
-### the subsequent polygons. This is desired behavior for ecosys_risk.tif, 
-### maybe not for other tifs?
-### For gdal_polygonize, it dissolves.
+## server run a shell script that includes: 
 
-#   gdal_calc -A ecosys_risk.tif --outfile=ecorisk_mult.tif --calc="A*10000"    
-#   gdal_polygonize ecorisk_mult.tif -f "ESRI Shapefile" ecosys_risk.shp ecosys_risk risk
+### GDAL commands to convert tif to shp:
 
-## values in ecosys_risk shp will need be divided by 1000 to get original float vals.
-## server run this R script to read shp, style, and write geojson
+###  For gdal_calc, '0' is interpreted as NoData and is left out of 
+###  the subsequent polygons. This is desired behavior for ecosys_risk.tif, 
+###  maybe not for other tifs?
+###  For gdal_polygonize, it dissolves.
 
-# subregions shp is not available among outputs.
+#     gdal_calc -A ecosys_risk.tif --outfile=ecorisk_mult.tif --calc="A*10000"    
+#     gdal_polygonize ecorisk_mult.tif -f "ESRI Shapefile" ecosys_risk.shp ecosys_risk risk
+
+    ### can ogr2ogr to reduce coord precision happen here, shp2shp? What happens to coords
+    ### when R reads the shp and writes the GeoJSON?
+
+### R script (this one) to read shp, style, and write geojson
+
+### OGR to reduce the coordinate precision of geojson, greatly reduces filesize
+
+#     ogr2ogr -f "GeoJSON" -lco COORDINATE_PRECISION=5 ecosys_risk.geojson ecosys_risk.geojson
+
+################################################
+
+## subregions shp is not available among outputs.
+
+## Simple bar charts Area ~ Risk class.
 
 library(raster)
 library(rgeos)
+library(ggplot2)
 library(rgdal)
 library(RColorBrewer)
 library(RJSONIO)
@@ -30,17 +44,12 @@ Cut2Num <- function(x){
 }
 
 
-## Build a table holding all values from these layers at each point (csv with 300,000+ rows).
-# but the polygonized tifs don't have pgons for each cell. 
-
 ## On click of ecosys_risk, what info to return?
 # val of ecosys_risk
 # Val of cumulative habitat risk for all hab layers present
 # list of stressors present
 
-## Then symbolize based on entire ranges of variables.
-
-## SYMBOLIZE:
+## SYMBOLIZATION:
 
 ## habitat risk shps - categorical
 #vals 1,2,3
@@ -60,15 +69,91 @@ Cut2Num <- function(x){
 
 LoadSpace <- function(ws, outpath){
   #ws <- "C:/Users/dfisher5/Documents/Shiny/HRA/data"
+  ##### Load AOI
+  aoi <- readOGR(dsn=file.path(ws, "intermediate"), layer="temp_aoi_copy")
+  ## get Area of AOI in projected units
+  ## TODO: grep the proj4string for units??
+  area.subregions <- gArea(aoi)
+  area.aoi <- sum(gArea(aoi))
+  
+  aoi.wgs84 <- spTransform(aoi, CRS("+proj=longlat +datum=WGS84 +no_defs"))
+  bbox <- bbox(aoi.wgs84)
+  
   shps <- list.files(file.path(ws, "output/Maps"), pattern="*.shp$")
-  mapdatalist <- list()
+  #mapdatalist <- list()
   leg.list <- list()
   
+  ## for each shapefile in Maps directory
+  summ <- list()
   for (j in 1:length(shps)){
     
     nm <- sub(pattern=".shp", replacement="", shps[j])
     print("read shp")
     shp.prj <- readOGR(dsn=file.path(ws, "output/Maps"), layer=nm)
+    
+    ## use projected habitat shp to build table of risk class/area
+    
+    ## initialize table stuff
+    summarytable <- data.frame(matrix(NA, nrow=3, ncol=4))
+    #tab.list[[j]] <- data.frame(summarytable)
+    names(summarytable) <- c("Habitat", "Risk", "Percent_ofHab", "Subregion")
+    summarytable$Habitat <- nm
+    summarytable$Risk <- c("LOW", "MED", "HIGH")
+    
+    ## subset hab shp into each risk class
+    low <- shp.prj[which(shp.prj@data$CLASSIFY=="LOW"),]
+    med <- shp.prj[which(shp.prj@data$CLASSIFY=="MED"),]
+    high <- shp.prj[which(shp.prj@data$CLASSIFY=="HIGH"),]
+    
+    ## check for invalid geometries
+    ## buffer by 0 -- a known workaround to fix this
+    if (!(gIsValid(low))){
+      print("buffering")
+      low <- gBuffer(low, width=0)
+    } else {
+      print("VALID")
+    }
+    if (!(gIsValid(med))){
+      print("buffering")
+      med <- gBuffer(med, width=0)
+    } else {
+      print("VALID")
+    }
+    if (!(gIsValid(high))){
+      print("buffering")
+      high <- gBuffer(high, width=0)
+    } else {
+      print("VALID")
+    }
+    
+    ## For each subregion in AOI
+    tab.list <- list()
+    for (k in 1:length(aoi)){
+      region <- aoi[k,]
+      ## intersect risk class with current subregion
+      ptm <- proc.time()
+      low.sect <- gIntersection(low, region, byid=F)
+      med.sect <- gIntersection(med, region, byid=F)
+      high.sect <- gIntersection(high, region, byid=F)
+      proc.time() - ptm
+      
+      ## sum areas of indiv pgons in each class
+      risk.areas <- c(sum(gArea(low.sect)), sum(gArea(med.sect)), sum(gArea(high.sect)))
+      ## total habitat area
+      habitat.area <- sum(risk.areas)
+      ## percent of habitat in each risk class
+      ## TODO: percentage of AOI in each risk class
+      percentage <- risk.areas/habitat.area
+      summarytable$Percent_ofHab <- percentage
+      summarytable$Subregion <- as.character(region@data$name)
+      ## store result to list
+      tab.list[[k]] <- summarytable
+    } # next subregion
+    
+    ## append this habitat summary to a dataframe
+    summ[[j]] <- do.call("rbind", tab.list)
+    
+    ####### Transform to wgs84 and style ######
     shp.wgs84 <- spTransform(shp.prj, CRS("+proj=longlat +datum=WGS84 +no_defs"))
     
     if (nm == "ecosys_risk"){
@@ -125,14 +210,33 @@ LoadSpace <- function(ws, outpath){
     print("write json")
     
     ## write geojson
+    ## limit coord precision to 5 decimals
+    #print(round(coordinates(shp.wgs84)[1:5,], digits=5), digits=10)
+#     test <- shp.wgs84
+#     test.df <- fortify(test)
+#     newcoords <- round(test.df[,c(1,2)], digits=5)
+#     
+#     list of P <- Polygon(newcoords, hole=)
+#     list of Ps <- Polygons(list of P, ID)
+#     SP <- SpatialPolygons(list of Ps, order, proj4string=CRS())
+#     spdf <- SpatialPolygonsDataFrame(SP, data, match.ID=T)
+#     newcoords <- round(coordinates(test), digits=5)
+#     coordinates(test.df) <- newcoords
+    
     jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
     if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
       writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
     }
-    ## write legend json
-    writeLines(toJSON(leg.list[1:length(leg.list)]), file.path(outpath, "legend.json"))
     
-  } # close loop through shapefiles
+  } # next shapefile
+
+  ## write legend json
+  writeLines(toJSON(leg.list[1:length(leg.list)]), file.path(outpath, "legend.json"))
+
+  ## write habitat summary csv
+  habsummary <- do.call("rbind", summ)
+  habsummary$Percent_ofHab <- habsummary$Percent_ofHab*100
+  write.csv(habsummary, file.path(outpath, "habsummary.csv"), row.names=F)
 } # close function def
 
 #workspace <- paste("/var/www/html/ttapp/tmp-cv/", sess, "/", sep='')
@@ -142,6 +246,7 @@ outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp-hra/"
 LoadSpace(workspace, outspace)
 
 ####################################
+
 ### trying stuff out with rasters
 
 # r.risk <- raster(file.path(ws, "output/Maps/risk_mult.tif"))
