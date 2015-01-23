@@ -1,0 +1,92 @@
+Arguments:
+aoi_file_name C:\InVEST_3_0_1_x86\Recreation\input\initial\BC_AOI.shp
+cell_size     5000.0
+comments      
+data_dir      C:\InVEST_3_0_1_x86\Recreation\input\initial\predictors
+download      False
+global_data   False
+grid          True
+grid_type     1
+landscan      False
+lulc          False
+mode          initial
+osm           False
+workspace_dir C:\InVEST_3_0_1_x86\Recreation\output
+
+
+01/14/2015 09:21:37  root               INFO     Logging will be saved to recreation_client-log-2015-01-14--09_21_37.txt
+01/14/2015 09:21:37  root               DEBUG    Loaded the model from invest_natcap.recreation.recreation_client
+01/14/2015 09:21:37  root               INFO     Executing the loaded model
+01/14/2015 09:21:37  root               INFO     Running InVEST version "3.0.1"
+01/14/2015 09:21:37  root               INFO     Python architecture: ('32bit', 'WindowsPE')
+01/14/2015 09:21:37  root               INFO     Disk space remaining for workspace: 121.57 GB
+01/14/2015 09:21:37  root               INFO     Pointing temporary directory at the workspace at C:\InVEST_3_0_1_x86\Recreation\output
+01/14/2015 09:21:37  root               INFO     Updating os.environ["TMP"]=C:\Users\dfisher5\AppData\Local\Temp to C:\InVEST_3_0_1_x86\Recreation\output
+01/14/2015 09:21:37  root               INFO     Updating os.environ["TEMP"]=C:\Users\dfisher5\AppData\Local\Temp to C:\InVEST_3_0_1_x86\Recreation\output
+01/14/2015 09:21:37  root               INFO     Setting os.environ["TMPDIR"]=C:\InVEST_3_0_1_x86\Recreation\output
+01/14/2015 09:21:37  root               INFO     Starting recreation_client
+01/14/2015 09:21:37  recreation_client_init INFO     URL: http://vulpes.sefs.uw.edu/~recreation/recreation_server_version.php.
+01/14/2015 09:21:37  recreation_client_init INFO     Trying URL: http://vulpes.sefs.uw.edu/~recreation/recreation_server_version.php.
+01/14/2015 09:21:37  recreation_client_init INFO     Assigned server session id ohecja8a8ns26m5ufami25qdh4.
+01/14/2015 09:21:37  recreation_client_init INFO     Checking version.
+01/14/2015 09:21:37  recreation_client_init INFO     You have a compatible version.
+01/14/2015 09:21:37  recreation_client_init INFO     Finished checking version.
+01/14/2015 09:21:37  recreation_client_init INFO     Validating AOI.
+01/14/2015 09:21:37  recreation_client_init INFO     Processing predictors.
+01/14/2015 09:21:37  recreation_client_init INFO     Found parks predictor.
+01/14/2015 09:21:37  recreation_client_init INFO     Opening predictors for uploading.
+01/14/2015 09:21:37  recreation_client_init INFO     Trying URL: http://vulpes.sefs.uw.edu/~recreation/recreation_server_predictors.php.
+01/14/2015 09:21:38  recreation_client_init INFO     You have uploaded 1 files.
+01/14/2015 09:21:38  recreation_client_init INFO     Your upload size is 229479.
+01/14/2015 09:21:38  recreation_client_init INFO     The max upload size is 104857600.
+01/14/2015 09:21:38  recreation_client_init INFO     Running server side processing.
+01/14/2015 09:21:38  recreation_client_init INFO     URL: http://vulpes.sefs.uw.edu/~recreation/recreation_server_initial.php.
+01/14/2015 09:21:38  recreation_client_init INFO     Trying URL: http://vulpes.sefs.uw.edu/~recreation/recreation_server_initial.php.
+01/14/2015 09:21:38  recreation_client_init INFO     Model running.
+01/14/2015 09:21:38  recreation_client_init INFO     Executing recreation Python script.
+01/14/2015 09:21:38  recreation_client_init INFO     Please wait.
+01/14/2015 09:21:53  recreation_client_init INFO      Running server side model with user provided parameters.
+01/14/2015 09:21:53  recreation_client_init INFO      The map unit coversion to meters is 1||0.
+01/14/2015 09:21:53  recreation_client_init INFO      Found parks predictor.
+01/14/2015 09:21:53  recreation_client_init INFO      Checking for custom categorization for standard predictors.
+01/14/2015 09:21:53  recreation_client_init INFO      Only user provided simple predictors found.
+01/14/2015 09:21:53  recreation_client_init INFO      Importing AOI /usr/local/public_html/data/ohecja8a8ns26m5ufami25qdh4/aoi.shp.
+01/14/2015 09:21:53  recreation_client_init INFO      Imported AOI.
+01/14/2015 09:21:53  recreation_client_init INFO      Importing user supplied predictor variables.
+01/14/2015 09:21:53  recreation_client_init INFO      Importing user supplied compound variables.
+01/14/2015 09:21:53  recreation_client_init INFO      Merging AOI if multiple parts.
+01/14/2015 09:21:53  recreation_client_init INFO      Transforming AOI to Latitude and Longitude.
+01/14/2015 09:21:53  recreation_client_init WARNING   The AOI intersects 5 and is covered by 0 administrative area(s).
+01/14/2015 09:21:53  recreation_client_init INFO      Creating hexagonal grid prj_grid from aoi_union using cell size 5000.0.
+01/14/2015 09:21:53  recreation_client_init INFO      The grid contains 574 cells.
+01/14/2015 09:21:53  recreation_client_init INFO      The AOI meets the maximum size requirement.
+01/14/2015 09:21:53  recreation_client_init INFO      Projecting the grid for clips.
+01/14/2015 09:21:53  recreation_client_init INFO      Clipping simple predictors.
+01/14/2015 09:21:53  recreation_client_init INFO      Clipping parks.
+01/14/2015 09:21:53  recreation_client_init INFO      Clipping compound predictors.
+01/14/2015 09:21:53  recreation_client_init INFO      Converting compound predictors to simple predictors.
+01/14/2015 09:21:53  recreation_client_init INFO      Projecting simple predictors.
+01/14/2015 09:21:53  recreation_client_init INFO      Projecting parks.
+01/14/2015 09:21:53  recreation_client_init INFO      Aggregating parks.
+01/14/2015 09:21:53  recreation_client_init INFO      Processing polygon predictor parks.
+01/14/2015 09:21:53  recreation_client_init INFO      Joining results.
+01/14/2015 09:21:53  recreation_client_init INFO      Creating data shapefile.
+01/14/2015 09:21:53  recreation_client_init INFO      Transforming grid to Flickr projection.
+01/14/2015 09:21:53  recreation_client_init INFO      Creating Flickr summary table.
+01/14/2015 09:21:53  recreation_client_init INFO      Dropping intermediate tables.
+01/14/2015 09:21:53  recreation_client_init INFO      Dropped intermediate tables.
+01/14/2015 09:21:53  recreation_client_init INFO     Finished processing data.
+01/14/2015 09:21:53  recreation_client_init INFO     Running regression.
+01/14/2015 09:21:53  recreation_client_init INFO     Trying URL: http://vulpes.sefs.uw.edu/~recreation/recreation_server_regression.php.
+01/14/2015 09:21:53  recreation_client_init INFO     Read data for regression computation.
+01/14/2015 09:21:53  recreation_client_init INFO     Calculations use mean annual photo-user-days from 2005-2012.
+01/14/2015 09:21:53  recreation_client_init INFO     Calculated photo-user-days.
+01/14/2015 09:21:53  recreation_client_init INFO     Performed linear regression.
+01/14/2015 09:21:53  recreation_client_init INFO     Wrote regression statistics.
+01/14/2015 09:21:53  recreation_client_init INFO     Trying URL: http://vulpes.sefs.uw.edu/~recreation/recreation_server_results.php.
+01/14/2015 09:21:53  recreation_client_init INFO     URL: http://vulpes.sefs.uw.edu/~recreation//data//ohecja8a8ns26m5ufami25qdh4/results.zip.
+01/14/2015 09:22:00  recreation_client_init INFO     Transaction complete
+01/14/2015 09:22:00  root               INFO     Opening file explorer to workspace directory
+01/14/2015 09:22:00  root               INFO     Using windows explorer to view files
+01/14/2015 09:22:00  root               INFO     Disk space free: 121.57 GB
+01/14/2015 09:22:0

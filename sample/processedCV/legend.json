@@ -1,0 +1,62 @@
+[
+ {
+ "layer": "shore_exposure",
+"leglabs": [ "0 - No", "1 - Yes" ],
+"legcols": [ "#92c5de", "#f4a582" ] 
+},
+{
+ "layer": "geomorphology",
+"leglabs": [ "1 - 2", "2 - 3", "3 - 4", "4 - 5" ],
+"legcols": [ "#FFFFB2", "#FECC5C", "#FD8D3C", "#E31A1C" ] 
+},
+{
+ "layer": "relief",
+"leglabs": [ "1 - 2", "2 - 3", "3 - 4", "4 - 5" ],
+"legcols": [ "#FFFFB2", "#FECC5C", "#FD8D3C", "#E31A1C" ] 
+},
+{
+ "layer": "natural_habitats",
+"leglabs": [ "2 - 3", "3 - 4", "4 - 5" ],
+"legcols": [ "#FECC5C", "#FD8D3C", "#E31A1C" ] 
+},
+{
+ "layer": "wave_exposure",
+"leglabs": [ "1 - 2", "2 - 3", "3 - 4", "4 - 5" ],
+"legcols": [ "#FFFFB2", "#FECC5C", "#FD8D3C", "#E31A1C" ] 
+},
+{
+ "layer": "surge_potential",
+"leglabs": [ "1 - 2", "2 - 3", "3 - 4", "4 - 5" ],
+"legcols": [ "#FFFFB2", "#FECC5C", "#FD8D3C", "#E31A1C" ] 
+},
+{
+ "layer": "sea_level_rise",
+"leglabs": [ "3", null ],
+"legcols": [ "#FD8D3C", null ] 
+},
+{
+ "layer": "coastal_exposure",
+"leglabs": [ "1 - 2", "2 - 3", "3 - 4", "4 - 5" ],
+"legcols": [ "#FFFFB2", "#FECC5C", "#FD8D3C", "#E31A1C" ] 
+},
+{
+ "layer": "coastal_exposure_no_habitats",
+"leglabs": [ "1 - 2", "2 - 3", "3 - 4", "4 - 5" ],
+"legcols": [ "#FFFFB2", "#FECC5C", "#FD8D3C", "#E31A1C" ] 
+},
+{
+ "layer": "habitat_role",
+"leglabs": [ "0", "0.068 - 0.104", "0.104 - 0.117", "0.117 - 0.131", "0.131 - 0.431" ],
+"legcols": [ "#d3d3d3", "#F2F0F7", "#CBC9E2", "#9E9AC8", "#6A51A3" ] 
+},
+{
+ "layer": "0_additional_layer_raw",
+"leglabs": [ "-1.7", null ],
+"legcols": [ "#8c2d04", null ] 
+},
+{
+ "layer": "erodible_shoreline",
+"leglabs": [ "0 - No", "1 - Yes" ],
+"legcols": [ "#92c5de", "#f4a582" ] 
+} 
+]
