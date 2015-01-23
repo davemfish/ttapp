@@ -674,8 +674,8 @@ function drawChart() {
                   opacity:1,
                   weight:0.5
                 }
-              },
-              onEachFeature: defineFeaturePopup
+              }
+              //onEachFeature: defineFeaturePopup
             });
             pgons.addLayer(markers);
           map.fitBounds(markers.getBounds());
@@ -722,8 +722,8 @@ function drawChart() {
                           opacity:1,
                           weight:0.5
                         }
-                      },
-                      onEachFeature: defineFeaturePopup
+                      }
+                      //onEachFeature: defineFeaturePopup
                     });
                     pgons.clearLayers(); 
                     pgons.addLayer(markers);
