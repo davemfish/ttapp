@@ -511,7 +511,7 @@ function drawChart() {
 
     // this new DataTable object holds all the data
     var data = new google.visualization.arrayToDataTable(arrayData);
-    console.log(arrayData[1]);
+    console.log(data);
 
     var table = new google.visualization.Table(document.getElementById('table_div'));
 
@@ -607,20 +607,23 @@ function drawChart() {
 
     table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
 
-    // // this view can select a subset of the data at a time
-    // var chartview = new google.visualization.DataView(data);
+    // // this view can select a subset of the data to plot as a chart
+    var chartview = new google.visualization.DataView(data);
+    console.log(chartview);
 
-    // chartview.setColumns([colnum]);
-    // //console.log(view);
+    chartview.setColumns([0,1]);
+    chartview.setRows([0,1,2,3,4,5,6]);
+    //console.log(view);
 
-    // var options = {
-    //    title: 'Distribution of mapped layer',
-    //    legend: { position: 'none' },
-    //    colors: ['gray'],
-    // };
+    var options = {
+       title: 'Distribution of Risk Scores',
+       legend: { position: 'none' },
+       colors: ['gray'],
+    };
 
-    // var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-    // chart.draw(chartview, options);
+    var chart = new google.visualization.ColumnChart(document.getElementById("chart_div"));
+    //var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+    chart.draw(chartview, options);
 
     // feature popup function relies on this callback function
     function defineFeaturePopup(feature, layer) {
