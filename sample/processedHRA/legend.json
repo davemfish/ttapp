@@ -1,21 +1,21 @@
 [
  {
- "layer": "[eelgrass]_RISK",
+ "layer": "[eelgrass]",
 "leglabs": [ "LOW", "MED", "HIGH" ],
 "legcols": [ "#2979E3", "#E3E029", "#E33229" ] 
 },
 {
- "layer": "[hardbottom]_RISK",
+ "layer": "[hardbottom]",
 "leglabs": [ "LOW", "MED", "HIGH" ],
 "legcols": [ "#2979E3", "#E3E029", "#E33229" ] 
 },
 {
- "layer": "[kelp]_RISK",
+ "layer": "[kelp]",
 "leglabs": [ "LOW", "MED", "HIGH" ],
 "legcols": [ "#2979E3", "#E3E029", "#E33229" ] 
 },
 {
- "layer": "[softbottom]_RISK",
+ "layer": "[softbottom]",
 "leglabs": [ "LOW", "MED", "HIGH" ],
 "legcols": [ "#2979E3", "#E3E029", "#E33229" ] 
 },
