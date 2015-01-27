@@ -86,7 +86,8 @@ LoadSpace <- function(ws, outpath){
   ptm <- proc.time()
   summlist <- list()
   for (g in 1: length(tifs)){
-    nm1 <- sub(pattern=".tif", replacement="", tifs[g])
+    nm1 <- unlist(strsplit(tifs[g], split="_"))[3]
+    nm1 <- sub(pattern=".tif", replacement="", nm1)
     rast <- raster(file.path(ws, "output/Maps", tifs[g]))
     regionlist <- list()
     for (k in 1:length(aoi)){
@@ -114,7 +115,6 @@ LoadSpace <- function(ws, outpath){
   ## for each shapefile in Maps directory
 
   for (j in 1:length(shps)){
-    
     nm <- sub(pattern=".shp", replacement="", shps[j])
     print("read shp")
     shp.prj <- readOGR(dsn=file.path(ws, "output/Maps"), layer=nm)
@@ -170,7 +170,7 @@ LoadSpace <- function(ws, outpath){
       shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "LOW"] <- "hex2979E3"
       shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "MED"] <- "hexE3E029"
       shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "HIGH"] <- "hexE33229"
-      leg.list[[j]] <- list(layer=nm, leglabs=c("LOW", "MED", "HIGH"), legcols=c("#2979E3", "#E3E029","#E33229"))
+      leg.list[[j]] <- list(layer=unlist(strsplit(nm, split="_"))[1], leglabs=c("LOW", "MED", "HIGH"), legcols=c("#2979E3", "#E3E029","#E33229"))
     }
     
     print("write json")
