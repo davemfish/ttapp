@@ -227,6 +227,8 @@ echo "
       </div>
       <div class=\"col-lg-5\">
         <div id=\"chart_div\"></div>
+        <h5> select a subregion to plot:</h5>
+        <select id=\"region\"></select>
       </div>
   </div>
   </div>
@@ -280,6 +282,7 @@ if (file_exists($pathid . "habsummary.csv")) {
         sessPath = '$pathid'
         //sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/'
         geojsonPath = sessPath + 'ecosys_risk.geojson',
+        aoiPath = sessPath + 'aoi.geojson',
         csvPath = '$pathid/habsummary.csv',
         symbPath = sessPath + 'legend.json'
         //initPath = sessPath + 'init.json'
@@ -378,8 +381,46 @@ var  rmax = 27, //Maximum radius for cluster pies
       "Physical/Political": OpenMapSurfer_Roads
     };
 
+    aoijson = {};
+    subregions = [];
+
+    loadaoi = L.geoJson.ajax(aoiPath,{
+      middleware:function(data){
+          aoijson = data;
+            
+            var aoi = L.geoJson(aoijson,{
+              style: function(feature){
+                //gridcolor = feature.properties.cols.replace("hex", "#");
+                return {
+                  fillColor: none,
+                  color: "blue",
+                  fillOpacity:0.7,
+                  opacity:1,
+                  weight:1
+                }
+              }
+              //onEachFeature: defineFeaturePopup
+            });
+          //console.log(aoi);
+          map.addLayer(aoi);
+          map.fitBounds(aoi.getBounds());
+          for (var i = 0; i <= aoijson.features.length - 1; i++) {
+            $("#region").append("<option value='" + i + "'>" + aoijson.features[i].properties.name + "</option");
+            console.log(aoijson.features[i].properties.name);
+          }
+      }
+    });
+
     L.control.layers();
 ;
+//aoijson.features.length
+// for (var i = 0; i <= aoijson.features.length - 1; i++) {
+//   $("#region").append("<option value='" + i + "'>" + aoijson.features[i].properties.name + "</option");
+//   //subregions.push(aoijson.features[i].properties.name)
+// }
+
+console.log(subregions);
+//console.log(loadaoi);
 
 // add stuff to the map
 
@@ -416,6 +457,7 @@ var maplayer = 'ecosys_risk'
 
 // load the visualization library from Google and set a listener
 google.load("visualization", "1", {packages:["corechart"]});
+//google.load("visualization", "1.1", {packages:["bar"]});
 google.load("visualization", "1", {packages:["table"]});
 google.setOnLoadCallback(drawChart);
 
@@ -434,7 +476,7 @@ function drawChart() {
       // build dropdown array with legend elements
       var dropdown = [];
       for (var i = 0; i <= symbols.length - 1; i++) {
-        $("select").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
+        $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
         dropdown.push(symbols[i].layer)
       }
       // set the default selection 
@@ -480,7 +522,6 @@ function drawChart() {
     // transform the CSV string into a 2-dimensional array
     var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
     console.log(arrayData);
-    // var unique = a.filter(function(item, i, ar){ return ar.indexOf(item) === i; });
 
     // for (var i = 0; i < arrayData[0].length; i++) {
     //   $("select").append("<option value='" + i + "'>" + arrayData[0][i] + "</option");
@@ -608,11 +649,24 @@ function drawChart() {
     table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
 
     // // this view can select a subset of the data to plot as a chart
+
+    // // build 
+    // var subregions = [];
+    // var unique = arrayData.filter(function(item, i, ar){ return ar.indexOf(item) === i; });
+    // for (var i = 0; i <= arrayData.length - 1; i++) {
+    //   $("radios").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
+    //   dropdown.push(symbols[i].layer)
+    // }
+    // set the default selection 
+    //$("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
+
     var chartview = new google.visualization.DataView(data);
     console.log(chartview);
 
+    chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}]));
     chartview.setColumns([0,1]);
-    chartview.setRows([0,1,2,3,4,5,6]);
+    //chartview.setRows([0,1,2,3,4,5,6])
+    
     //console.log(view);
 
     var options = {
@@ -621,6 +675,7 @@ function drawChart() {
        colors: ['gray'],
     };
 
+    //var chart = new google.charts.Bar(document.getElementById("chart_div"));
     var chart = new google.visualization.ColumnChart(document.getElementById("chart_div"));
     //var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
     chart.draw(chartview, options);
@@ -688,23 +743,30 @@ function drawChart() {
 
 
     // set listener for the update button
-    $("select").change(function(){
+    $("#domain").change(function(){
 
     // //// Linking dropdown to chart
       
     //    // determine selected domain and range
-    //    var domain = +$("#domain option:selected").val();
-    //    // var range = +$("#range option:selected").val();
-    //    // update the view
-    //    chartview.setColumns([domain]);
+    //   var domain = +$("#domain option:selected").val();
+       // var range = +$("#range option:selected").val();
+       // update the view
 
-    //    // update the chart
-    //    chart.draw(chartview, options);
+      maplayer = $("#domain option:selected").text();
+
+      chartview = new google.visualization.DataView(data);
+        //console.log(chartview);
+
+      chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}]));
+      chartview.setColumns([0,1]);
+
+       // update the chart
+      chart.draw(chartview, options);
 
     //// Linking dropdown to map
        popupFields = [];
        // markerclusters.clearLayers();
-       maplayer = $("#domain option:selected").text();
+       //maplayer = $("#domain option:selected").text();
        console.log(maplayer);
        geojsonPath = sessPath + maplayer +'.geojson';
        // geojsonLayer.refresh(geojsonPath);//add a new layer 
