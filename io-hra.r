@@ -73,22 +73,35 @@ LoadSpace <- function(ws, outpath){
   aoi <- readOGR(dsn=file.path(ws, "intermediate"), layer="temp_aoi_copy")
   ## get Area of AOI in projected units
   ## TODO: grep the proj4string for units??
-  area.subregions <- gArea(aoi)
-  area.aoi <- sum(gArea(aoi))
+  #area.subregions <- gArea(aoi)
+  #area.aoi <- sum(gArea(aoi))
   
   aoi.wgs84 <- spTransform(aoi, CRS("+proj=longlat +datum=WGS84 +no_defs"))
   bbox <- bbox(aoi.wgs84)
+  print("write geojson")
+  jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
+  if(!(paste("aoi", ".geojson", sep="") %in% jsonfiles)){
+    writeOGR(obj=aoi.wgs84, dsn=paste(outpath, "aoi.geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+  }
+  
   
   shps <- list.files(file.path(ws, "output/Maps"), pattern="*.shp$")
-  tifs <- list.files(file.path(ws, "output/Maps"), pattern="cum_risk.*tif$")
+  tiffiles <- list.files(file.path(ws, "output/Maps"), pattern="cum_risk.*tif$")
+  ## trim names to just the habitat word
+  tifs <- unlist(lapply(tiffiles, FUN=function(x){
+    a <- unlist(strsplit(x, split="_"))[3]
+    b <- sub(pattern=".tif", replacement="", a)
+    }))
+  tifs <- c(tifs, "ecosys_risk")
+  tiffiles <- c(tiffiles, "ecosys_risk.tif")
   
-  ## list of tif filenames
+  ## read and process tifs
   ptm <- proc.time()
   summlist <- list()
-  for (g in 1: length(tifs)){
-    nm1 <- unlist(strsplit(tifs[g], split="_"))[3]
-    nm1 <- sub(pattern=".tif", replacement="", nm1)
-    rast <- raster(file.path(ws, "output/Maps", tifs[g]))
+  for (g in 1: length(tiffiles)){
+#     nm1 <- unlist(strsplit(tifs[g], split="_"))[3]
+#     nm1 <- sub(pattern=".tif", replacement="", nm1)
+    rast <- raster(file.path(ws, "output/Maps", tiffiles[g]))
     regionlist <- list()
     for (k in 1:length(aoi)){
       region <- aoi[k,]
@@ -96,7 +109,7 @@ LoadSpace <- function(ws, outpath){
       #df <- as.data.frame(table(vals))
       factorx <- factor(cut(vals, breaks=nclass.Sturges(vals)))
       df <- as.data.frame(table(factorx))
-      df$Habitat <- nm1
+      df$Habitat <- tifs[g]
       df$Subregion <- as.character(region@data$name)
       regionlist[[k]] <- df
     }
@@ -165,15 +178,27 @@ LoadSpace <- function(ws, outpath){
       }
       shp.wgs84@data$cols <- sub(cols, pattern="#", replacement="hex")
       
+      print("write geojson")
+      jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
+      if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
+        writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+      }
+      
     } else {
       
       shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "LOW"] <- "hex2979E3"
       shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "MED"] <- "hexE3E029"
       shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "HIGH"] <- "hexE33229"
       leg.list[[j]] <- list(layer=unlist(strsplit(nm, split="_"))[1], leglabs=c("LOW", "MED", "HIGH"), legcols=c("#2979E3", "#E3E029","#E33229"))
+      
+      print("write geojson")
+      jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
+      if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
+        writeOGR(obj=shp.wgs84, dsn=paste(outpath, unlist(strsplit(nm, split="_"))[1], ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+      }
     }
     
-    print("write json")
+    
     
     ## write geojson
     ## limit coord precision to 5 decimals
@@ -189,10 +214,10 @@ LoadSpace <- function(ws, outpath){
 #     newcoords <- round(coordinates(test), digits=5)
 #     coordinates(test.df) <- newcoords
     
-    jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
-    if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
-      writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
-    }
+#     jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
+#     if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
+#       writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+#     }
     
   } # next shapefile
 
