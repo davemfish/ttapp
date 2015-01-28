@@ -381,46 +381,14 @@ var  rmax = 27, //Maximum radius for cluster pies
       "Physical/Political": OpenMapSurfer_Roads
     };
 
-    aoijson = {};
-    subregions = [];
-
-    loadaoi = L.geoJson.ajax(aoiPath,{
-      middleware:function(data){
-          aoijson = data;
-            
-            var aoi = L.geoJson(aoijson,{
-              style: function(feature){
-                //gridcolor = feature.properties.cols.replace("hex", "#");
-                return {
-                  fillColor: none,
-                  color: "blue",
-                  fillOpacity:0.7,
-                  opacity:1,
-                  weight:1
-                }
-              }
-              //onEachFeature: defineFeaturePopup
-            });
-          //console.log(aoi);
-          map.addLayer(aoi);
-          map.fitBounds(aoi.getBounds());
-          for (var i = 0; i <= aoijson.features.length - 1; i++) {
-            $("#region").append("<option value='" + i + "'>" + aoijson.features[i].properties.name + "</option");
-            console.log(aoijson.features[i].properties.name);
-          }
-      }
-    });
+    
 
     L.control.layers();
 ;
-//aoijson.features.length
 // for (var i = 0; i <= aoijson.features.length - 1; i++) {
-//   $("#region").append("<option value='" + i + "'>" + aoijson.features[i].properties.name + "</option");
-//   //subregions.push(aoijson.features[i].properties.name)
-// }
-
-console.log(subregions);
-//console.log(loadaoi);
+//             $("#region").append("<option value='" + i + "'>" + aoijson.features[i].properties.name + "</option");
+//             console.log(aoijson.features[i].properties.name);
+//           }
 
 // add stuff to the map
 
@@ -451,7 +419,44 @@ var legend = L.control({position: 'bottomright'});
 //var leg = {};
 var maplayer = 'ecosys_risk'
 
-// function makeLegend went here
+var aoijson = {};
+
+function drawAOI(){
+    loadaoi = L.geoJson.ajax(aoiPath,{
+      //subregions = [];
+      middleware:function(data){
+          aoijson = data;
+          
+            var aoi = L.geoJson(aoijson,{
+              style: function(feature){
+                //gridcolor = feature.properties.cols.replace("hex", "#");
+                return {
+                  fillColor: "orange",
+                  color: "white",
+                  fillOpacity:0.0,
+                  opacity:1,
+                  weight:1
+                }
+              }
+              //onEachFeature: defineFeaturePopup
+            });
+          //console.log(aoi);
+          map.addLayer(aoi);
+          map.fitBounds(aoi.getBounds());
+          console.log(aoijson);
+          for (var i = 0; i <= aoijson.features.length - 1; i++) {
+            $("#region").append("<option value='" + i + "'>" + aoijson.features[i].properties.name + "</option");
+            //subregions.push(aoijson.features[i].properties.name)
+            //console.log(aoijson.features[i].properties.name);
+          }
+          //return subregions;
+          //console.log(subregions);
+      }
+      //console.log(subregions);
+    });
+    //return subregions;
+}
+drawAOI();
 
 
 
@@ -663,7 +668,8 @@ function drawChart() {
     var chartview = new google.visualization.DataView(data);
     console.log(chartview);
 
-    chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}]));
+    var subregion = $("#region option:selected").text();
+    chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
     chartview.setColumns([0,1]);
     //chartview.setRows([0,1,2,3,4,5,6])
     
@@ -740,9 +746,21 @@ function drawChart() {
       }
     });
 
+    // set listener for the subregion dropdown
+    $("#region").change(function(){
+      subregion = $("#region option:selected").text();
+      chartview = new google.visualization.DataView(data);
+        //console.log(chartview);
 
+      chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
+      chartview.setColumns([0,1]);
 
-    // set listener for the update button
+       // update the chart
+      chart.draw(chartview, options);
+
+    });
+
+    // set listener for the maplayer dropdown
     $("#domain").change(function(){
 
     // //// Linking dropdown to chart
@@ -757,7 +775,7 @@ function drawChart() {
       chartview = new google.visualization.DataView(data);
         //console.log(chartview);
 
-      chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}]));
+      chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
       chartview.setColumns([0,1]);
 
        // update the chart
