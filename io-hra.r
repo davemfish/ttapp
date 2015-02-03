@@ -9,7 +9,8 @@
 ###  For gdal_calc, '0' is interpreted as NoData and is left out of 
 ###  the subsequent polygons. This is desired behavior for ecosys_risk.tif, 
 ###  maybe not for other tifs?
-###  For gdal_polygonize, it dissolves.
+###  For gdal_polygonize, it dissolves, but it also converts to integer, which 
+###  is the reason to scale by 10000 first with gdal_calc.
 
 #     gdal_calc -A ecosys_risk.tif --outfile=ecorisk_mult.tif --calc="A*10000"    
 #     gdal_polygonize ecorisk_mult.tif -f "ESRI Shapefile" ecosys_risk.shp ecosys_risk risk
@@ -83,7 +84,6 @@ LoadSpace <- function(ws, outpath){
   if(!(paste("aoi", ".geojson", sep="") %in% jsonfiles)){
     writeOGR(obj=aoi.wgs84, dsn=paste(outpath, "aoi.geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
   }
-  
   
   shps <- list.files(file.path(ws, "output/Maps"), pattern="*.shp$")
   tiffiles <- list.files(file.path(ws, "output/Maps"), pattern="cum_risk.*tif$")
@@ -184,40 +184,34 @@ LoadSpace <- function(ws, outpath){
         writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
       }
       
-    } else {
-      
-      shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "LOW"] <- "hex2979E3"
-      shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "MED"] <- "hexE3E029"
-      shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "HIGH"] <- "hexE33229"
-      leg.list[[j]] <- list(layer=unlist(strsplit(nm, split="_"))[1], leglabs=c("LOW", "MED", "HIGH"), legcols=c("#2979E3", "#E3E029","#E33229"))
-      
-      print("write geojson")
-      jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
-      if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
-        writeOGR(obj=shp.wgs84, dsn=paste(outpath, unlist(strsplit(nm, split="_"))[1], ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+    } else { 
+      if (grepl("\\RISK", nm)){ ## if it's a habitat risk layer
+        
+        nm <- unlist(strsplit(nm, split="_"))[1]
+        nm <- gsub("[[:punct:]]", "", nm)
+        
+        shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "LOW"] <- "hex2979E3"
+        shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "MED"] <- "hexE3E029"
+        shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "HIGH"] <- "hexE33229"
+        leg.list[[j]] <- list(layer=nm, leglabs=c("LOW", "MED", "HIGH"), legcols=c("#2979E3", "#E3E029","#E33229"))
+        
+        print("write geojson")
+        jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
+        if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
+          writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+        }
+        
+      } else { ## if its not ecosystem risk or habitat risk, it's a stressor
+        shp.wgs84@data$cols <- "hexd3d3d3"
+        leg.list[[j]] <- list(layer=nm, leglabs=c("Stressor"), legcols=c("#d3d3d3"))
+        
+        print("write geojson")
+        jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
+        if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
+          writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+        }
       }
     }
-    
-    
-    
-    ## write geojson
-    ## limit coord precision to 5 decimals
-    #print(round(coordinates(shp.wgs84)[1:5,], digits=5), digits=10)
-#     test <- shp.wgs84
-#     test.df <- fortify(test)
-#     newcoords <- round(test.df[,c(1,2)], digits=5)
-#     
-#     list of P <- Polygon(newcoords, hole=)
-#     list of Ps <- Polygons(list of P, ID)
-#     SP <- SpatialPolygons(list of Ps, order, proj4string=CRS())
-#     spdf <- SpatialPolygonsDataFrame(SP, data, match.ID=T)
-#     newcoords <- round(coordinates(test), digits=5)
-#     coordinates(test.df) <- newcoords
-    
-#     jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
-#     if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
-#       writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
-#     }
     
   } # next shapefile
 
