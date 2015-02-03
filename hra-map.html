@@ -1,0 +1,143 @@
+<!doctype HTML>
+<html>
+	<head>
+   		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> 
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+		<link rel="stylesheet" href="rec-dash.css">
+
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="./libs/jquery.csv-0.71.js"></script>
+		<script type="text/javascript" src="./libs/leaflet-ajax-master/dist/leaflet.ajax.js"></script>
+
+		<link rel="stylesheet" href="./libs/Leaflet.StyledLayerControl/css/styledLayerControl.css" />
+    	<script src="./libs/Leaflet.StyledLayerControl/src/styledLayerControl.js"></script>
+
+    	<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js'></script>
+	</head>
+	<body>
+
+	 <div id="map" height=400px width=400px></div>
+
+	<script>
+    //Map
+    map = L.map('map', {
+      center: [55, -120],
+      zoom: 5,
+      maxZoom:15
+    });
+
+    //Basemap
+    MapBoxSat = L.tileLayer('https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png', {
+      minZoom: 0,
+      maxZoom: 15,
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
+    })
+    OpenMapSurfer_Roads = L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/roads/x={x}&y={y}&z={z}', {
+      minZoom: 0,
+      maxZoom: 15,
+      attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    })
+    
+    base = {
+      "Satellite": MapBoxSat,
+      "Physical/Political": OpenMapSurfer_Roads
+    };
+
+    MapBoxSat.addTo(map);
+
+    var geojsonURLs = [],
+	    layernames = [],
+	    sessPath = "./sample/processedHRA/",  // '$pathid',
+	    symbPath = sessPath + 'legend.json',
+	    lyrs = [];
+
+	var control = new L.control.layers(base).addTo(map);
+
+    $.getJSON(symbPath, function(symbols){
+	    for (var i = 0; i < symbols.length; i++) {
+	    	layernames.push(symbols[i].layer)
+	    	//group['hab_' + symbols[i].layer] = 'value';
+	        geojsonURLs.push(sessPath + symbols[i].layer + ".geojson")
+	    }
+
+	
+	console.log(control._layers);
+
+	// click to identify function
+	// https://www.mapbox.com/mapbox.js/example/v1.0.0/identify-tool/
+	function handleClick(e) {
+	    var html = '';
+	    // look through each layer in order and see if the clicked point,
+	    // e.latlng, overlaps with one of the shapes in it.
+	    for (var i = 0; i < lyrs.length; i++) {
+	        var match = leafletPip.pointInLayer(
+	            // the clicked point
+	            e.latlng,
+	            // this layer
+	            lyrs[i].layer,
+	            // whether to stop at first match
+	            false); // true and false seem to behave the same - DF
+	        // if there's overlap, add some content to the popup: the layer name
+	        // and a table of attributes
+	        if (match.length) {
+	            html += '<strong>' + lyrs[i].name +
+	                '<button onclick="highlightMatch(this)" data-layer="' + i +
+	                '" data-latlng="' +
+	                [e.latlng.lat, e.latlng.lng] +
+	                '">highlight</button></strong>';
+	            html += propertyTable(match[0].feature.properties);
+	        }
+	    }
+	    if (html) {
+	        map.openPopup(html, e.latlng);
+	    }
+	}
+
+	// create a simple table from the properties in a feature, like the
+	// name of a state or district
+	function propertyTable(o) {
+	    var t = '<table>';
+	    for (var k in o) {
+	        t += '<tr><th>' + k + '</th><td>' + o[k] + '</td></tr>';
+	    }
+	    t += '</table>';
+	    return t;
+	}
+
+    function loadGeo(j){
+    	$.getJSON(geojsonURLs[j], function(data) {
+    		nm = layernames[j];
+    		// console.log(j);
+    		// console.log(layernames);
+    		// console.log(geojsonURLs);
+		    var geojson = L.geoJson(data, {
+		    	style: function(feature){
+		                gridcolor = feature.properties.cols.replace("hex", "#");
+		                return {
+		                  fillColor:gridcolor,
+		                  color:gridcolor,
+		                  fillOpacity:0.7,
+		                  opacity:1,
+		                  weight:0.5
+		                }
+		        }, // style
+			    onEachFeature: function (feature, layer) {
+			      layer.bindPopup(feature.properties.CLASSIFY);
+			    }
+		    }).on('click', handleClick);
+		    geojson.addTo(map);
+		    //maplayers[nm] = geojson;
+		    lyrs.push({ name: nm, layer: geojson })
+		    control.addOverlay(geojson, nm);
+		  });
+    }
+    for (var j = 0; j < geojsonURLs.length; j++){
+    	loadGeo(j);
+    }
+
+
+}); // legend ajax
+
+</script>
+</body>
+</html>
