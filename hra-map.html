@@ -3,7 +3,7 @@
 	<head>
    		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> 
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-		<link rel="stylesheet" href="rec-dash.css">
+		<link rel="stylesheet" href="hra-dash.css">
 
 		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 		<script src="./libs/jquery.csv-0.71.js"></script>
@@ -11,6 +11,15 @@
 
 		<link rel="stylesheet" href="./libs/Leaflet.StyledLayerControl/css/styledLayerControl.css" />
     	<script src="./libs/Leaflet.StyledLayerControl/src/styledLayerControl.js"></script>
+
+    	<!-- Latest compiled and minified CSS -->
+	    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
+
+	    <!-- Optional theme -->
+	    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">
+
+	    <!-- Latest compiled and minified JavaScript -->
+	    <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>
 
     	<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js'></script>
 	</head>
@@ -21,8 +30,8 @@
 	<script>
     //Map
     map = L.map('map', {
-      center: [55, -120],
-      zoom: 5,
+      center: [49, -124],
+      zoom: 9,
       maxZoom:15
     });
 
@@ -46,6 +55,11 @@
     MapBoxSat.addTo(map);
 
     var geojsonURLs = [],
+    	habURLs = [],
+    	stressURLs = [],
+    	aoiURL = [],
+    	habnames = [],
+    	stressnames = [],
 	    layernames = [],
 	    sessPath = "./sample/processedHRA/",  // '$pathid',
 	    symbPath = sessPath + 'legend.json',
@@ -55,13 +69,23 @@
 
     $.getJSON(symbPath, function(symbols){
 	    for (var i = 0; i < symbols.length; i++) {
-	    	layernames.push(symbols[i].layer)
-	    	//group['hab_' + symbols[i].layer] = 'value';
-	        geojsonURLs.push(sessPath + symbols[i].layer + ".geojson")
+	    	console.log(symbols[i].layer.substring(0,1));
+	    	if (symbols[i].layer.substring(0,1) == "H_"){
+	    		habnames.push(symbols[i].layer)
+	    		habURLs.push(sessPath + symbols[i].layer + ".geojson")
+	    	}
+	    	if (symbols[i].layer.substring(0,1) == "S_"){
+	    		stressnames.push(symbols[i].layer)
+	    		stressURLs.push(sessPath + symbols[i].layer + ".geojson")
+	    	}
+	    	// layernames.push(symbols[i].layer)
+	    	// //group['hab_' + symbols[i].layer] = 'value';
+	     //    geojsonURLs.push(sessPath + symbols[i].layer + ".geojson")
 	    }
-
 	
 	console.log(control._layers);
+	console.log(habURLs);
+	console.log(stressURLs);
 
 	// click to identify function
 	// https://www.mapbox.com/mapbox.js/example/v1.0.0/identify-tool/
@@ -80,11 +104,7 @@
 	        // if there's overlap, add some content to the popup: the layer name
 	        // and a table of attributes
 	        if (match.length) {
-	            html += '<strong>' + lyrs[i].name +
-	                '<button onclick="highlightMatch(this)" data-layer="' + i +
-	                '" data-latlng="' +
-	                [e.latlng.lat, e.latlng.lng] +
-	                '">highlight</button></strong>';
+	            html += '<br><strong>' + lyrs[i].name + '</strong>';
 	            html += propertyTable(match[0].feature.properties);
 	        }
 	    }
@@ -95,18 +115,20 @@
 
 	// create a simple table from the properties in a feature, like the
 	// name of a state or district
-	function propertyTable(o) {
+	function propertyTable(props) {
 	    var t = '<table>';
-	    for (var k in o) {
-	        t += '<tr><th>' + k + '</th><td>' + o[k] + '</td></tr>';
+	    for (var k in props) {
+	    	if (k != "cols"){
+	        	t += '<tr><td>' + k + '</td><td>' + props[k] + '</td></tr>';
+	        }
 	    }
 	    t += '</table>';
 	    return t;
 	}
 
-    function loadGeo(j){
-    	$.getJSON(geojsonURLs[j], function(data) {
-    		nm = layernames[j];
+    function loadHab(h){
+    	$.getJSON(habURLs[h], function(data) {
+    		nm = habnames[h];
     		// console.log(j);
     		// console.log(layernames);
     		// console.log(geojsonURLs);
@@ -115,7 +137,7 @@
 		                gridcolor = feature.properties.cols.replace("hex", "#");
 		                return {
 		                  fillColor:gridcolor,
-		                  color:gridcolor,
+		                  color:ColorLuminance(gridcolor, 1),
 		                  fillOpacity:0.7,
 		                  opacity:1,
 		                  weight:0.5
@@ -131,12 +153,63 @@
 		    control.addOverlay(geojson, nm);
 		  });
     }
-    for (var j = 0; j < geojsonURLs.length; j++){
-    	loadGeo(j);
+    for (var h = 0; h < habURLs.length; h++){
+    	loadHab(h);
+    }
+
+    function loadStress(s){
+    	$.getJSON(stressURLs[s], function(data) {
+    		nm = stressnames[s];
+    		// console.log(j);
+    		// console.log(layernames);
+    		// console.log(geojsonURLs);
+		    var geojson = L.geoJson(data, {
+		    	style: function(feature){
+		                gridcolor = feature.properties.cols.replace("hex", "#");
+		                return {
+		                  fillColor:gridcolor,
+		                  color:ColorLuminance(gridcolor, 1),
+		                  fillOpacity:0.7,
+		                  opacity:1,
+		                  weight:0.5
+		                }
+		        }//, // style
+			    // onEachFeature: function (feature, layer) {
+			    //   layer.bindPopup(feature.properties.CLASSIFY);
+			    // }
+		    }).on('click', handleClick);
+		    geojson.addTo(map);
+		    //maplayers[nm] = geojson;
+		    lyrs.push({ name: nm, layer: geojson })
+		    control.addOverlay(geojson, nm);
+		  });
+    }
+    for (var s = 0; s < habURLs.length; s++){
+    	loadStress(s);
     }
 
 
 }); // legend ajax
+
+function ColorLuminance(hex, lum) {
+
+	// validate hex string
+	hex = String(hex).replace(/[^0-9a-f]/gi, '');
+	if (hex.length < 6) {
+		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+	}
+	lum = lum || 0;
+
+	// convert to decimal and change luminosity
+	var rgb = "#", c, i;
+	for (i = 0; i < 3; i++) {
+		c = parseInt(hex.substr(i*2,2), 16);
+		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+		rgb += ("00"+c).substr(c.length);
+	}
+
+	return rgb;
+}
 
 </script>
 </body>
