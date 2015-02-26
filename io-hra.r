@@ -189,6 +189,7 @@ LoadSpace <- function(ws, outpath){
         
         nm <- unlist(strsplit(nm, split="_"))[1]
         nm <- gsub("[[:punct:]]", "", nm)
+        nm <- paste("H_", nm, sep="")
         
         shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "LOW"] <- "hex2979E3"
         shp.wgs84@data$cols[shp.wgs84@data$CLASSIFY == "MED"] <- "hexE3E029"
@@ -198,10 +199,11 @@ LoadSpace <- function(ws, outpath){
         print("write geojson")
         jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
         if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
-          writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+          writeOGR(obj=shp.wgs84, dsn=paste(outpath, "H_", nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
         }
         
       } else { ## if its not ecosystem risk or habitat risk, it's a stressor
+        nm <- paste("S_", nm, sep="")
         shp.wgs84@data$cols <- "hexd3d3d3"
         leg.list[[j]] <- list(layer=nm, leglabs=c("Stressor"), legcols=c("#d3d3d3"))
         

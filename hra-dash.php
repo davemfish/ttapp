@@ -263,13 +263,14 @@ if (file_exists($pathid . "habsummary.csv")) {
       // Define vars
       var geojson,
         metadata = [],
-        sessPath = '$pathid'
-        //sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/'
+        sessPath = '$pathid',
+        //sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/',
         geojsonPath = sessPath + 'ecosys_risk.geojson',
+        geojsonURLs = [],
         aoiPath = sessPath + 'aoi.geojson',
         csvPath = '$pathid/habsummary.csv',
-        symbPath = sessPath + 'legend.json'
-        //initPath = sessPath + 'init.json'
+        symbPath = sessPath + 'legend.json',
+        //initPath = sessPath + 'init.json',
         categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
         popupFields = [] //Popup will display these fields
       ;
@@ -303,7 +304,7 @@ $('#three a').click(function (e) {
 
 
 // Init some global vars
-var pgons = new L.featureGroup(); // this group holds all the geojson layers
+//var pgons = new L.featureGroup(); // this group holds all the geojson layers
     
     // Map
     map = L.map('map', {
@@ -336,13 +337,14 @@ var pgons = new L.featureGroup(); // this group holds all the geojson layers
 
 // add stuff to the map
 map.addLayer(MapBoxSat);
-map.addLayer(pgons);
+//map.addLayer(pgons);
 
-overlays = {
-  "Layers": pgons,
-};
+// overlays = {
+//   "Habitats": pgons,
+// };
+// overlays = {};
 
-L.control.layers(base, overlays).addTo(map);
+//L.control.layers(base, overlays).addTo(map);
 
 // Initialize legend
 var legend = L.control({position: 'bottomright'});
@@ -399,19 +401,84 @@ google.setOnLoadCallback(drawChart);
 //// Read geoJSON (first with default layer, then in response to dropdown selection)
 function drawChart() {
 
+  function makeMap() {
     // load legend json
     $.getJSON(symbPath, function(symbols){
       console.log(symbols[0].layer);
 
+      // build array of geojson urls to load all at once
       // build dropdown array with legend elements
+      var pgons = [];
+      var overlays = {};
       var dropdown = [];
-      for (var i = 0; i <= symbols.length - 1; i++) {
+      for (var i = 0; i < symbols.length; i++) {
         $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
         dropdown.push(symbols[i].layer)
+        geojsonURLs.push(sessPath + symbols[i].layer + ".geojson")
       }
       // set the default selection 
       $("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
+
+      for (var j = 0; j < geojsonURLs.length; j++){
+        var g1 = L.geoJson.ajax(geojsonURLs[j],{
+          middleware:function(data){
+            var g2 = L.geoJson(data,{
+              style: function(feature){
+                gridcolor = feature.properties.cols.replace("hex", "#");
+                return {
+                  fillColor:gridcolor,
+                  color:gridcolor,
+                  fillOpacity:0.7,
+                  opacity:1,
+                  weight:0.5
+                }
+              }
+              //onEachFeature: defineFeaturePopup
+            });
+            var pgons = new L.featureGroup();
+            pgons.addLayer(g2);
+            map.addLayer(pgons);
+
+            //overlays[dropdown[j]] = pgons;
+            overlays["thing"] = "that";
+            console.log(overlays);
+            //map.fitBounds(markers.getBounds());
+          }
+        });
+
+      }
+      console.log(overlays);
+      L.control.layers(base, overlays).addTo(map);
     })
+  };
+  makeMap();
+  //   console.log(geojsonURLs);
+  //   function LoadAllGeo(){
+  //   for (var j = 0; j < geojsonURLs.length; j++){
+  //     var g1 = L.geoJson.ajax(geojsonURLs[j],{
+  //       middleware:function(data){
+  //         var g2 = L.geoJson(data,{
+  //           style: function(feature){
+  //             gridcolor = feature.properties.cols.replace("hex", "#");
+  //             return {
+  //               fillColor:gridcolor,
+  //               color:gridcolor,
+  //               fillOpacity:0.7,
+  //               opacity:1,
+  //               weight:0.5
+  //             }
+  //           }
+  //           //onEachFeature: defineFeaturePopup
+  //         });
+  //         pgons.addLayer(g2);
+  //         map.fitBounds(markers.getBounds());
+  //       }
+  //     });
+  //   }
+  // };
+  // LoadAllGeo();
+    
+
 
   function makeLegend(){
     $.getJSON(symbPath, function(symbols){
