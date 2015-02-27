@@ -163,10 +163,10 @@
     font-size:1em;
     padding: 4px;
 }
-.leaflet-popup-content table tbody td{
+/*.leaflet-popup-content table tbody td{
     border-bottom: 1px solid #E1EEF4;
     padding: 0px;
-}
+}*/
 
 /*Legend*/
 .legend {

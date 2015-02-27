@@ -3,7 +3,7 @@
 	<head>
    		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> 
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-		<link rel="stylesheet" href="rec-dash.css">
+		<link rel="stylesheet" href="hra-dash.css">
 
 		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 		<script src="./libs/jquery.csv-0.71.js"></script>
@@ -12,17 +12,24 @@
 		<!-- <link rel="stylesheet" href="./libs/Leaflet.StyledLayerControl/css/styledLayerControl.css" />
     	<script src="./libs/Leaflet.StyledLayerControl/src/styledLayerControl.js"></script>
  -->
+ <!-- Latest compiled and minified CSS -->
+	    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
+	    <!-- Optional theme -->
+	    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">
+	    <!-- Latest compiled and minified JavaScript -->
+	    <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>
+
     	<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js'></script>
 	</head>
 	<body>
 
-	 <div id="map" height=400px width=400px></div>
+	 <div id="map" height=800px width=800px></div>
 
 	<script>
     //Map
     map = L.map('map', {
-      center: [55, -120],
-      zoom: 5,
+      center: [49.2, -124.99],
+      zoom: 9,
       maxZoom:15
     });
 
@@ -96,13 +103,15 @@
 	        // if there's overlap, add some content to the popup: the layer name
 	        // and a table of attributes
 	        if (match.length) {
-	            html += '<strong>' + lyrs[i].name +
-	                // '<button onclick="highlightMatch(this)" data-layer="' + i +
-	                // '" data-latlng="' +
-	                // [e.latlng.lat, e.latlng.lng] +
-	                // '">highlight</button>
-	                '</strong>';
-	            html += propertyTable(match[0].feature.properties);
+	            html += '<strong>' + lyrs[i].name + '</strong>';
+	            if(lyrs[i].name.substring(0,1) == "H"){
+	            	html += propertyTable(match[0].feature.properties);
+	            } else {
+	            	html += '<hr color="#d3d3d3" size=1>'
+	            }
+	            // if(lyrs[i].name.substring(0,1) == "S"){
+	            // 	html += '<tr></tr>';
+	            // }
 	        }
 	    }
 	    if (html) {
@@ -115,9 +124,14 @@
 	function propertyTable(o) {
 	    var t = '<table>';
 	    for (var k in o) {
-	        t += '<tr><th>' + k + '</th><td>' + o[k] + '</td></tr>';
+	    	if(k != "cols"){
+	    		// if(k.substring(0,1) == "H"){
+	    		// 	t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
+	    		// }
+	        	t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
+	    	}
 	    }
-	    t += '</table>';
+	    t += '</table><hr color="#d3d3d3" size=1>';
 	    return t;
 	}
 
@@ -162,9 +176,9 @@
 		    	style: function(feature){
 		                gridcolor = feature.properties.cols.replace("hex", "#");
 		                return {
-		                  fillColor:gridcolor,
-		                  color:ColorLuminance(gridcolor, 1),
-		                  fillOpacity:0.7,
+		                  fillColor:'#0C0C0B',
+		                  color:'#0C0C0B',
+		                  fillOpacity:0.3,
 		                  opacity:1,
 		                  weight:0.5
 		                }
