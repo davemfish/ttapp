@@ -55,10 +55,12 @@
     var geojsonURLs = [],
     	habURLs = [],
     	stressURLs = [],
+    	ecoURL = [],
     	aoiURL = [],
     	habnames = [],
     	stressnames = [],
-	    layernames = [],
+    	econame = [],
+	    //layernames = [],
 	    sessPath = "./sample/processedHRA/",  // '$pathid',
 	    symbPath = sessPath + 'legend.json',
 	    lyrs = [];
@@ -76,15 +78,13 @@
 	    		stressnames.push(symbols[i].layer)
 	    		stressURLs.push(sessPath + symbols[i].layer + ".geojson")
 	    	}
-	    	// layernames.push(symbols[i].layer)
-	    	// //group['hab_' + symbols[i].layer] = 'value';
-	     //    geojsonURLs.push(sessPath + symbols[i].layer + ".geojson")
+	    	if (symbols[i].layer.substring(0,1) == "e"){
+	    		econame.push(symbols[i].layer)
+	    		ecoURL.push(sessPath + symbols[i].layer + ".geojson")
+	    	}
+	    	
 	    }
 	
-	console.log(control._layers);
-	console.log(habURLs);
-	console.log(stressURLs);
-	console.log(geojsonURLs);
 
 	// click to identify function
 	// https://www.mapbox.com/mapbox.js/example/v1.0.0/identify-tool/
@@ -104,7 +104,7 @@
 	        // and a table of attributes
 	        if (match.length) {
 	            html += '<strong>' + lyrs[i].name + '</strong>';
-	            if(lyrs[i].name.substring(0,1) == "H"){
+	            if(lyrs[i].name.substring(0,1) == "H" | lyrs[i].name.substring(0,1) == "e"){
 	            	html += propertyTable(match[0].feature.properties);
 	            } else {
 	            	html += '<hr color="#d3d3d3" size=1>'
@@ -197,6 +197,33 @@
     for (var s = 0; s < habURLs.length; s++){
     	loadStress(s);
     }
+
+    function loadEco(){
+    	$.getJSON(ecoURL[0], function(data) {
+    		nm = econame[0];
+
+		    var geojson = L.geoJson(data, {
+		    	style: function(feature){
+		                gridcolor = feature.properties.cols.replace("hex", "#");
+		                return {
+		                  fillColor:gridcolor,
+		                  color:ColorLuminance(gridcolor, 1),
+		                  fillOpacity:0.7,
+		                  opacity:1,
+		                  weight:0.5
+		                }
+		        }//, // style
+			    // onEachFeature: function (feature, layer) {
+			    //   layer.bindPopup(feature.properties.CLASSIFY);
+			    // }
+		    }).on('click', handleClick);
+		    //geojson.addTo(map);
+		    //maplayers[nm] = geojson;
+		    lyrs.push({ name: nm, layer: geojson })
+		    control.addOverlay(geojson, nm);
+		  });
+    }
+    loadEco();
 
 
 }); // legend ajax
