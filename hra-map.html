@@ -3,24 +3,15 @@
 	<head>
    		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> 
 		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
-		<link rel="stylesheet" href="hra-dash.css">
+		<link rel="stylesheet" href="rec-dash.css">
 
 		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 		<script src="./libs/jquery.csv-0.71.js"></script>
 		<script type="text/javascript" src="./libs/leaflet-ajax-master/dist/leaflet.ajax.js"></script>
 
-		<link rel="stylesheet" href="./libs/Leaflet.StyledLayerControl/css/styledLayerControl.css" />
+		<!-- <link rel="stylesheet" href="./libs/Leaflet.StyledLayerControl/css/styledLayerControl.css" />
     	<script src="./libs/Leaflet.StyledLayerControl/src/styledLayerControl.js"></script>
-
-    	<!-- Latest compiled and minified CSS -->
-	    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
-
-	    <!-- Optional theme -->
-	    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">
-
-	    <!-- Latest compiled and minified JavaScript -->
-	    <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>
-
+ -->
     	<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js'></script>
 	</head>
 	<body>
@@ -30,8 +21,8 @@
 	<script>
     //Map
     map = L.map('map', {
-      center: [49, -124],
-      zoom: 9,
+      center: [55, -120],
+      zoom: 5,
       maxZoom:15
     });
 
@@ -70,11 +61,11 @@
     $.getJSON(symbPath, function(symbols){
 	    for (var i = 0; i < symbols.length; i++) {
 	    	console.log(symbols[i].layer.substring(0,1));
-	    	if (symbols[i].layer.substring(0,1) == "H_"){
+	    	if (symbols[i].layer.substring(0,1) == "H"){
 	    		habnames.push(symbols[i].layer)
 	    		habURLs.push(sessPath + symbols[i].layer + ".geojson")
 	    	}
-	    	if (symbols[i].layer.substring(0,1) == "S_"){
+	    	if (symbols[i].layer.substring(0,1) == "S"){
 	    		stressnames.push(symbols[i].layer)
 	    		stressURLs.push(sessPath + symbols[i].layer + ".geojson")
 	    	}
@@ -86,6 +77,7 @@
 	console.log(control._layers);
 	console.log(habURLs);
 	console.log(stressURLs);
+	console.log(geojsonURLs);
 
 	// click to identify function
 	// https://www.mapbox.com/mapbox.js/example/v1.0.0/identify-tool/
@@ -104,7 +96,12 @@
 	        // if there's overlap, add some content to the popup: the layer name
 	        // and a table of attributes
 	        if (match.length) {
-	            html += '<br><strong>' + lyrs[i].name + '</strong>';
+	            html += '<strong>' + lyrs[i].name +
+	                // '<button onclick="highlightMatch(this)" data-layer="' + i +
+	                // '" data-latlng="' +
+	                // [e.latlng.lat, e.latlng.lng] +
+	                // '">highlight</button>
+	                '</strong>';
 	            html += propertyTable(match[0].feature.properties);
 	        }
 	    }
@@ -115,12 +112,10 @@
 
 	// create a simple table from the properties in a feature, like the
 	// name of a state or district
-	function propertyTable(props) {
+	function propertyTable(o) {
 	    var t = '<table>';
-	    for (var k in props) {
-	    	if (k != "cols"){
-	        	t += '<tr><td>' + k + '</td><td>' + props[k] + '</td></tr>';
-	        }
+	    for (var k in o) {
+	        t += '<tr><th>' + k + '</th><td>' + o[k] + '</td></tr>';
 	    }
 	    t += '</table>';
 	    return t;
@@ -178,6 +173,7 @@
 			    //   layer.bindPopup(feature.properties.CLASSIFY);
 			    // }
 		    }).on('click', handleClick);
+		    geojson.setZIndex(-2);
 		    geojson.addTo(map);
 		    //maplayers[nm] = geojson;
 		    lyrs.push({ name: nm, layer: geojson })

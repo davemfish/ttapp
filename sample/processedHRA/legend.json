@@ -2,27 +2,27 @@
  {
  "layer": "H_eelgrass",
 "leglabs": [ "LOW", "MED", "HIGH" ],
-"legcols": [ "#2979E3", "#E3E029", "#E33229" ] 
+"legcols": [ "#21d1fc", "#fff100", "#fc195b" ] 
 },
 {
  "layer": "H_hardbottom",
 "leglabs": [ "LOW", "MED", "HIGH" ],
-"legcols": [ "#2979E3", "#E3E029", "#E33229" ] 
+"legcols": [ "#21d1fc", "#fff100", "#fc195b" ] 
 },
 {
  "layer": "H_kelp",
 "leglabs": [ "LOW", "MED", "HIGH" ],
-"legcols": [ "#2979E3", "#E3E029", "#E33229" ] 
+"legcols": [ "#21d1fc", "#fff100", "#fc195b" ] 
 },
 {
  "layer": "H_softbottom",
 "leglabs": [ "LOW", "MED", "HIGH" ],
-"legcols": [ "#2979E3", "#E3E029", "#E33229" ] 
+"legcols": [ "#21d1fc", "#fff100", "#fc195b" ] 
 },
 {
  "layer": "S_DWM",
 "leglabs": "Stressor",
-"legcols": "#d3d3d3" 
+"legcols": "#0c0c0b" 
 },
 {
  "layer": "ecosys_risk",
@@ -32,16 +32,16 @@
 {
  "layer": "S_FinAqua",
 "leglabs": "Stressor",
-"legcols": "#d3d3d3" 
+"legcols": "#0c0c0b" 
 },
 {
  "layer": "S_RecFish",
 "leglabs": "Stressor",
-"legcols": "#d3d3d3" 
+"legcols": "#0c0c0b" 
 },
 {
  "layer": "S_ShellAqua",
 "leglabs": "Stressor",
-"legcols": "#d3d3d3" 
+"legcols": "#0c0c0b" 
 } 
 ]
