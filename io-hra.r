@@ -70,12 +70,33 @@ Cut2Num <- function(x){
 
 LoadSpace <- function(ws, outpath){
   #ws <- "C:/Users/dfisher5/Documents/Shiny/HRA/data"
+  
+  ##### Load Logfile
+  ## gridsize and max stressors
+  logfile <- readLines(con=file.path(ws, list.files(ws, pattern="hra-log-*")), n=-1)
+  blanks <- which(logfile=="")
+  logtable <- logfile[1:(min(blanks) - 1)]
+  l.grid <- logtable[grep(logtable, pattern="grid_size")]
+  gridsize <- as.numeric(tail(unlist(strsplit(l.grid, split=" ")), 1))
+  l.nstress <- logtable[grep(logtable, pattern="max_stress")]
+  nstress <- as.numeric(tail(unlist(strsplit(l.nstress, split=" ")), 1))
+  
+  ##### Load HTML Table output
+  theurl <- list.files(file.path(ws, "output/HTML_Plots"), pattern="Sub_Region*", full.names=T)
+  tables <- readHTMLTable(theurl)
+  thepage <- htmlParse(theurl, useInternalNodes=F)
+  zz <- xpathApply(thepage$children$html, "//h2")
+  for (i in 1:length(tables)){
+    tables[[i]]$Subregion <- tail(as.character(zz[[i]]$children$text), 1)
+  }
+  datECR <- do.call("rbind", tables)
+  
   ##### Load AOI
   aoi <- readOGR(dsn=file.path(ws, "intermediate"), layer="temp_aoi_copy")
   ## get Area of AOI in projected units
   ## TODO: grep the proj4string for units??
-  #area.subregions <- gArea(aoi)
-  #area.aoi <- sum(gArea(aoi))
+  area.subregions <- gArea(aoi)
+  area.aoi <- sum(gArea(aoi))
   
   aoi.wgs84 <- spTransform(aoi, CRS("+proj=longlat +datum=WGS84 +no_defs"))
   bbox <- bbox(aoi.wgs84)
@@ -90,7 +111,8 @@ LoadSpace <- function(ws, outpath){
   ## trim names to just the habitat word
   tifs <- unlist(lapply(tiffiles, FUN=function(x){
     a <- unlist(strsplit(x, split="_"))[3]
-    b <- sub(pattern=".tif", replacement="", a)
+    b <- sub(pattern="].tif", replacement="", a, fixed=T)
+    d <- sub(pattern="[", replacement="H_", b, fixed=T)
     }))
   tifs <- c(tifs, "ecosys_risk")
   tiffiles <- c(tiffiles, "ecosys_risk.tif")
@@ -98,6 +120,10 @@ LoadSpace <- function(ws, outpath){
   ## read and process tifs
   ptm <- proc.time()
   summlist <- list()
+  ## find 33% and 66% breaks based on max_stressor rating
+  quants <- quantile(c(0,nstress), probs=seq(0,1,1/3), na.rm=T)
+  p33 <- quants[2]
+  p66 <- quants[3]
   for (g in 1: length(tiffiles)){
 #     nm1 <- unlist(strsplit(tifs[g], split="_"))[3]
 #     nm1 <- sub(pattern=".tif", replacement="", nm1)
@@ -105,22 +131,40 @@ LoadSpace <- function(ws, outpath){
     regionlist <- list()
     for (k in 1:length(aoi)){
       region <- aoi[k,]
-      vals <- unlist(extract(rast, region))
-      #df <- as.data.frame(table(vals))
-      factorx <- factor(cut(vals, breaks=nclass.Sturges(vals)))
-      df <- as.data.frame(table(factorx))
-      df$Habitat <- tifs[g]
-      df$Subregion <- as.character(region@data$name)
+      r <- mask(rast, region)
+      vals <- getValues(r)
+      
+      lows <- vals[which(vals <= p33)]
+      meds <- vals[which(vals > p33 & vals <= p66)]
+      highs <- vals[which(vals > p66)]
+      
+      A.low <- length(lows)*gridsize*gridsize
+      A.med <- length(meds)*gridsize*gridsize
+      A.high <- length(highs)*gridsize*gridsize
+
+      #factorx <- factor(cut(vals, breaks=nclass.Sturges(vals)))
+      #df <- as.data.frame(table(factorx))
+      df <- data.frame("Habitat"=tifs[g], "Subregion"=as.character(region@data$name), "Classify"=c("LOW", "MED", "HIGH"), "Area"=NA)
+      
+      df$Area[1] <- A.low
+      df$Area[2] <- A.med
+      df$Area[3] <- A.high
+      
+      #df$Habitat <- tifs[g]
+      #df$Subregion <- as.character(region@data$name)
+      
       regionlist[[k]] <- df
+      print(proc.time() - ptm)
     }
     summlist[[g]] <- do.call("rbind", regionlist)
+    
   }
   habsummary <- do.call("rbind", summlist)
+  proc.time() - ptm
   ## TODO -- formatting of habsummary content: transform counts to areas
   
   ## write habitat summary csv
   write.csv(habsummary, file.path(outpath, "habsummary.csv"), row.names=F)
-  proc.time() - ptm
   
   #mapdatalist <- list()
   leg.list <- list()
