@@ -38,7 +38,7 @@ echo "
     <meta charset=\"UTF-8\">
     <script src=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js\"></script> 
     <link rel=\"stylesheet\" href=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css\" />
-    <link rel=\"stylesheet\" href=\"rec-dash.css\">
+    <link rel=\"stylesheet\" href=\"hra-dash.css\">
 
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"./libs/jquery.csv-0.71.js\"></script>
@@ -59,6 +59,7 @@ echo "
     <script src=\"https://www.google.com/jsapi\"></script>
 
     <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
+    <script src=\"https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js\"></script>
   </head>
   <body> ";
 
@@ -264,15 +265,21 @@ if (file_exists($pathid . "habsummary.csv")) {
       var geojson,
         metadata = [],
         sessPath = '$pathid',
-        //sessPath = 'http://127.0.0.1/ttapp/tmp/$sessid/',
         geojsonPath = sessPath + 'ecosys_risk.geojson',
         geojsonURLs = [],
+        habURLs = [],
+        stressURLs = [],
+        ecoURL = [],
+        habnames = [],
+        stressnames = [],
+        econame = [],
         aoiPath = sessPath + 'aoi.geojson',
-        csvPath = '$pathid/habsummary.csv',
+        csvPath = sessPath + 'habsummary.csv',
         symbPath = sessPath + 'legend.json',
+        lyrs = []
         //initPath = sessPath + 'init.json',
-        categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
-        popupFields = [] //Popup will display these fields
+        //categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
+        //popupFields = [] //Popup will display these fields
       ;
     </script>
   ";
@@ -331,7 +338,7 @@ $('#three a').click(function (e) {
     };
 
     // Layer control in upper-right of map
-    L.control.layers();
+    var control = new L.control.layers(base).addTo(map);
 ;
 
 
@@ -339,12 +346,6 @@ $('#three a').click(function (e) {
 map.addLayer(MapBoxSat);
 //map.addLayer(pgons);
 
-// overlays = {
-//   "Habitats": pgons,
-// };
-// overlays = {};
-
-//L.control.layers(base, overlays).addTo(map);
 
 // Initialize legend
 var legend = L.control({position: 'bottomright'});
@@ -352,36 +353,90 @@ var legend = L.control({position: 'bottomright'});
 // init default maplayer
 var maplayer = 'ecosys_risk'
 
+// click to identify function
+// https://www.mapbox.com/mapbox.js/example/v1.0.0/identify-tool/
+function handleClick(e) {
+    var html = '';
+    // look through each layer in order and see if the clicked point,
+    // e.latlng, overlaps with one of the shapes in it.
+    for (var i = 0; i < lyrs.length; i++) {
+        var match = leafletPip.pointInLayer(
+            // the clicked point
+            e.latlng,
+            // this layer
+            lyrs[i].layer,
+            // whether to stop at first match
+            false); // true and false seem to behave the same - DF
+        // if there's overlap, add some content to the popup: the layer name
+        // and a table of attributes
+        if (match.length) {
+            html += '<strong>' + lyrs[i].name + '</strong>';
+            if(lyrs[i].name.substring(0,1) == "H" | lyrs[i].name.substring(0,1) == "e"){
+              html += propertyTable(match[0].feature.properties);
+            } else {
+              // html += '<br>'
+              html += '<hr color="#d3d3d3" size=1>'
+            }
+            // if(lyrs[i].name.substring(0,1) == "S"){
+            //  html += '<tr></tr>';
+            // }
+        }
+    }
+    if (html) {
+        map.openPopup(html, e.latlng);
+    }
+}
+
+// create a simple table from the properties in a feature, like the
+// name of a state or district
+function propertyTable(o) {
+    var t = '<table class="table-condensed">';
+    for (var k in o) {
+      if(k != "cols"){
+        // if(k.substring(0,1) == "H"){
+        //  t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
+        // }
+          t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
+      }
+    }
+    // t += '</table><br>'
+    t += '</table><hr color="#d3d3d3" size=1>';
+    return t;
+}
+
 // load AOI geojson, add to map
 // get subregion names from geojson properties, build dropdown select for subregions
-var aoijson = {};
+//var aoijson = {};
 function drawAOI(){
-  loadaoi = L.geoJson.ajax(aoiPath,{ // provide url to geojson
-    middleware:function(data){ // do some function on the geojson data before returning it
-        aoijson = data;
-        var aoi = L.geoJson(aoijson,{ // build a leaflet layer with style parameters
+  $.getJSON(aoiPath, function(data) { // provide url to geojson
+        var aoi = L.geoJson(data,{ // build a leaflet layer with style parameters
           style: function(feature){
             return {
               fillColor: "orange",
-              color: "white",
+              color: "#d3d3d3",
               fillOpacity:0.0,
               opacity:1,
-              weight:1
+              weight:0.5
             }
           }
-          //onEachFeature: defineFeaturePopup
-        });
+          // onEachFeature: function (feature, layer) {
+          //   layer.bindPopup(feature.properties.CLASSIFY);
+          // }
+        }).on('click', handleClick);
+        aoi.setZIndex(-3);
+        // lyrs.push({ name: "AOI", layer: aoi });
+        control.addOverlay(aoi, "AOI");
         // add AOI to map
-        map.addLayer(aoi);
+        // map.addLayer(aoi);
         map.fitBounds(aoi.getBounds());
 
+        console.log(aoi);
         // Build subregion dropdown select from geojson properties
-        for (var i = 0; i <= aoijson.features.length - 1; i++) {
-          $("#region").append("<option value='" + i + "'>" + aoijson.features[i].properties.name + "</option");
+        for (var i = 0; i <= aoi.features.length - 1; i++) {
+          $("#region").append("<option value='" + i + "'>" + aoi.features[i].properties.name + "</option");
         }
          // set the default selection to the 1st feature 
-        $("#region option[value='" + dropdown.indexOf(aoijson.features[1].properties.name) + "']").attr("selected","selected");
-    }
+        $("#region option[value='" + dropdown.indexOf(aoi.features[1].properties.name) + "']").attr("selected","selected");
   });
 }
 drawAOI(); // and it builds subregion dropdown
@@ -400,112 +455,227 @@ google.setOnLoadCallback(drawChart);
 //// Read csv - build table and chart (chart responds to both dropdowns)
 //// Read geoJSON (first with default layer, then in response to dropdown selection)
 function drawChart() {
-
-  function makeMap() {
-    // load legend json
-    $.getJSON(symbPath, function(symbols){
-      console.log(symbols[0].layer);
-
-      // build array of geojson urls to load all at once
-      // build dropdown array with legend elements
-      var pgons = [];
-      var overlays = {};
-      var dropdown = [];
-      for (var i = 0; i < symbols.length; i++) {
+  $.getJSON(symbPath, function(symbols){
+    var dropdown = [];
+    for (var i = 0; i < symbols.length; i++) {
+      if (symbols[i].layer.substring(0,1) == "H"){
+        habnames.push(symbols[i].layer)
+        habURLs.push(sessPath + symbols[i].layer + ".geojson")
         $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
         dropdown.push(symbols[i].layer)
-        geojsonURLs.push(sessPath + symbols[i].layer + ".geojson")
+      }
+      if (symbols[i].layer.substring(0,1) == "S"){
+        stressnames.push(symbols[i].layer)
+        stressURLs.push(sessPath + symbols[i].layer + ".geojson")
+      }
+      if (symbols[i].layer.substring(0,1) == "e"){
+        econame.push(symbols[i].layer)
+        ecoURL.push(sessPath + symbols[i].layer + ".geojson")
+        $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
+        dropdown.push(symbols[i].layer)
       }
       // set the default selection 
       $("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
+    }
+  
 
-      for (var j = 0; j < geojsonURLs.length; j++){
-        var g1 = L.geoJson.ajax(geojsonURLs[j],{
-          middleware:function(data){
-            var g2 = L.geoJson(data,{
-              style: function(feature){
-                gridcolor = feature.properties.cols.replace("hex", "#");
-                return {
-                  fillColor:gridcolor,
-                  color:gridcolor,
-                  fillOpacity:0.7,
-                  opacity:1,
-                  weight:0.5
-                }
-              }
-              //onEachFeature: defineFeaturePopup
-            });
-            var pgons = new L.featureGroup();
-            pgons.addLayer(g2);
-            map.addLayer(pgons);
-
-            //overlays[dropdown[j]] = pgons;
-            overlays["thing"] = "that";
-            console.log(overlays);
-            //map.fitBounds(markers.getBounds());
+    function loadHab(h){
+      $.getJSON(habURLs[h], function(data) {
+        nm = habnames[h];
+        // console.log(j);
+        // console.log(layernames);
+        // console.log(geojsonURLs);
+        var geojson = L.geoJson(data, {
+          style: function(feature){
+                    gridcolor = feature.properties.cols.replace("hex", "#");
+                    return {
+                      fillColor:gridcolor,
+                      color:ColorLuminance(gridcolor, 1),
+                      fillOpacity:0.7,
+                      opacity:1,
+                      weight:0.5
+                    }
+            }, // style
+          onEachFeature: function (feature, layer) {
+            layer.bindPopup(feature.properties.CLASSIFY);
           }
-        });
+        }).on('click', handleClick);
+        geojson.addTo(map);
+        //maplayers[nm] = geojson;
+        lyrs.push({ name: nm, layer: geojson })
+        control.addOverlay(geojson, nm);
+      });
+    }
+    for (var h = 0; h < habURLs.length; h++){
+      loadHab(h);
+    }
 
-      }
-      console.log(overlays);
-      L.control.layers(base, overlays).addTo(map);
-    })
-  };
-  makeMap();
-  //   console.log(geojsonURLs);
-  //   function LoadAllGeo(){
-  //   for (var j = 0; j < geojsonURLs.length; j++){
-  //     var g1 = L.geoJson.ajax(geojsonURLs[j],{
-  //       middleware:function(data){
-  //         var g2 = L.geoJson(data,{
-  //           style: function(feature){
-  //             gridcolor = feature.properties.cols.replace("hex", "#");
-  //             return {
-  //               fillColor:gridcolor,
-  //               color:gridcolor,
-  //               fillOpacity:0.7,
-  //               opacity:1,
-  //               weight:0.5
+    function loadStress(s){
+      $.getJSON(stressURLs[s], function(data) {
+        nm = stressnames[s];
+        // console.log(j);
+        // console.log(layernames);
+        // console.log(geojsonURLs);
+        var geojson = L.geoJson(data, {
+          style: function(feature){
+                    gridcolor = feature.properties.cols.replace("hex", "#");
+                    return {
+                      fillColor:'#0C0C0B',
+                      color:'#0C0C0B',
+                      fillOpacity:0.3,
+                      opacity:1,
+                      weight:0.5
+                    }
+            }//, // style
+          // onEachFeature: function (feature, layer) {
+          //   layer.bindPopup(feature.properties.CLASSIFY);
+          // }
+        }).on('click', handleClick);
+        geojson.setZIndex(-2);
+        geojson.addTo(map);
+        //maplayers[nm] = geojson;
+        lyrs.push({ name: nm, layer: geojson })
+        control.addOverlay(geojson, nm);
+      });
+    }
+    for (var s = 0; s < habURLs.length; s++){
+      loadStress(s);
+    }
+
+    function loadEco(){
+      $.getJSON(ecoURL[0], function(data) {
+        nm = econame[0];
+
+        var geojson = L.geoJson(data, {
+          style: function(feature){
+                    gridcolor = feature.properties.cols.replace("hex", "#");
+                    return {
+                      fillColor:gridcolor,
+                      color:ColorLuminance(gridcolor, 1),
+                      fillOpacity:0.7,
+                      opacity:1,
+                      weight:0.5
+                    }
+            }//, // style
+          // onEachFeature: function (feature, layer) {
+          //   layer.bindPopup(feature.properties.CLASSIFY);
+          // }
+        }).on('click', handleClick);
+        //geojson.addTo(map);
+        //maplayers[nm] = geojson;
+        lyrs.push({ name: nm, layer: geojson })
+        control.addOverlay(geojson, nm);
+      });
+    }
+    loadEco();
+
+}); // legend ajax
+
+  // function makeMap() {
+  //   // load legend json
+  //   $.getJSON(symbPath, function(symbols){
+  //     console.log(symbols[0].layer);
+
+  //     // build array of geojson urls to load all at once
+  //     // build dropdown array with legend elements
+  //     var pgons = [];
+  //     var overlays = {};
+      // var dropdown = [];
+      // for (var i = 0; i < symbols.length; i++) {
+      //   $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
+      //   dropdown.push(symbols[i].layer)
+      //   geojsonURLs.push(sessPath + symbols[i].layer + ".geojson")
+      // }
+      // // set the default selection 
+      // $("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
+
+  //     for (var j = 0; j < geojsonURLs.length; j++){
+  //       var g1 = L.geoJson.ajax(geojsonURLs[j],{
+  //         middleware:function(data){
+  //           var g2 = L.geoJson(data,{
+  //             style: function(feature){
+  //               gridcolor = feature.properties.cols.replace("hex", "#");
+  //               return {
+  //                 fillColor:gridcolor,
+  //                 color:gridcolor,
+  //                 fillOpacity:0.7,
+  //                 opacity:1,
+  //                 weight:0.5
+  //               }
   //             }
-  //           }
-  //           //onEachFeature: defineFeaturePopup
-  //         });
-  //         pgons.addLayer(g2);
-  //         map.fitBounds(markers.getBounds());
-  //       }
-  //     });
-  //   }
+  //             //onEachFeature: defineFeaturePopup
+  //           });
+  //           var pgons = new L.featureGroup();
+  //           pgons.addLayer(g2);
+  //           map.addLayer(pgons);
+
+  //           //overlays[dropdown[j]] = pgons;
+  //           overlays["thing"] = "that";
+  //           console.log(overlays);
+  //           //map.fitBounds(markers.getBounds());
+  //         }
+  //       });
+
+  //     }
+  //     console.log(overlays);
+  //     L.control.layers(base, overlays).addTo(map);
+  //   })
   // };
-  // LoadAllGeo();
+  // makeMap();
+  // //   console.log(geojsonURLs);
+  // //   function LoadAllGeo(){
+  // //   for (var j = 0; j < geojsonURLs.length; j++){
+  // //     var g1 = L.geoJson.ajax(geojsonURLs[j],{
+  // //       middleware:function(data){
+  // //         var g2 = L.geoJson(data,{
+  // //           style: function(feature){
+  // //             gridcolor = feature.properties.cols.replace("hex", "#");
+  // //             return {
+  // //               fillColor:gridcolor,
+  // //               color:gridcolor,
+  // //               fillOpacity:0.7,
+  // //               opacity:1,
+  // //               weight:0.5
+  // //             }
+  // //           }
+  // //           //onEachFeature: defineFeaturePopup
+  // //         });
+  // //         pgons.addLayer(g2);
+  // //         map.fitBounds(markers.getBounds());
+  // //       }
+  // //     });
+  // //   }
+  // // };
+  // // LoadAllGeo();
     
 
 
-  function makeLegend(){
-    $.getJSON(symbPath, function(symbols){
-      // build legend div based on maplayer (responds to dropdown selection)
-      var leglayer = jQuery.grep(symbols, function(data) { 
-        return data.layer == maplayer
-      })
+  // function makeLegend(){
+  //   $.getJSON(symbPath, function(symbols){
+  //     // build legend div based on maplayer (responds to dropdown selection)
+  //     var leglayer = jQuery.grep(symbols, function(data) { 
+  //       return data.layer == maplayer
+  //     })
 
-      legend.onAdd = function (map) {
-      console.log(leglayer[0]);
-      var div = L.DomUtil.create('div', 'info legend'),
-          grades = leglayer[0]['leglabs'],
-          cols = leglayer[0]['legcols'];
-          labels=[];
+  //     legend.onAdd = function (map) {
+  //     console.log(leglayer[0]);
+  //     var div = L.DomUtil.create('div', 'info legend'),
+  //         grades = leglayer[0]['leglabs'],
+  //         cols = leglayer[0]['legcols'];
+  //         labels=[];
 
-      //loop through our intervals and generate a label with a colored square for each interval
-      for (var i = 0; i < grades.length; i++) {
-          div.innerHTML +=
-              '<i style="background:' + cols[i] + '"></i> ' +
-              grades[i] + '<br>';
-      }
-      return div;
-      };
-      legend.addTo(map);
-    })
-  };  
-  makeLegend();
+  //     //loop through our intervals and generate a label with a colored square for each interval
+  //     for (var i = 0; i < grades.length; i++) {
+  //         div.innerHTML +=
+  //             '<i style="background:' + cols[i] + '"></i> ' +
+  //             grades[i] + '<br>';
+  //     }
+  //     return div;
+  //     };
+  //     legend.addTo(map);
+  //   })
+  // };  
+  // makeLegend();
 
    // Load the CSV
   $.get(csvPath, function(csvString) {
@@ -537,6 +707,7 @@ function drawChart() {
     var chartview = new google.visualization.DataView(data);
 
     var subregion = $("#region option:selected").text(); // get selected subregion from dropdown
+    maplayer = $("#domain option:selected").text(); // get selected maplayer from dropdown
     // filter view by values of certain columns
     chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
     chartview.setColumns([0,1]);
@@ -552,35 +723,35 @@ function drawChart() {
     //var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
     chart.draw(chartview, options);
 
-    // feature popup function relies on this callback function
-    function defineFeaturePopup(feature, layer) {
-      //var props = feature.properties,
-        //fields = popupFields,
-       var popupContent = '',
-        id = feature.properties.cellID,
-        val = arrayData[id],
-        label = arrayData[0],
-        poptable = "<table class='table table-condensed'>";
-        for (var i=0; i < val.length; i=i+1) {
-          if (label[i] === maplayer){
-            poptable += "<tr><td><b>" + label[i] + "</b></td>";  
-            poptable += "<td><b>" + val[i] + "</b></td></tr>"; 
-          } else {
-            poptable += "<tr><td>" + label[i] + "</td>";  
-            poptable += "<td>" + val[i] + "</td></tr>";  
-          } 
-        }
-        //poptable += "<tr><td>" + "ID" + "</td><td>" + id + "</td></tr>"
+    // // feature popup function relies on this callback function
+    // function defineFeaturePopup(feature, layer) {
+    //   //var props = feature.properties,
+    //     //fields = popupFields,
+    //    var popupContent = '',
+    //     id = feature.properties.cellID,
+    //     val = arrayData[id],
+    //     label = arrayData[0],
+    //     poptable = "<table class='table table-condensed'>";
+    //     for (var i=0; i < val.length; i=i+1) {
+    //       if (label[i] === maplayer){
+    //         poptable += "<tr><td><b>" + label[i] + "</b></td>";  
+    //         poptable += "<td><b>" + val[i] + "</b></td></tr>"; 
+    //       } else {
+    //         poptable += "<tr><td>" + label[i] + "</td>";  
+    //         poptable += "<td>" + val[i] + "</td></tr>";  
+    //       } 
+    //     }
+    //     //poptable += "<tr><td>" + "ID" + "</td><td>" + id + "</td></tr>"
         
-      //popupContent = '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
-      //popupContent = '<span class="attribute">'+poptable+'</span>';
-      //console.log(popupContent);
-      popupContent = '<div class="map-popup">'+ poptable +'</div>';
-      layer.bindPopup(popupContent,{
-        offset: L.point(0,10),
-        maxHeight: 300
-      });
-    }
+    //   //popupContent = '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
+    //   //popupContent = '<span class="attribute">'+poptable+'</span>';
+    //   //console.log(popupContent);
+    //   popupContent = '<div class="map-popup">'+ poptable +'</div>';
+    //   layer.bindPopup(popupContent,{
+    //     offset: L.point(0,10),
+    //     maxHeight: 300
+    //   });
+    // }
 
     //Ready to go, load the geojson
     // There are 2 almost identical load calls
@@ -588,27 +759,27 @@ function drawChart() {
     // The second one doesn't fit the map view because that
     // one is called inside the select dropdown listener
 
-    var geojsonFirst = L.geoJson.ajax(geojsonPath,{
-      middleware:function(data){
-          geojson = data;
+    // var geojsonFirst = L.geoJson.ajax(geojsonPath,{
+    //   middleware:function(data){
+    //       geojson = data;
             
-          var markers = L.geoJson(geojson,{
-            style: function(feature){
-              gridcolor = feature.properties.cols.replace("hex", "#");
-              return {
-                fillColor:gridcolor,
-                color:gridcolor,
-                fillOpacity:0.7,
-                opacity:1,
-                weight:0.5
-              }
-            }
-            //onEachFeature: defineFeaturePopup
-          });
-          pgons.addLayer(markers);
-          map.fitBounds(markers.getBounds());
-      }
-    });
+    //       var markers = L.geoJson(geojson,{
+    //         style: function(feature){
+    //           gridcolor = feature.properties.cols.replace("hex", "#");
+    //           return {
+    //             fillColor:gridcolor,
+    //             color:gridcolor,
+    //             fillOpacity:0.7,
+    //             opacity:1,
+    //             weight:0.5
+    //           }
+    //         }
+    //         //onEachFeature: defineFeaturePopup
+    //       });
+    //       pgons.addLayer(markers);
+    //       map.fitBounds(markers.getBounds());
+    //   }
+    // });
 
     // set listener for the subregion dropdown
     $("#region").change(function(){
@@ -639,34 +810,34 @@ function drawChart() {
       // redraw the chart
       chart.draw(chartview, options);
 
-      // Linking dropdown to map
-      popupFields = [];
-      geojsonPath = sessPath + maplayer +'.geojson'; // build url to new maplayer
-      // geojsonLayer.refresh(geojsonPath);//add a new layer 
+      // // Linking dropdown to map
+      // popupFields = [];
+      // geojsonPath = sessPath + maplayer +'.geojson'; // build url to new maplayer
+      // // geojsonLayer.refresh(geojsonPath);//add a new layer 
 
-      var geojsonLayer = L.geoJson.ajax(geojsonPath,{
-        middleware:function(data){
-          geojson = data;
+      // var geojsonLayer = L.geoJson.ajax(geojsonPath,{
+      //   middleware:function(data){
+      //     geojson = data;
 
-            var markers = L.geoJson(geojson,{
-              style: function(feature){
-                gridcolor = feature.properties.cols.replace("hex", "#");
-                return {
-                  fillColor:gridcolor,
-                  color:gridcolor,
-                  fillOpacity:0.7,
-                  opacity:1,
-                  weight:0.5
-                }
-              }
-              //onEachFeature: defineFeaturePopup
-            });
-            pgons.clearLayers(); 
-            pgons.addLayer(markers);
-        }
-      });
-      legend.removeFrom(map);
-      makeLegend();
+      //       var markers = L.geoJson(geojson,{
+      //         style: function(feature){
+      //           gridcolor = feature.properties.cols.replace("hex", "#");
+      //           return {
+      //             fillColor:gridcolor,
+      //             color:gridcolor,
+      //             fillOpacity:0.7,
+      //             opacity:1,
+      //             weight:0.5
+      //           }
+      //         }
+      //         //onEachFeature: defineFeaturePopup
+      //       });
+      //       pgons.clearLayers(); 
+      //       pgons.addLayer(markers);
+      //   }
+      // });
+      // legend.removeFrom(map);
+      // makeLegend();
     });
 
  });
@@ -683,6 +854,26 @@ function defineFeature(feature, latlng) {
         iconSize:null
     });
     return L.marker(latlng, {icon: myIcon});
+}
+
+function ColorLuminance(hex, lum) {
+
+  // validate hex string
+  hex = String(hex).replace(/[^0-9a-f]/gi, '');
+  if (hex.length < 6) {
+    hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  }
+  lum = lum || 0;
+
+  // convert to decimal and change luminosity
+  var rgb = "#", c, i;
+  for (i = 0; i < 3; i++) {
+    c = parseInt(hex.substr(i*2,2), 16);
+    c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+    rgb += ("00"+c).substr(c.length);
+  }
+
+  return rgb;
 }
 //console.log(popupFields);
 
