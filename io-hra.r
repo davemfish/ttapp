@@ -32,10 +32,10 @@
 
 library(raster)
 library(rgeos)
-library(ggplot2)
 library(rgdal)
 library(RColorBrewer)
 library(RJSONIO)
+library(XML)
 
 Cut2Num <- function(x){
   ids <- unique(as.numeric(x))
@@ -95,8 +95,8 @@ LoadSpace <- function(ws, outpath){
   aoi <- readOGR(dsn=file.path(ws, "intermediate"), layer="temp_aoi_copy")
   ## get Area of AOI in projected units
   ## TODO: grep the proj4string for units??
-  area.subregions <- gArea(aoi)
-  area.aoi <- sum(gArea(aoi))
+  #area.subregions <- gArea(aoi)
+  #area.aoi <- sum(gArea(aoi))
   
   aoi.wgs84 <- spTransform(aoi, CRS("+proj=longlat +datum=WGS84 +no_defs"))
   bbox <- bbox(aoi.wgs84)
@@ -161,10 +161,12 @@ LoadSpace <- function(ws, outpath){
   }
   habsummary <- do.call("rbind", summlist)
   proc.time() - ptm
-  ## TODO -- formatting of habsummary content: transform counts to areas
   
-  ## write habitat summary csv
+  ## write habitat summary csv and json
   write.csv(habsummary, file.path(outpath, "habsummary.csv"), row.names=F)
+  habjson <- toJSON(habsummary)
+  habjson <- paste('{ "data":', habjson, "}")
+  writeLines(habjson, file.path(outpath, "habsummary.json"))
   
   #mapdatalist <- list()
   leg.list <- list()
