@@ -42,6 +42,8 @@ echo "
 
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"./libs/jquery.csv-0.71.js\"></script>
+    <script src=\"http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js\"></script>
+    <link rel=\"stylesheet\" href=\"http://cdn.datatables.net/1.10.5/css/jquery.dataTables.css\">
 
     <!-- Latest compiled and minified CSS -->
     <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
@@ -55,7 +57,9 @@ echo "
     <!-- Bootstrap file for file input forms -->
     <script type=\"text/javascript\" src=\"./libs/bootstrap-filestyle.min.js\"> </script>
 
-    <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
+    <!--<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>-->
+    <!--<script src=\"https://raw.githubusercontent.com/novus/nvd3/master/build/nv.d3.min.js\"></script>-->
+
     <script src=\"https://www.google.com/jsapi\"></script>
 
     <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
@@ -213,19 +217,51 @@ echo "
     <div class=\"row\">
       <div class=\"col-lg-7\">
         <div id=\"map\"></div>
-        <h5> select a layer to map:</h5>
-        <select id=\"domain\"></select>
+        <!--<h5> select a layer to map:</h5>
+        <select id=\"domain\"></select>-->
       </div>
       <div class=\"col-lg-5\">
         <div id=\"chart_div\"></div>
-        <h5> select a subregion to plot:</h5>
-        <select id=\"region\"></select>
+        
+        <!--<h5> select a subregion to plot:</h5>
+        <select id=\"region\"></select>-->
       </div>
   </div>
   </div>
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"two\"> 
-    <div id=\"table_div\"></div>
+  <div class=\"row\">
+      <div class=\"col-lg-6\">
+        <div id=\"table_div\">
+          <table id=\"habsummary\" class=\"display\">
+            <thead>
+                <tr>
+                    <th>Habitat</th>
+                    <th>Area</th>
+                    <th>Classify</th>
+                    <th>Subregion</th>
+                </tr>
+            </thead>
+     
+            <tfoot>
+                <tr>
+                    <th>Habitat</th>
+                    <th>Area</th>
+                    <th>Classify</th>
+                    <th>Subregion</th>
+                </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+      <div class=\"col-lg-6\">
+        <div>
+          <!--<a href=\"https://plot.ly/~davemfish/32/\" target=\"_blank\" title=\"LOW, MED, HIGH\" style=\"display: block; text-align: center;\"><img src=\"https://plot.ly/~davemfish/32.png\" alt=\"LOW, MED, HIGH\" style=\"max-width: 100%;\"  onerror=\his.onerror=null;this.src='https://plot.ly/404.png';\" /></a>
+          <script data-plotly=\"davemfish:32\" src=\"https://plot.ly/embed.js\" async></script>-->
+          <iframe width=\"640\" height=\"480\" frameborder=\"0\" seamless=\"seamless\" scrolling=\"no\" src=\"https://plot.ly/~davemfish/32/.embed?width=640&height=480\" ></iframe>
+        </div>
+      </div>
+    </div>
   </div>
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"three\"> 
     <div class=\"row\">
@@ -274,7 +310,8 @@ if (file_exists($pathid . "habsummary.csv")) {
         stressnames = [],
         econame = [],
         aoiPath = sessPath + 'aoi.geojson',
-        csvPath = sessPath + 'habsummary.csv',
+        //csvPath = sessPath + 'habsummary.csv',
+        tablePath = sessPath + 'habsummary.json',
         symbPath = sessPath + 'legend.json',
         lyrs = []
         //initPath = sessPath + 'init.json',
@@ -431,12 +468,12 @@ function drawAOI(){
         map.fitBounds(aoi.getBounds());
 
         console.log(aoi);
-        // Build subregion dropdown select from geojson properties
-        for (var i = 0; i <= aoi.features.length - 1; i++) {
-          $("#region").append("<option value='" + i + "'>" + aoi.features[i].properties.name + "</option");
-        }
-         // set the default selection to the 1st feature 
-        $("#region option[value='" + dropdown.indexOf(aoi.features[1].properties.name) + "']").attr("selected","selected");
+        // // Build subregion dropdown select from geojson properties
+        // for (var i = 0; i <= aoi.features.length - 1; i++) {
+        //   $("#region").append("<option value='" + i + "'>" + aoi.features[i].properties.name + "</option");
+        // }
+        //  // set the default selection to the 1st feature 
+        // $("#region option[value='" + dropdown.indexOf(aoi.features[1].properties.name) + "']").attr("selected","selected");
   });
 }
 drawAOI(); // and it builds subregion dropdown
@@ -447,22 +484,23 @@ drawAOI(); // and it builds subregion dropdown
 google.load("visualization", "1", {packages:["corechart"]});
 //google.load("visualization", "1.1", {packages:["bar"]});
 google.load("visualization", "1", {packages:["table"]});
-google.setOnLoadCallback(drawChart);
+// google.setOnLoadCallback(drawChart);
 
 
 //// A lot happens in here:
 //// Read legend.json - build maplayer dropdown from legend elements; build legend div.
 //// Read csv - build table and chart (chart responds to both dropdowns)
 //// Read geoJSON (first with default layer, then in response to dropdown selection)
-function drawChart() {
+//function makePage() {
+//function drawChart() {
   $.getJSON(symbPath, function(symbols){
     var dropdown = [];
     for (var i = 0; i < symbols.length; i++) {
       if (symbols[i].layer.substring(0,1) == "H"){
         habnames.push(symbols[i].layer)
         habURLs.push(sessPath + symbols[i].layer + ".geojson")
-        $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
-        dropdown.push(symbols[i].layer)
+        // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
+        // dropdown.push(symbols[i].layer)
       }
       if (symbols[i].layer.substring(0,1) == "S"){
         stressnames.push(symbols[i].layer)
@@ -471,13 +509,41 @@ function drawChart() {
       if (symbols[i].layer.substring(0,1) == "e"){
         econame.push(symbols[i].layer)
         ecoURL.push(sessPath + symbols[i].layer + ".geojson")
-        $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
-        dropdown.push(symbols[i].layer)
+        // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
+        // dropdown.push(symbols[i].layer)
       }
       // set the default selection 
-      $("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
+      // $("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
     }
   
+    function loadStress(s){
+      $.getJSON(stressURLs[s], function(data) {
+        nm = stressnames[s];
+        // console.log(j);
+        // console.log(layernames);
+        // console.log(geojsonURLs);
+        var geojson = L.geoJson(data, {
+          style: function(feature){
+                    gridcolor = feature.properties.cols.replace("hex", "#");
+                    return {
+                      fillColor:'#0C0C0B',
+                      color:'#0C0C0B',
+                      fillOpacity:0.3,
+                      opacity:1,
+                      weight:1
+                    }
+            }//, // style
+          // onEachFeature: function (feature, layer) {
+          //   layer.bindPopup(feature.properties.CLASSIFY);
+          // }
+        }).on('click', handleClick);
+        geojson.addTo(map);
+        geojson.bringToFront();
+        //maplayers[nm] = geojson;
+        lyrs.push({ name: nm, layer: geojson })
+        control.addOverlay(geojson, nm);
+      });
+    }
 
     function loadHab(h){
       $.getJSON(habURLs[h], function(data) {
@@ -501,45 +567,20 @@ function drawChart() {
           }
         }).on('click', handleClick);
         geojson.addTo(map);
+        geojson.bringToBack();
         //maplayers[nm] = geojson;
         lyrs.push({ name: nm, layer: geojson })
         control.addOverlay(geojson, nm);
       });
     }
+
     for (var h = 0; h < habURLs.length; h++){
       loadHab(h);
     }
-
-    function loadStress(s){
-      $.getJSON(stressURLs[s], function(data) {
-        nm = stressnames[s];
-        // console.log(j);
-        // console.log(layernames);
-        // console.log(geojsonURLs);
-        var geojson = L.geoJson(data, {
-          style: function(feature){
-                    gridcolor = feature.properties.cols.replace("hex", "#");
-                    return {
-                      fillColor:'#0C0C0B',
-                      color:'#0C0C0B',
-                      fillOpacity:0.3,
-                      opacity:1,
-                      weight:0.5
-                    }
-            }//, // style
-          // onEachFeature: function (feature, layer) {
-          //   layer.bindPopup(feature.properties.CLASSIFY);
-          // }
-        }).on('click', handleClick);
-        geojson.setZIndex(-2);
-        geojson.addTo(map);
-        //maplayers[nm] = geojson;
-        lyrs.push({ name: nm, layer: geojson })
-        control.addOverlay(geojson, nm);
-      });
-    }
-    for (var s = 0; s < habURLs.length; s++){
-      loadStress(s);
+    if (h == habURLs.length){
+      for (var s = 0; s < stressURLs.length; s++){
+        loadStress(s);
+      }
     }
 
     function loadEco(){
@@ -569,279 +610,129 @@ function drawChart() {
     }
     loadEco();
 
-}); // legend ajax
-
-  // function makeMap() {
-  //   // load legend json
-  //   $.getJSON(symbPath, function(symbols){
-  //     console.log(symbols[0].layer);
-
-  //     // build array of geojson urls to load all at once
-  //     // build dropdown array with legend elements
-  //     var pgons = [];
-  //     var overlays = {};
-      // var dropdown = [];
-      // for (var i = 0; i < symbols.length; i++) {
-      //   $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
-      //   dropdown.push(symbols[i].layer)
-      //   geojsonURLs.push(sessPath + symbols[i].layer + ".geojson")
-      // }
-      // // set the default selection 
-      // $("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
-
-  //     for (var j = 0; j < geojsonURLs.length; j++){
-  //       var g1 = L.geoJson.ajax(geojsonURLs[j],{
-  //         middleware:function(data){
-  //           var g2 = L.geoJson(data,{
-  //             style: function(feature){
-  //               gridcolor = feature.properties.cols.replace("hex", "#");
-  //               return {
-  //                 fillColor:gridcolor,
-  //                 color:gridcolor,
-  //                 fillOpacity:0.7,
-  //                 opacity:1,
-  //                 weight:0.5
-  //               }
-  //             }
-  //             //onEachFeature: defineFeaturePopup
-  //           });
-  //           var pgons = new L.featureGroup();
-  //           pgons.addLayer(g2);
-  //           map.addLayer(pgons);
-
-  //           //overlays[dropdown[j]] = pgons;
-  //           overlays["thing"] = "that";
-  //           console.log(overlays);
-  //           //map.fitBounds(markers.getBounds());
-  //         }
-  //       });
-
-  //     }
-  //     console.log(overlays);
-  //     L.control.layers(base, overlays).addTo(map);
-  //   })
-  // };
-  // makeMap();
-  // //   console.log(geojsonURLs);
-  // //   function LoadAllGeo(){
-  // //   for (var j = 0; j < geojsonURLs.length; j++){
-  // //     var g1 = L.geoJson.ajax(geojsonURLs[j],{
-  // //       middleware:function(data){
-  // //         var g2 = L.geoJson(data,{
-  // //           style: function(feature){
-  // //             gridcolor = feature.properties.cols.replace("hex", "#");
-  // //             return {
-  // //               fillColor:gridcolor,
-  // //               color:gridcolor,
-  // //               fillOpacity:0.7,
-  // //               opacity:1,
-  // //               weight:0.5
-  // //             }
-  // //           }
-  // //           //onEachFeature: defineFeaturePopup
-  // //         });
-  // //         pgons.addLayer(g2);
-  // //         map.fitBounds(markers.getBounds());
-  // //       }
-  // //     });
-  // //   }
-  // // };
-  // // LoadAllGeo();
-    
+  }); // legend ajax
 
 
-  // function makeLegend(){
-  //   $.getJSON(symbPath, function(symbols){
-  //     // build legend div based on maplayer (responds to dropdown selection)
-  //     var leglayer = jQuery.grep(symbols, function(data) { 
-  //       return data.layer == maplayer
-  //     })
+   // Load the habitat summary data
+  $('#habsummary').dataTable( {
+    "ajax": tablePath,
+    "columns": [
+            { "data": "Habitat" },
+            { "data": "Area" },
+            { "data": "Classify" },
+            { "data": "Subregion" }
+        ]
+    } );
 
-  //     legend.onAdd = function (map) {
-  //     console.log(leglayer[0]);
-  //     var div = L.DomUtil.create('div', 'info legend'),
-  //         grades = leglayer[0]['leglabs'],
-  //         cols = leglayer[0]['legcols'];
-  //         labels=[];
+//   d3.json(tablePath, function(data){
+//     nv.addGraph(function() {
+//       var chart = nv.models.multiBarChart()
+//         .transitionDuration(350)
+//         .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
+//         .rotateLabels(0)      //Angle to rotate x-axis labels.
+//         .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
+//         .groupSpacing(0.1)    //Distance between each group of bars.
+//       ;
 
-  //     //loop through our intervals and generate a label with a colored square for each interval
-  //     for (var i = 0; i < grades.length; i++) {
-  //         div.innerHTML +=
-  //             '<i style="background:' + cols[i] + '"></i> ' +
-  //             grades[i] + '<br>';
-  //     }
-  //     return div;
-  //     };
-  //     legend.addTo(map);
-  //   })
-  // };  
-  // makeLegend();
+//       chart.xAxis.tickFormat(function(d) {
+//         return d3.format(',f')(data[0]);
 
-   // Load the CSV
-  $.get(csvPath, function(csvString) {
+//       chart.yAxis.tickFormat(d3.format(',.1f'));
+//       var d = [{
+//         values: data[1],
+//         key: "Area"
+//         color
+//       }]
 
-    // Build table from csv to display as google vis
+//       d3.select('#chart1 svg')
+//           .datum(exampleData())
+//           .call(chart);
 
-    // transform the CSV string into a 2-dimensional array
-    var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
-    //console.log(arrayData);
+//       nv.utils.windowResize(chart.update);
 
-    // make DataTable from entire arrayData
-    var data = new google.visualization.arrayToDataTable(arrayData);
-    // link to div
-    var table = new google.visualization.Table(document.getElementById('table_div'));
-    // make a view with subset of data (in this case view still includes entire data array)
-    var tableview = new google.visualization.DataView(data);
+//       return chart;
+//   });
+// });
+//   });
 
-    // get the col numbers of all that should appear in table
-    // var collist = [];
-    // for (var i = 0; i <= arrayData[0].length - 1; i++) {
-    //     collist.push(i);
-    // }
-    // tableview.setColumns(collist);
+    // // Build table from csv to display as google vis
 
-    table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
+    // // transform the CSV string into a 2-dimensional array
+    // var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
+    // //console.log(arrayData);
+
+    // // make DataTable from entire arrayData
+    // var data = new google.visualization.arrayToDataTable(arrayData);
+    // // link to div
+    // var table = new google.visualization.Table(document.getElementById('table_div'));
+    // // make a view with subset of data (in this case view still includes entire data array)
+    // var tableview = new google.visualization.DataView(data);
+
+    // // get the col numbers of all that should appear in table
+    // // var collist = [];
+    // // for (var i = 0; i <= arrayData[0].length - 1; i++) {
+    // //     collist.push(i);
+    // // }
+    // // tableview.setColumns(collist);
+
+    // table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
 
 
-    // Build Chart from same DataTable as above
-    var chartview = new google.visualization.DataView(data);
+    // // Build Chart from same DataTable as above
+    // var chartview = new google.visualization.DataView(data);
 
-    var subregion = $("#region option:selected").text(); // get selected subregion from dropdown
-    maplayer = $("#domain option:selected").text(); // get selected maplayer from dropdown
-    // filter view by values of certain columns
-    chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
-    chartview.setColumns([0,1]);
+    // var subregion = $("#region option:selected").text(); // get selected subregion from dropdown
+    // maplayer = $("#domain option:selected").text(); // get selected maplayer from dropdown
+    // // filter view by values of certain columns
+    // chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
+    // chartview.setColumns([0,1]);
 
-    var options = {
-       title: 'Distribution of Risk Scores',
-       legend: { position: 'none' },
-       colors: ['gray'],
-    };
+    // var options = {
+    //    title: 'Distribution of Risk Scores',
+    //    legend: { position: 'none' },
+    //    colors: ['gray'],
+    // };
 
-    //var chart = new google.charts.Bar(document.getElementById("chart_div"));
-    var chart = new google.visualization.ColumnChart(document.getElementById("chart_div"));
-    //var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-    chart.draw(chartview, options);
+    // //var chart = new google.charts.Bar(document.getElementById("chart_div"));
+    // var chart = new google.visualization.ColumnChart(document.getElementById("chart_div"));
+    // //var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+    // chart.draw(chartview, options);
 
-    // // feature popup function relies on this callback function
-    // function defineFeaturePopup(feature, layer) {
-    //   //var props = feature.properties,
-    //     //fields = popupFields,
-    //    var popupContent = '',
-    //     id = feature.properties.cellID,
-    //     val = arrayData[id],
-    //     label = arrayData[0],
-    //     poptable = "<table class='table table-condensed'>";
-    //     for (var i=0; i < val.length; i=i+1) {
-    //       if (label[i] === maplayer){
-    //         poptable += "<tr><td><b>" + label[i] + "</b></td>";  
-    //         poptable += "<td><b>" + val[i] + "</b></td></tr>"; 
-    //       } else {
-    //         poptable += "<tr><td>" + label[i] + "</td>";  
-    //         poptable += "<td>" + val[i] + "</td></tr>";  
-    //       } 
-    //     }
-    //     //poptable += "<tr><td>" + "ID" + "</td><td>" + id + "</td></tr>"
-        
-    //   //popupContent = '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
-    //   //popupContent = '<span class="attribute">'+poptable+'</span>';
-    //   //console.log(popupContent);
-    //   popupContent = '<div class="map-popup">'+ poptable +'</div>';
-    //   layer.bindPopup(popupContent,{
-    //     offset: L.point(0,10),
-    //     maxHeight: 300
-    //   });
-    // }
 
-    //Ready to go, load the geojson
-    // There are 2 almost identical load calls
-    // This first one calls map.fitBounds
-    // The second one doesn't fit the map view because that
-    // one is called inside the select dropdown listener
+    // // set listener for the subregion dropdown
+    // $("#region").change(function(){
+    //   subregion = $("#region option:selected").text();
+    //   chartview = new google.visualization.DataView(data);
+    //     //console.log(chartview);
 
-    // var geojsonFirst = L.geoJson.ajax(geojsonPath,{
-    //   middleware:function(data){
-    //       geojson = data;
-            
-    //       var markers = L.geoJson(geojson,{
-    //         style: function(feature){
-    //           gridcolor = feature.properties.cols.replace("hex", "#");
-    //           return {
-    //             fillColor:gridcolor,
-    //             color:gridcolor,
-    //             fillOpacity:0.7,
-    //             opacity:1,
-    //             weight:0.5
-    //           }
-    //         }
-    //         //onEachFeature: defineFeaturePopup
-    //       });
-    //       pgons.addLayer(markers);
-    //       map.fitBounds(markers.getBounds());
-    //   }
+    //   chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
+    //   chartview.setColumns([0,1]);
+
+    //    // update the chart
+    //   chart.draw(chartview, options);
+
     // });
 
-    // set listener for the subregion dropdown
-    $("#region").change(function(){
-      subregion = $("#region option:selected").text();
-      chartview = new google.visualization.DataView(data);
-        //console.log(chartview);
+    // // set listener for the maplayer dropdown, chart and map must respond
+    // $("#domain").change(function(){
+    //   // get current selection
+    //   maplayer = $("#domain option:selected").text();
 
-      chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
-      chartview.setColumns([0,1]);
+    //   // reset chartview to entire dataTable
+    //   chartview = new google.visualization.DataView(data);
 
-       // update the chart
-      chart.draw(chartview, options);
+    //   // filter rows by currently selected maplayer and subregion
+    //   chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
+    //   chartview.setColumns([0,1]);
 
-    });
+    //   // redraw the chart
+    //   chart.draw(chartview, options);
 
-    // set listener for the maplayer dropdown, chart and map must respond
-    $("#domain").change(function(){
-      // get current selection
-      maplayer = $("#domain option:selected").text();
+    // });
 
-      // reset chartview to entire dataTable
-      chartview = new google.visualization.DataView(data);
-
-      // filter rows by currently selected maplayer and subregion
-      chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
-      chartview.setColumns([0,1]);
-
-      // redraw the chart
-      chart.draw(chartview, options);
-
-      // // Linking dropdown to map
-      // popupFields = [];
-      // geojsonPath = sessPath + maplayer +'.geojson'; // build url to new maplayer
-      // // geojsonLayer.refresh(geojsonPath);//add a new layer 
-
-      // var geojsonLayer = L.geoJson.ajax(geojsonPath,{
-      //   middleware:function(data){
-      //     geojson = data;
-
-      //       var markers = L.geoJson(geojson,{
-      //         style: function(feature){
-      //           gridcolor = feature.properties.cols.replace("hex", "#");
-      //           return {
-      //             fillColor:gridcolor,
-      //             color:gridcolor,
-      //             fillOpacity:0.7,
-      //             opacity:1,
-      //             weight:0.5
-      //           }
-      //         }
-      //         //onEachFeature: defineFeaturePopup
-      //       });
-      //       pgons.clearLayers(); 
-      //       pgons.addLayer(markers);
-      //   }
-      // });
-      // legend.removeFrom(map);
-      // makeLegend();
-    });
-
- });
-};  /// end of ajax call read csv
+  // }); // end get CSV json
+//};  /// end of drawChart()
+//makePage();
 
 /// All js below is functions for creating the marker cluster symbols
 
