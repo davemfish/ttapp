@@ -1,6 +1,6 @@
 #map {
-  width:650px;
-  height:450px;
+  width:750px;
+  height:550px;
 }
 #chart_div {
   width:500px;
@@ -161,12 +161,16 @@
     width: 50%;
     border: 0;
     font-size:1em;
-    padding: 4px;
+    padding: 2px;
 }
-/*.leaflet-popup-content table tbody td{
-    border-bottom: 1px solid #E1EEF4;
-    padding: 0px;
-}*/
+.leaflet-popup-content table tbody td{
+  font-size:12;
+  padding: 2px;
+}
+.leaflet-popup-content table tbody tr{
+  font-size:12;
+  padding: 0px;
+}
 
 /*Legend*/
 .legend {
