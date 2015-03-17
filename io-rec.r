@@ -74,7 +74,7 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
       next
     }
     if (nm %in% c("usdyav", "usdyav_pr", "usdyav_est")){
-      ramp <- "BuPu"
+      ramp <- "RdPu"
     } else {
       ramp <- "Oranges"
     }
