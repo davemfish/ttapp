@@ -285,7 +285,7 @@ echo "
         <h3> Compatibility </h3>
         <p>For best results, please try Google Chrome or Mozilla Firefox web browsers.</p>
         <p>Please note, results from InVEST Coastal Vulnerabilty version 3.1.0 do not include the coastal_exposure.csv file required for this app.
-        This issue is now fixed and a more recent version of InVEST can be <a href=\"http://data.naturalcapitalproject.org/nightly-build/InVEST_dev160_3_1_0b1%20%5b2cdd4586e9ef%5d_x86_Setup.exe\"> downloaded here </a></p>
+        This issue is now fixed and a more recent version of InVEST can be <a href=\"http://www.naturalcapitalproject.org/InVEST.html\"> downloaded here </a></p>
         <br>
         <small><i>This application is built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
         you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></i></small>
@@ -547,7 +547,7 @@ function drawChart() {
       //console.log(view);
 
       var options = {
-         title: 'Distribution of Exposure Index',
+         title: 'Distribution of the current map layer',
          legend: { position: 'none' },
          colors: ['gray'],
       };
