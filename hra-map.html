@@ -1,0 +1,253 @@
+<!doctype HTML>
+<html>
+	<head>
+   		<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script> 
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+		<link rel="stylesheet" href="hra-dash.css">
+
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="./libs/jquery.csv-0.71.js"></script>
+		<script type="text/javascript" src="./libs/leaflet-ajax-master/dist/leaflet.ajax.js"></script>
+
+		<!-- <link rel="stylesheet" href="./libs/Leaflet.StyledLayerControl/css/styledLayerControl.css" />
+    	<script src="./libs/Leaflet.StyledLayerControl/src/styledLayerControl.js"></script>
+ -->
+ <!-- Latest compiled and minified CSS -->
+	    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
+	    <!-- Optional theme -->
+	    <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">
+	    <!-- Latest compiled and minified JavaScript -->
+	    <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>
+
+    	<script src='https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js'></script>
+	</head>
+	<body>
+
+	 <div id="map" height=800px width=800px></div>
+
+	<script>
+    //Map
+    map = L.map('map', {
+      center: [49.2, -124.99],
+      zoom: 9,
+      maxZoom:15
+    });
+
+    //Basemap
+    MapBoxSat = L.tileLayer('https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png', {
+      minZoom: 0,
+      maxZoom: 15,
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
+    })
+    OpenMapSurfer_Roads = L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/roads/x={x}&y={y}&z={z}', {
+      minZoom: 0,
+      maxZoom: 15,
+      attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    })
+    
+    base = {
+      "Satellite": MapBoxSat,
+      "Physical/Political": OpenMapSurfer_Roads
+    };
+
+    MapBoxSat.addTo(map);
+
+    var geojsonURLs = [],
+    	habURLs = [],
+    	stressURLs = [],
+    	ecoURL = [],
+    	aoiURL = [],
+    	habnames = [],
+    	stressnames = [],
+    	econame = [],
+	    //layernames = [],
+	    sessPath = "./sample/processedHRA/",  // '$pathid',
+	    symbPath = sessPath + 'legend.json',
+	    lyrs = [];
+
+	var control = new L.control.layers(base).addTo(map);
+
+    $.getJSON(symbPath, function(symbols){
+	    for (var i = 0; i < symbols.length; i++) {
+	    	console.log(symbols[i].layer.substring(0,1));
+	    	if (symbols[i].layer.substring(0,1) == "H"){
+	    		habnames.push(symbols[i].layer)
+	    		habURLs.push(sessPath + symbols[i].layer + ".geojson")
+	    	}
+	    	if (symbols[i].layer.substring(0,1) == "S"){
+	    		stressnames.push(symbols[i].layer)
+	    		stressURLs.push(sessPath + symbols[i].layer + ".geojson")
+	    	}
+	    	if (symbols[i].layer.substring(0,1) == "e"){
+	    		econame.push(symbols[i].layer)
+	    		ecoURL.push(sessPath + symbols[i].layer + ".geojson")
+	    	}
+	    	
+	    }
+	
+
+	// click to identify function
+	// https://www.mapbox.com/mapbox.js/example/v1.0.0/identify-tool/
+	function handleClick(e) {
+	    var html = '';
+	    // look through each layer in order and see if the clicked point,
+	    // e.latlng, overlaps with one of the shapes in it.
+	    for (var i = 0; i < lyrs.length; i++) {
+	        var match = leafletPip.pointInLayer(
+	            // the clicked point
+	            e.latlng,
+	            // this layer
+	            lyrs[i].layer,
+	            // whether to stop at first match
+	            false); // true and false seem to behave the same - DF
+	        // if there's overlap, add some content to the popup: the layer name
+	        // and a table of attributes
+	        if (match.length) {
+	            html += '<strong>' + lyrs[i].name + '</strong>';
+	            if(lyrs[i].name.substring(0,1) == "H" | lyrs[i].name.substring(0,1) == "e"){
+	            	html += propertyTable(match[0].feature.properties);
+	            } else {
+	            	html += '<hr color="#d3d3d3" size=1>'
+	            }
+	            // if(lyrs[i].name.substring(0,1) == "S"){
+	            // 	html += '<tr></tr>';
+	            // }
+	        }
+	    }
+	    if (html) {
+	        map.openPopup(html, e.latlng);
+	    }
+	}
+
+	// create a simple table from the properties in a feature, like the
+	// name of a state or district
+	function propertyTable(o) {
+	    var t = '<table>';
+	    for (var k in o) {
+	    	if(k != "cols"){
+	    		// if(k.substring(0,1) == "H"){
+	    		// 	t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
+	    		// }
+	        	t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
+	    	}
+	    }
+	    t += '</table><hr color="#d3d3d3" size=1>';
+	    return t;
+	}
+
+    function loadHab(h){
+    	$.getJSON(habURLs[h], function(data) {
+    		nm = habnames[h];
+    		// console.log(j);
+    		// console.log(layernames);
+    		// console.log(geojsonURLs);
+		    var geojson = L.geoJson(data, {
+		    	style: function(feature){
+		                gridcolor = feature.properties.cols.replace("hex", "#");
+		                return {
+		                  fillColor:gridcolor,
+		                  color:ColorLuminance(gridcolor, 1),
+		                  fillOpacity:0.7,
+		                  opacity:1,
+		                  weight:0.5
+		                }
+		        }, // style
+			    onEachFeature: function (feature, layer) {
+			      layer.bindPopup(feature.properties.CLASSIFY);
+			    }
+		    }).on('click', handleClick);
+		    geojson.addTo(map);
+		    //maplayers[nm] = geojson;
+		    lyrs.push({ name: nm, layer: geojson })
+		    control.addOverlay(geojson, nm);
+		  });
+    }
+    for (var h = 0; h < habURLs.length; h++){
+    	loadHab(h);
+    }
+
+    function loadStress(s){
+    	$.getJSON(stressURLs[s], function(data) {
+    		nm = stressnames[s];
+    		// console.log(j);
+    		// console.log(layernames);
+    		// console.log(geojsonURLs);
+		    var geojson = L.geoJson(data, {
+		    	style: function(feature){
+		                gridcolor = feature.properties.cols.replace("hex", "#");
+		                return {
+		                  fillColor:'#0C0C0B',
+		                  color:'#0C0C0B',
+		                  fillOpacity:0.3,
+		                  opacity:1,
+		                  weight:0.5
+		                }
+		        }//, // style
+			    // onEachFeature: function (feature, layer) {
+			    //   layer.bindPopup(feature.properties.CLASSIFY);
+			    // }
+		    }).on('click', handleClick);
+		    geojson.setZIndex(-2);
+		    geojson.addTo(map);
+		    //maplayers[nm] = geojson;
+		    lyrs.push({ name: nm, layer: geojson })
+		    control.addOverlay(geojson, nm);
+		  });
+    }
+    for (var s = 0; s < habURLs.length; s++){
+    	loadStress(s);
+    }
+
+    function loadEco(){
+    	$.getJSON(ecoURL[0], function(data) {
+    		nm = econame[0];
+
+		    var geojson = L.geoJson(data, {
+		    	style: function(feature){
+		                gridcolor = feature.properties.cols.replace("hex", "#");
+		                return {
+		                  fillColor:gridcolor,
+		                  color:ColorLuminance(gridcolor, 1),
+		                  fillOpacity:0.7,
+		                  opacity:1,
+		                  weight:0.5
+		                }
+		        }//, // style
+			    // onEachFeature: function (feature, layer) {
+			    //   layer.bindPopup(feature.properties.CLASSIFY);
+			    // }
+		    }).on('click', handleClick);
+		    //geojson.addTo(map);
+		    //maplayers[nm] = geojson;
+		    lyrs.push({ name: nm, layer: geojson })
+		    control.addOverlay(geojson, nm);
+		  });
+    }
+    loadEco();
+
+
+}); // legend ajax
+
+function ColorLuminance(hex, lum) {
+
+	// validate hex string
+	hex = String(hex).replace(/[^0-9a-f]/gi, '');
+	if (hex.length < 6) {
+		hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+	}
+	lum = lum || 0;
+
+	// convert to decimal and change luminosity
+	var rgb = "#", c, i;
+	for (i = 0; i < 3; i++) {
+		c = parseInt(hex.substr(i*2,2), 16);
+		c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+		rgb += ("00"+c).substr(c.length);
+	}
+
+	return rgb;
+}
+
+</script>
+</body>
+</html>
