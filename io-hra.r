@@ -37,6 +37,18 @@ library(RColorBrewer)
 library(RJSONIO)
 library(XML)
 
+# ## SessionID is passed as an argument from PHP page
+# args=(commandArgs(TRUE))
+# if(length(args)==0) { 
+#   print("ERROR: No arguments supplied.")
+# } else {
+#   for(i in 1:length(args)){
+#     eval(parse(text=args[[i]]))
+#   }
+# }
+# # sess <- "testing"        # stick a test sessionID here for debugging
+# print(paste("SessionID =",sess))
+
 Cut2Num <- function(x){
   ids <- unique(as.numeric(x))
   char.x <- as.character(levels(x))
@@ -144,6 +156,7 @@ LoadSpace <- function(ws, outpath){
 
       #factorx <- factor(cut(vals, breaks=nclass.Sturges(vals)))
       #df <- as.data.frame(table(factorx))
+      names(region@data) <- tolower(names(region@data))
       df <- data.frame("Habitat"=tifs[g], "Subregion"=as.character(region@data$name), "Classify"=c("LOW", "MED", "HIGH"), "Area"=NA)
       
       df$Area[1] <- A.low
@@ -268,10 +281,12 @@ LoadSpace <- function(ws, outpath){
 
 } # close function def
 
-#workspace <- paste("/var/www/html/ttapp/tmp-cv/", sess, "/", sep='')
-#outspace <- paste("/var/www/html/ttapp/tmp-cv/", sess, "/", sep='')
-workspace <- "C:/Users/dfisher5/Documents/Shiny/HRA/data"
-outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp-hra/"
+#workspace <- paste("/var/www/html/ttapp/tmp-hra/", sess, "/", sep='')
+#outspace <- paste("/var/www/html/ttapp/tmp-hra/", sess, "/", sep='')
+workspace <- "./"
+outspace <- "./"
+#workspace <- "C:/Users/dfisher5/Documents/Shiny/HRA/data"
+#outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp-hra/"
 LoadSpace(workspace, outspace)
 
 ####################################
