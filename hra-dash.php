@@ -95,7 +95,7 @@ echo "
         <br></br>
         <h4>View results of the InVEST Habitat Risk Assessment model by uploading the ....</h4>
         <br></br>
-        <input name=\"logfile\" type=\"file\" class=\"filestyle\" data-buttonBefore=\"true\" data-buttonText=\"Browse...\">
+        <input name=\"zipfile\" type=\"file\" class=\"filestyle\" data-buttonBefore=\"true\" data-buttonText=\"Browse...\">
         <ul><br>Select <b>....something....</i>.txt</b> from your InVEST workspace</ul>
         <br>
         <input type=Submit name=junk value=\"Upload Results\">
@@ -117,11 +117,11 @@ echo "
       </form>
     </div>";
     // IF 'doit' means if Upload button was clicked.
-    if (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name'])) {
+    if (isset($_POST['doit']) & !empty($_FILES['zipfile']['tmp_name'])) {
       // File Quality Control
       // // check for errors
-      if ($_FILES["logfile"]["error"] > 0) {
-        echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["logfile"]["error"] . "</div>";
+      if ($_FILES["zipfile"]["error"] > 0) {
+        echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["zipfile"]["error"] . "</div>";
         die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
       }
 
@@ -136,7 +136,7 @@ echo "
       // make a unique folder for each run
       // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
       $sessid = session_id();
-      $pathid = "./tmp-rec/" . $sessid . "/";
+      $pathid = "./tmp-hra/" . $sessid . "/";
 
       echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
       flush();
@@ -154,12 +154,12 @@ echo "
 
       // Upload the tables
       echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
-      // // logfile
-      $outloadfile = $pathid . "rec_logfile.txt";
-      if (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
-        echo "<div class=\"alert alert-success\" role=\"alert\">logfile was successfully uploaded.</div>";
+      // // zipfile
+      $outloadfile = $pathid . "workspace.zip";
+      if (move_uploaded_file($_FILES['zipfile']['tmp_name'], $outloadfile)) {
+        echo "<div class=\"alert alert-success\" role=\"alert\">zipfile was successfully uploaded.</div>";
       } else {
-        echo "<div class=\"alert alert-danger\" role=\"alert\">logfile cannot be uploaded.</div>";
+        echo "<div class=\"alert alert-danger\" role=\"alert\">zipfile cannot be uploaded.</div>";
       }
 
       // Run local R script
@@ -168,18 +168,22 @@ echo "
       ob_flush();
       echo "<div class=\"alert alert-info\" role=\"alert\">";
       //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
-      passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
+      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\["
+      passthru("./io-hra.sh $sessid"); 
       echo "</div>";
       flush();
       ob_flush();
 
+      set_time_limit(300);
+
+      echo "<div class=\"alert alert-info\" role=\"alert\">Loading workspace data...</div>";
       echo "
       <script>
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
           $('#mytabs a[href=\"#one\"]').tab('show')
-      map.invalidateSize(false);
+          map.invalidateSize(false);
         })
       </script> ";
     }

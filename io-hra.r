@@ -35,7 +35,7 @@ library(rgeos)
 library(rgdal)
 library(RColorBrewer)
 library(RJSONIO)
-library(XML)
+#library(XML)
 
 # ## SessionID is passed as an argument from PHP page
 # args=(commandArgs(TRUE))
@@ -94,14 +94,14 @@ LoadSpace <- function(ws, outpath){
   nstress <- as.numeric(tail(unlist(strsplit(l.nstress, split=" ")), 1))
   
   ##### Load HTML Table output
-  theurl <- list.files(file.path(ws, "output/HTML_Plots"), pattern="Sub_Region*", full.names=T)
-  tables <- readHTMLTable(theurl)
-  thepage <- htmlParse(theurl, useInternalNodes=F)
-  zz <- xpathApply(thepage$children$html, "//h2")
-  for (i in 1:length(tables)){
-    tables[[i]]$Subregion <- tail(as.character(zz[[i]]$children$text), 1)
-  }
-  datECR <- do.call("rbind", tables)
+ # theurl <- list.files(file.path(ws, "output/HTML_Plots"), pattern="Sub_Region*", full.names=T)
+ # tables <- readHTMLTable(theurl)
+ # thepage <- htmlParse(theurl, useInternalNodes=F)
+ # zz <- xpathApply(thepage$children$html, "//h2")
+ # for (i in 1:length(tables)){
+ #   tables[[i]]$Subregion <- tail(as.character(zz[[i]]$children$text), 1)
+ # }
+ # datECR <- do.call("rbind", tables)
   
   ##### Load AOI
   aoi <- readOGR(dsn=file.path(ws, "intermediate"), layer="temp_aoi_copy")
