@@ -43,6 +43,7 @@ echo "
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"./libs/jquery.csv-0.71.js\"></script>
     <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
+    <script src=\"http://d3js.org/colorbrewer.v1.min.js\"></script>
     <script src=\"http://dimplejs.org/dist/dimple.v2.1.2.min.js\"></script>
     <!--<script src=\"http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js\"></script>-->
     <!--<link rel=\"stylesheet\" href=\"http://cdn.datatables.net/1.10.5/css/jquery.dataTables.css\">-->
@@ -96,12 +97,16 @@ echo "
       <div class=\"col-lg-8\">
         <input type=hidden name=doit value=y>
         <br></br>
-        <h4>View results of the InVEST Habitat Risk Assessment model by zipping and uploading your output workspace directory.</h4>
-        <br></br>
+        <h4>View results of the HRA model by zipping and uploading your output workspace folder.</h4>
+        <h5><em>Zip this folder:</em></h5>
+        <img src=\"img/hra_zip_screenshot_edit.PNG\" width=\"250\"></img>
+        <p></p>
         <input name=\"zipfile\" type=\"file\" class=\"filestyle\" data-buttonBefore=\"true\" data-buttonText=\"Browse...\">
         <!--<ul><br>Select <b>\"Your HRA Output Workspace.zip\"</b></ul>-->
         <br>
         <input type=Submit name=junk value=\"Upload Results\">
+      </div>
+      <div class=\"col-lg-4\">
       </div>
       </div>
       <div class=\"row\">
@@ -614,6 +619,11 @@ drawAOI(); // and it builds subregion dropdown
       // Get a unique list of habitats
       var habitats = dimple.getUniqueValues(dat, "Habitat");
 
+      // get stressors to assign colors
+      var stressors = dimple.getUniqueValues(dat, "Stressor");
+      var cols = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"];
+      console.log(stressors[0]);
+      console.log(cols[0]);
       // Set the bounds for the charts
       var row = 0,
           col = 0,
@@ -657,9 +667,21 @@ drawAOI(); // and it builds subregion dropdown
           var y = myChart.addMeasureAxis("y", "Consequence");
           
           // Habitat and Risk are only added for the tooltip, 
-          // since data already got filtered by habitat, 
-          // stressor is automatically chosen as the grouping var.
-          myChart.addSeries(["Habitat", "Stressor", "Risk"], dimple.plot.bubble);
+          // color groups are based on the final series 'Stressor'
+          myChart.addSeries(["Habitat", "Risk", "Stressor"], dimple.plot.bubble);
+
+          // assign colors
+          if (stressors.length < 7) {
+            for (var s = 0; s < stressors.length; s++) {
+              myChart.assignColor(stressors[s], cols[s*2]);
+            }
+          } else {
+            for (var s = 0; s < stressors.length; s++) {
+              myChart.assignColor(stressors[s], cols[s]);
+            }
+          }
+          // myChart.assignColor("PrawnFishery", "Red");
+          // console.log(myChart);          
 
           // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
           // Draw the chart and adjust settings
