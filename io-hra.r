@@ -95,7 +95,7 @@ LoadSpace <- function(ws, outpath){
   l.nstress <- logtable[grep(logtable, pattern="max_stress")]
   nstress <- as.numeric(tail(unlist(strsplit(l.nstress, split=" ")), 1))
   
-  ##### Load HTML Table output and make risk plots
+  ##### Load HTML Table output and make data for risk plots
   theurl <- list.files(file.path(ws, "output/HTML_Plots"), pattern="Sub_Region*", full.names=T)
   tables <- readHTMLTable(theurl)
   thepage <- htmlParse(theurl, useInternalNodes=F)
@@ -107,62 +107,9 @@ LoadSpace <- function(ws, outpath){
   names(datECR)[1] <- "Habitat"
   names(datECR)[2] <- "Stressor"
   
-  ## make and save plot for each subregion
   row.names(datECR) <- NULL
   names(datECR) <- c("Habitat", "Stressor", "Exposure", "Consequence", "Risk", "Risk.pr", "Subregion")
   write.csv(datECR, "datECR_wca.csv", row.names=F)
-#  writeLines(toJSON(datECR, pretty=T), "datECR.json")
-  
-#  dat <- datECR[which(datECR["Subregion"] == "ClaySound"),]
-#   r0 <- rPlot(Consequence ~ Exposure, data = datECR, type = 'point', color='Stressor')
-#   r0$facet(x='Habitat', y='Subregion', type = 'grid')
-#   r0$guides(x=list(min=0, max=nstress),
-#             y=list(min=0, max=nstress)) 
-#   r0$addFilters("Subregion")
-#   r0$addControls("color", value = dat$Stressor[1], values=c("Stressor", "Habitat", "Risk"))
-#   
-#   
-#   r0$save('./riskfacets_controls.html', chartId="riskplot", cdn=T)
-#   
-#   
-# 
-#   
-#   d1 <- dPlot(C ~ E, groups='Stressor', data=datECR, type='bubble')
-#   #d1$params$facetx <- "Habitat"
-#   d1$templates$script = system.file( 
-#     "libraries/dimple/layouts/chartFacet.html",
-#     package = "rCharts"
-#   )
-#   d1$set(facet= list(x="Habitat"))
-#   d1$addControls("facetx",
-#                  value="Habitat",
-#                  values=c("Habitat", "Stressor"))
-#   d1$addControls("groups",
-#                  value="Stressor",
-#                  values=c("Stressor", "Habitat"))
-#   d1$addFilters("Subregion")
-#   # setting the facet template
-#   
-#   
-#   r1 <- nPlot(C ~ E, group='Stressor', data=datECR, type='scatterChart')
-#   r1$params$facet="Habitat"
-#   r1$templates$script = system.file("/libraries/nvd3/js/d3-grid.js", package = "rCharts")
-#   r1$templates$script = system.file(
-#     "/libraries/nvd3/layouts/nvd3FacetPlot.html",
-#     package = "rCharts"
-#   )
-#   
-#   r1$save('./riskplot.html', chartId="riskplot", cdn=T)
-#   r1$addFilters('Subregion')
-#   r1$addControls("group", value = "Stressor", values = names(datECR)[c(1,2,7)])
-#   r1$chart(forceY = c(0, nstress))
-#   r1$chart(forceX = c(0, nstress))
-#   r1$chart(showDistX = F) #Freezes x-axis & shows tick 
-#   r1$chart(showDistY = F)
-#   r1$chart(tooltipContent = "#! function(key, x, y, R){ 
-#   return 'Risk: ' + 
-# } !#")
-#   r1$templates$script = "http://timelyportfolio.github.io/rCharts_nvd3_templates/script_multiselect.html"
   
   ##### Load AOI
   aoi <- readOGR(dsn=file.path(ws, "intermediate"), layer="temp_aoi_copy")
