@@ -1,46 +1,46 @@
 [
  {
- "layer": "H_eelgrass",
+ "layer": ["H_eelgrass"],
 "leglabs": [ "LOW", "MED", "HIGH" ],
 "legcols": [ "#21d1fc", "#fff100", "#fc195b" ] 
 },
 {
- "layer": "H_hardbottom",
+ "layer": ["H_hardbottom"],
 "leglabs": [ "LOW", "MED", "HIGH" ],
 "legcols": [ "#21d1fc", "#fff100", "#fc195b" ] 
 },
 {
- "layer": "H_kelp",
+ "layer": ["H_kelp"],
 "leglabs": [ "LOW", "MED", "HIGH" ],
 "legcols": [ "#21d1fc", "#fff100", "#fc195b" ] 
 },
 {
- "layer": "H_softbottom",
+ "layer": ["H_softbottom"],
 "leglabs": [ "LOW", "MED", "HIGH" ],
 "legcols": [ "#21d1fc", "#fff100", "#fc195b" ] 
 },
 {
- "layer": "S_DWM",
+ "layer": ["S_DWM"],
 "leglabs": "Stressor",
 "legcols": "#0c0c0b" 
 },
 {
- "layer": "ecosys_risk",
+ "layer": ["ecosys_risk"],
 "leglabs": [ "1 - 2.5", "2.5 - 4", "4 - 5.5", "5.5 - 7", "7 - 8.5", "8.5 - 10" ],
 "legcols": [ "#FFFFB2", "#FED976", "#FEB24C", "#FD8D3C", "#FC4E2A", "#E31A1C" ] 
 },
 {
- "layer": "S_FinAqua",
+ "layer": ["S_FinAqua"],
 "leglabs": "Stressor",
 "legcols": "#0c0c0b" 
 },
 {
- "layer": "S_RecFish",
+ "layer": ["S_RecFish"],
 "leglabs": "Stressor",
 "legcols": "#0c0c0b" 
 },
 {
- "layer": "S_ShellAqua",
+ "layer": ["S_ShellAqua"],
 "leglabs": "Stressor",
 "legcols": "#0c0c0b" 
 } 
