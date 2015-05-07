@@ -96,10 +96,10 @@ echo "
       <div class=\"col-lg-8\">
         <input type=hidden name=doit value=y>
         <br></br>
-        <h4>View results of the InVEST Habitat Risk Assessment model by uploading the ....</h4>
+        <h4>View results of the InVEST Habitat Risk Assessment model by zipping and uploading your output workspace directory.</h4>
         <br></br>
         <input name=\"zipfile\" type=\"file\" class=\"filestyle\" data-buttonBefore=\"true\" data-buttonText=\"Browse...\">
-        <ul><br>Select <b>....something....</i>.txt</b> from your InVEST workspace</ul>
+        <!--<ul><br>Select <b>\"Your HRA Output Workspace.zip\"</b></ul>-->
         <br>
         <input type=Submit name=junk value=\"Upload Results\">
       </div>
@@ -186,7 +186,7 @@ echo "
         $(function () {
           $('ul.nav li').removeClass('disabled');
           $('#mytabs a[href=\"#maptab\"]').tab('show')
-	  map.invalidateSize(false);
+	        map.invalidateSize(false);
         })
       </script> ";
     }
@@ -222,27 +222,37 @@ echo "
 
   <div role=\"tabpanel\" class=\"tab-pane active\" id=\"maptab\"> 
     <div class=\"row\">
-      <div class=\"col-lg-7\">
+      <div class=\"col-lg-8\">
         <div id=\"map\"></div>
         <!--<h5> select a layer to map:</h5>
         <select id=\"domain\"></select>-->
       </div>
-      <div class=\"col-lg-5\">
-        <div id=\"chart_div\"></div>
-          
+      <div class=\"col-lg-3\">
+          <p> <b>Habitat</b> layers are colored by their 'LOW', 'MED', 'HIGH' Risk classifications.</p>
+          <p> <b>Stressor</b> layers, AOI polygons, overall ecosystem risk, and alternate basemap layers 
+          can be turned on from the layers control box in the <b>upper-right of the map.</b></p>
+          <p> <b>Click a point</b> on the map to see the Habitats and Stressors present at that location.</p>
       </div>
   </div>
   </div>
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"charttab\"> 
     <div class=\"row\">
-      <!--<div class=\"col-lg-3\">
-      </div>-->
-      <div id=\"Bardiv\" class=\"col-lg-12\">
+      <div id=\"Bardiv\" class=\"col-lg-8\">
         <br>
+        <h4>Plot this subregion:</h4>
         <select id=\"selectregion\"></select>
         <br>
           <div id = \"Dimplediv\"></div>
+      </div>
+      <div class=\"col-lg-3\">
+      <br>
+      <p>These figures show the cumulative risk for each habitat within a given subregion.</p> 
+      <p>There is one subplot for every habitat. Within the habitat plot, there are points for every stressor.</p> 
+      <p>Each point is graphed by Exposure and Consequence values. If the risk equation chosen was Euclidean, 
+      the distance from the stressor point to the origin represents the average risk for that habitat-stressor pair within the selected subregion.</p> 
+      <p>Stressors that have high exposure scores and high consequence scores pose the greatest risk to habitats. 
+      <p>Reducing risk through management is likely to be more effective in situations where high risk is driven by high exposure, not high consequence.</p>
       </div>
     </div>
   </div>
@@ -259,7 +269,7 @@ echo "
         You may wish to explore and analyze your results further with GIS or data analysis software.</p>
         <h3> Compatibility </h3>
         <p>For best results, please try Google Chrome or Mozilla Firefox web browsers.</p>
-        <p>This app has been tested with InVEST versions 3.0+</p>
+        <p>This app has been tested with InVEST versions 3.1+</p>
         <br>
         <small><i>Built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
         you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></i></small>
