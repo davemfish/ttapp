@@ -31,12 +31,13 @@
 ## Simple bar charts Area ~ Risk class.
 
 library(raster)
-library(rgeos)
+#library(rgeos)
 library(rgdal)
 library(RColorBrewer)
 library(jsonlite)
 library(XML)
-library(rCharts)
+#library(rCharts)
+library(plyr)
 
 # ## SessionID is passed as an argument from PHP page
 # args=(commandArgs(TRUE))
@@ -103,13 +104,14 @@ LoadSpace <- function(ws, outpath){
   for (i in 1:length(tables)){
     tables[[i]]$Subregion <- tail(as.character(zz[[i]]$children$text), 1)
   }
-  datECR <- do.call("rbind", tables)
+  datECR <- rbind.fill(lapply(tables, as.data.frame)) # this handles NULL list elements
+  #datECR <- do.call("rbind", tables) # this does not handle NULL elements
   names(datECR)[1] <- "Habitat"
   names(datECR)[2] <- "Stressor"
   
   row.names(datECR) <- NULL
   names(datECR) <- c("Habitat", "Stressor", "Exposure", "Consequence", "Risk", "Risk.pr", "Subregion")
-  write.csv(datECR, "datECR_wca.csv", row.names=F)
+  write.csv(datECR, paste(outpath, "datECR_wca.csv", sep=""), row.names=F)
   
   ##### Load AOI
   aoi <- readOGR(dsn=file.path(ws, "intermediate"), layer="temp_aoi_copy")
@@ -266,7 +268,7 @@ LoadSpace <- function(ws, outpath){
         print("write geojson")
         jsonfiles <- list.files(file.path(outpath), pattern="*.geojson$")
         if(!(paste(nm, ".geojson", sep="") %in% jsonfiles)){
-          writeOGR(obj=shp.wgs84, dsn=paste(outpath, "H_", nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
+          writeOGR(obj=shp.wgs84, dsn=paste(outpath, nm, ".geojson", sep=""), layer="layer", driver="GeoJSON", overwrite=T)
         }
         
       } else { ## if its not ecosystem risk or habitat risk, it's a stressor
@@ -292,7 +294,7 @@ LoadSpace <- function(ws, outpath){
 #workspace <- paste("/var/www/html/ttapp/tmp-hra/", sess, "/", sep='')
 #outspace <- paste("/var/www/html/ttapp/tmp-hra/", sess, "/", sep='')
 workspace <- "./"
-outspace <- "./"
+outspace <- "../"
 #workspace <- "C:/Users/dfisher5/Documents/Shiny/HRA/data"
 #outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp-hra/"
 LoadSpace(workspace, outspace)

@@ -186,7 +186,7 @@ echo "
         $(function () {
           $('ul.nav li').removeClass('disabled');
           $('#mytabs a[href=\"#maptab\"]').tab('show')
-          map.invalidateSize(false);
+	  map.invalidateSize(false);
         })
       </script> ";
     }
@@ -220,7 +220,7 @@ echo "
   echo "
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"maptab\"> 
+  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"maptab\"> 
     <div class=\"row\">
       <div class=\"col-lg-7\">
         <div id=\"map\"></div>
@@ -272,7 +272,7 @@ echo "
 
 // If data already exists, map it yah!
 //if (isset($_POST['pathid'])){  // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
-if (file_exists($pathid . "legend.json")) {
+if (file_exists($pathid . "workspace.zip")) {
 
   echo "
     <script>
@@ -294,7 +294,7 @@ if (file_exists($pathid . "legend.json")) {
         tablePath = sessPath + 'habsummary.json',
         symbPath = sessPath + 'legend.json',
         barPath = sessPath + 'barplot.html'
-        riskPath = sessPath + 'datECR_wca.json'
+        riskPath = sessPath + 'datECR_wca.csv'
         lyrs = []
       ;
     </script>
@@ -392,7 +392,7 @@ function handleClick(e) {
         // and a table of attributes
         if (match.length) {
             html += '<strong>' + lyrs[i].name + '</strong>';
-            if(lyrs[i].name.substring(0,1) == "H" | lyrs[i].name.substring(0,1) == "e"){
+            if(lyrs[i].name[0].substring(0,1) == "H" | lyrs[i].name[0].substring(0,1) == "e"){
               html += propertyTable(match[0].feature.properties);
             } else {
               // html += '<br>'
@@ -472,18 +472,19 @@ drawAOI(); // and it builds subregion dropdown
 //function drawChart() {
   $.getJSON(symbPath, function(symbols){
     var dropdown = [];
+    //console.log(symbols);
     for (var i = 0; i < symbols.length; i++) {
-      if (symbols[i].layer.substring(0,1) == "H"){
+      if (symbols[i].layer[0].substring(0,1) == "H"){
         habnames.push(symbols[i].layer)
         habURLs.push(sessPath + symbols[i].layer + ".geojson")
         // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
         // dropdown.push(symbols[i].layer)
       }
-      if (symbols[i].layer.substring(0,1) == "S"){
+      if (symbols[i].layer[0].substring(0,1) == "S"){
         stressnames.push(symbols[i].layer)
         stressURLs.push(sessPath + symbols[i].layer + ".geojson")
       }
-      if (symbols[i].layer.substring(0,1) == "e"){
+      if (symbols[i].layer[0].substring(0,1) == "e"){
         econame.push(symbols[i].layer)
         ecoURL.push(sessPath + symbols[i].layer + ".geojson")
         // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
@@ -514,8 +515,8 @@ drawAOI(); // and it builds subregion dropdown
           //   layer.bindPopup(feature.properties.CLASSIFY);
           // }
         }).on('click', handleClick);
-        geojson.addTo(map);
-        geojson.bringToFront();
+        //geojson.addTo(map);
+        //geojson.bringToFront();
         //maplayers[nm] = geojson;
         lyrs.push({ name: nm, layer: geojson })
         control.addOverlay(geojson, nm);
@@ -595,7 +596,7 @@ drawAOI(); // and it builds subregion dropdown
 
   var svg = dimple.newSvg("#Dimplediv", 800, 400);
 
-    d3.csv("./datECR_wca.csv", function (data) {
+    d3.csv(riskPath, function (data) {
     
     function riskChart(region) {
         
