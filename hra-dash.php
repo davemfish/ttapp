@@ -42,8 +42,10 @@ echo "
 
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"./libs/jquery.csv-0.71.js\"></script>
-    <script src=\"http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js\"></script>
-    <link rel=\"stylesheet\" href=\"http://cdn.datatables.net/1.10.5/css/jquery.dataTables.css\">
+    <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
+    <script src=\"http://dimplejs.org/dist/dimple.v2.1.2.min.js\"></script>
+    <!--<script src=\"http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js\"></script>-->
+    <!--<link rel=\"stylesheet\" href=\"http://cdn.datatables.net/1.10.5/css/jquery.dataTables.css\">-->
 
     <!-- Latest compiled and minified CSS -->
     <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
@@ -57,10 +59,10 @@ echo "
     <!-- Bootstrap file for file input forms -->
     <script type=\"text/javascript\" src=\"./libs/bootstrap-filestyle.min.js\"> </script>
 
-    <!--<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>-->
+    
     <!--<script src=\"https://raw.githubusercontent.com/novus/nvd3/master/build/nv.d3.min.js\"></script>-->
 
-    <script src=\"https://www.google.com/jsapi\"></script>
+    <!--<script src=\"https://www.google.com/jsapi\"></script>-->
 
     <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
     <script src=\"https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js\"></script>
@@ -79,9 +81,10 @@ echo "
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
-    <li role=\"presentation\" class=\"disabled\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
-    <li role=\"presentation\" class=\"disabled\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
-    <li role=\"presentation\"><a href=\"#three\" aria-controls=\"three\" role=\"tab\" data-toggle=\"tab\">About</a></li>
+    <li role=\"presentation\" class=\"disabled\"><a href=\"#maptab\" aria-controls=\"maptab\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
+    <li role=\"presentation\" class=\"disabled\"><a href=\"#charttab\" aria-controls=\"charttab\" role=\"tab\" data-toggle=\"tab\">Charts</a></li>
+    <!--<li role=\"presentation\" class=\"disabled\"><a href=\"#pptab\" aria-controls=\"pptab\" role=\"tab\" data-toggle=\"tab\">Post-Process</a></li>-->
+    <li role=\"presentation\"><a href=\"#abouttab\" aria-controls=\"abouttab\" role=\"tab\" data-toggle=\"tab\">About</a></li>
   </ul> ";
 
   echo "
@@ -182,7 +185,7 @@ echo "
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
-          $('#mytabs a[href=\"#one\"]').tab('show')
+          $('#mytabs a[href=\"#maptab\"]').tab('show')
           map.invalidateSize(false);
         })
       </script> ";
@@ -208,7 +211,7 @@ echo "
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
-          $('#mytabs a[href=\"#one\"]').tab('show')
+          $('#mytabs a[href=\"#maptab\"]').tab('show')
           map.invalidateSize(false);
         })
       </script> ";
@@ -217,7 +220,7 @@ echo "
   echo "
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"maptab\"> 
     <div class=\"row\">
       <div class=\"col-lg-7\">
         <div id=\"map\"></div>
@@ -226,64 +229,37 @@ echo "
       </div>
       <div class=\"col-lg-5\">
         <div id=\"chart_div\"></div>
-        
-        <!--<h5> select a subregion to plot:</h5>
-        <select id=\"region\"></select>-->
+          
       </div>
   </div>
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"two\"> 
-  <div class=\"row\">
-      <div class=\"col-lg-6\">
-        <div id=\"table_div\">
-          <table id=\"habsummary\" class=\"display\">
-            <thead>
-                <tr>
-                    <th>Habitat</th>
-                    <th>Area</th>
-                    <th>Classify</th>
-                    <th>Subregion</th>
-                </tr>
-            </thead>
-     
-            <tfoot>
-                <tr>
-                    <th>Habitat</th>
-                    <th>Area</th>
-                    <th>Classify</th>
-                    <th>Subregion</th>
-                </tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-      <div class=\"col-lg-6\">
-        <div>
-          <!--<a href=\"https://plot.ly/~davemfish/32/\" target=\"_blank\" title=\"LOW, MED, HIGH\" style=\"display: block; text-align: center;\"><img src=\"https://plot.ly/~davemfish/32.png\" alt=\"LOW, MED, HIGH\" style=\"max-width: 100%;\"  onerror=\his.onerror=null;this.src='https://plot.ly/404.png';\" /></a>
-          <script data-plotly=\"davemfish:32\" src=\"https://plot.ly/embed.js\" async></script>-->
-          <iframe width=\"640\" height=\"480\" frameborder=\"0\" seamless=\"seamless\" scrolling=\"no\" src=\"https://plot.ly/~davemfish/32/.embed?width=640&height=480\" ></iframe>
-        </div>
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"charttab\"> 
+    <div class=\"row\">
+      <!--<div class=\"col-lg-3\">
+      </div>-->
+      <div id=\"Bardiv\" class=\"col-lg-12\">
+        <br>
+        <select id=\"selectregion\"></select>
+        <br>
+          <div id = \"Dimplediv\"></div>
       </div>
     </div>
   </div>
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"three\"> 
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"abouttab\"> 
     <div class=\"row\">
       <div class=\"col-lg-7\">
 
         <h3>About</h3>
 
         <p>This application allows an <a href=\"http://www.naturalcapitalproject.org/InVEST.html\"> InVEST</a> user to view model results interactively in a web browser. 
-        All the data displayed in this app come from the <em>grid.shp</em> shapefile in the results zip file of an InVEST output workspace.</p>
-        <p>The raw data from the <em>grid.shp</em> is viewable on the Table tab and on the Map.
-        If your gridded AOI contains more than 3000 cells, the map will display cells as points,
-        which are clustered together at low zoom levels. A cluster's color represents the largest value point within the cluster.
-        Clicking a cluster reveals all its individual points.</p>
-        <p>Not all of the results produced by the Recreation model are displayed in this application.
+        All the data displayed in this app come from the user's InVEST output workspace.</p>
+        <p></p>
+        <p>Not all of the results produced by the HRA model are displayed in this application.
         You may wish to explore and analyze your results further with GIS or data analysis software.</p>
         <h3> Compatibility </h3>
         <p>For best results, please try Google Chrome or Mozilla Firefox web browsers.</p>
-        <p>This app has only been tested with InVEST versions 3.0.0+</p>
+        <p>This app has been tested with InVEST versions 3.0+</p>
         <br>
         <small><i>Built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
         you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></i></small>
@@ -296,7 +272,7 @@ echo "
 
 // If data already exists, map it yah!
 //if (isset($_POST['pathid'])){  // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
-if (file_exists($pathid . "habsummary.csv")) {
+if (file_exists($pathid . "legend.json")) {
 
   echo "
     <script>
@@ -317,10 +293,9 @@ if (file_exists($pathid . "habsummary.csv")) {
         //csvPath = sessPath + 'habsummary.csv',
         tablePath = sessPath + 'habsummary.json',
         symbPath = sessPath + 'legend.json',
+        barPath = sessPath + 'barplot.html'
+        riskPath = sessPath + 'datECR_wca.json'
         lyrs = []
-        //initPath = sessPath + 'init.json',
-        //categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
-        //popupFields = [] //Popup will display these fields
       ;
     </script>
   ";
@@ -335,17 +310,22 @@ $('#upload a').click(function (e) {
   $(this).tab('show')
 })
 
-$('#one a').click(function (e) {
+$('#maptab a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
 
-$('#two a').click(function (e) {
+$('#charttab a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
 
-$('#three a').click(function (e) {
+// $('#pptab a').click(function (e) {
+//   e.preventDefault()
+//   $(this).tab('show')
+// })
+
+$('#abouttab a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
@@ -484,13 +464,6 @@ drawAOI(); // and it builds subregion dropdown
 
 
 
-// load the visualization library from Google and set a listener
-google.load("visualization", "1", {packages:["corechart"]});
-//google.load("visualization", "1.1", {packages:["bar"]});
-google.load("visualization", "1", {packages:["table"]});
-// google.setOnLoadCallback(drawChart);
-
-
 //// A lot happens in here:
 //// Read legend.json - build maplayer dropdown from legend elements; build legend div.
 //// Read csv - build table and chart (chart responds to both dropdowns)
@@ -616,48 +589,127 @@ google.load("visualization", "1", {packages:["table"]});
 
   }); // legend ajax
 
+  ////////////////////
+  // Create Risk Plots
+  ////////////////////
 
-   // Load the habitat summary data
-  $('#habsummary').dataTable( {
-    "ajax": tablePath,
-    "columns": [
-            { "data": "Habitat" },
-            { "data": "Area" },
-            { "data": "Classify" },
-            { "data": "Subregion" }
-        ]
-    } );
+  var svg = dimple.newSvg("#Dimplediv", 800, 400);
 
-//   d3.json(tablePath, function(data){
-//     nv.addGraph(function() {
-//       var chart = nv.models.multiBarChart()
-//         .transitionDuration(350)
-//         .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
-//         .rotateLabels(0)      //Angle to rotate x-axis labels.
-//         .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
-//         .groupSpacing(0.1)    //Distance between each group of bars.
-//       ;
+    d3.csv("./datECR_wca.csv", function (data) {
+    
+    function riskChart(region) {
+        
+      var dat = dimple.filterData(data, "Subregion", region);
+      // Get a unique list of habitats
+      var habitats = dimple.getUniqueValues(dat, "Habitat");
 
-//       chart.xAxis.tickFormat(function(d) {
-//         return d3.format(',f')(data[0]);
+      // Set the bounds for the charts
+      var row = 0,
+          col = 0,
+          top = 25,
+          left = 60,
+          inMarg = 40,
+          width = 130,
+          height = 110,
+          totalWidth = parseFloat(svg.attr("width"));
 
-//       chart.yAxis.tickFormat(d3.format(',.1f'));
-//       var d = [{
-//         values: data[1],
-//         key: "Area"
-//         color
-//       }]
+      // Draw a chart for each of the habitats
+      habitats.forEach(function (hab) {
+          
+          // Wrap to the row above
+          if (left + ((col + 1) * (width + inMarg)) > totalWidth) {
+            row += 1;
+            col = 0;
+          }
+          
+          // Filter for the Habitat in the iteration
+          var chartData = dimple.filterData(dat, "Habitat", hab);
+          
+          // Use d3 to draw a text label for the habitat
+          svg
+            .append("text")
+                .attr("x", left + (col * (width + inMarg)) + (width / 2))
+                .attr("y", top + (row * (height + inMarg)) + (height / 2) + 12)
+                .style("font-family", "sans-serif")
+                .style("text-anchor", "middle")
+                .style("font-size", "28px")
+                .style("opacity", 0.2)
+                .text(chartData[0].Habitat.substring(0, 7));
+          
+          // Create a chart at the correct point in the trellis
+          var myChart = new dimple.chart(svg, chartData);
+          
+          // Add x 
+          var x = myChart.addMeasureAxis("x", "Exposure");
+          
+          // Add y 
+          var y = myChart.addMeasureAxis("y", "Consequence");
+          
+          // Habitat and Risk are only added for the tooltip, 
+          // since data already got filtered by habitat, 
+          // stressor is automatically chosen as the grouping var.
+          myChart.addSeries(["Habitat", "Stressor", "Risk"], dimple.plot.bubble);
 
-//       d3.select('#chart1 svg')
-//           .datum(exampleData())
-//           .call(chart);
+          // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
+          // Draw the chart and adjust settings
+          myChart.draw();
+          x.shapes.selectAll("text").attr("fill", "#5e5e5e");
+          y.shapes.selectAll("text").attr("fill", "#5e5e5e");
+          x.tickFormat = ',.1f';
+          x.ticks = 5;
+          y.ticks = 5;
+          // console.log(x);
+          // x.showGridlines = false;
+          // y.showGridlines = false;
+          // x.shapes.selectAll("text").attr("font-size", "16px");
+          // y.shapes.selectAll("text").attr("font-size", "16px");
+          // x.overrideMax = 4.0;
+          // y.overrideMax = 4.0;
+          // x.overrideMin = 0;
+          // y.overrideMin = 0;
 
-//       nv.utils.windowResize(chart.update);
+          myChart.setBounds(
+            left + (col * (width + inMarg)),
+            top + (row * (height + inMarg)),
+            width,
+            height);
 
-//       return chart;
-//   });
-// });
-//   });
+          // Once drawn we can access the shapes
+          // If this is not in the first column remove the y text
+          if (col > 0) {
+            y.shapes.selectAll("text").remove();
+            y.titleShape.remove();
+          }
+          // // If this is not in the last row remove the x text
+          // if (row < 2) {
+          //    x.shapes.selectAll("text").remove();
+          // }
+          // Remove the axis labels
+          // y.titleShape.remove();
+          // x.titleShape.remove();
+
+          // Move to the next column
+          col += 1;
+
+      }, this);
+      
+    }; // def riskChart function
+
+    var regions = dimple.getUniqueValues(data, "Subregion");
+    for (var i = 0; i < regions.length; i++) {
+      $("select").append("<option value='" + i + "'>" + regions[i] + "</option");
+    }
+
+    $("select").change(function(){
+      $("#Dimplediv").empty();
+      svg = dimple.newSvg("#Dimplediv", 800, 400);
+
+      subregion = $("#selectregion option:selected").text();
+      riskChart(subregion);
+     });
+
+    riskChart("ClaySound");
+   }); // csv load
 
     // // Build table from csv to display as google vis
 
