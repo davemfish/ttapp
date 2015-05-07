@@ -201,3 +201,16 @@
 .disabled{
     pointer-events: none;
 }
+
+/*from rCharts html output*/
+.rChart {
+      display: block
+      margin: auto auto;
+      width: 100%;
+      height: 400px;
+    }
+.bs-docs-example:after {
+      content: "";
+      background: transparent;
+      border: none;
+}
