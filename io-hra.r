@@ -34,8 +34,9 @@ library(raster)
 library(rgeos)
 library(rgdal)
 library(RColorBrewer)
-library(RJSONIO)
-#library(XML)
+library(jsonlite)
+library(XML)
+library(rCharts)
 
 # ## SessionID is passed as an argument from PHP page
 # args=(commandArgs(TRUE))
@@ -82,6 +83,7 @@ Cut2Num <- function(x){
 
 LoadSpace <- function(ws, outpath){
   #ws <- "C:/Users/dfisher5/Documents/Shiny/HRA/data"
+  #ws <- "C:/Users/dfisher5/Documents/WestCoastAquatic/HRA/outputs/out_24Nov2014-BSCS"
   
   ##### Load Logfile
   ## gridsize and max stressors
@@ -93,15 +95,74 @@ LoadSpace <- function(ws, outpath){
   l.nstress <- logtable[grep(logtable, pattern="max_stress")]
   nstress <- as.numeric(tail(unlist(strsplit(l.nstress, split=" ")), 1))
   
-  ##### Load HTML Table output
- # theurl <- list.files(file.path(ws, "output/HTML_Plots"), pattern="Sub_Region*", full.names=T)
- # tables <- readHTMLTable(theurl)
- # thepage <- htmlParse(theurl, useInternalNodes=F)
- # zz <- xpathApply(thepage$children$html, "//h2")
- # for (i in 1:length(tables)){
- #   tables[[i]]$Subregion <- tail(as.character(zz[[i]]$children$text), 1)
- # }
- # datECR <- do.call("rbind", tables)
+  ##### Load HTML Table output and make risk plots
+  theurl <- list.files(file.path(ws, "output/HTML_Plots"), pattern="Sub_Region*", full.names=T)
+  tables <- readHTMLTable(theurl)
+  thepage <- htmlParse(theurl, useInternalNodes=F)
+  zz <- xpathApply(thepage$children$html, "//h2")
+  for (i in 1:length(tables)){
+    tables[[i]]$Subregion <- tail(as.character(zz[[i]]$children$text), 1)
+  }
+  datECR <- do.call("rbind", tables)
+  names(datECR)[1] <- "Habitat"
+  names(datECR)[2] <- "Stressor"
+  
+  ## make and save plot for each subregion
+  row.names(datECR) <- NULL
+  names(datECR) <- c("Habitat", "Stressor", "Exposure", "Consequence", "Risk", "Risk.pr", "Subregion")
+  write.csv(datECR, "datECR_wca.csv", row.names=F)
+#  writeLines(toJSON(datECR, pretty=T), "datECR.json")
+  
+#  dat <- datECR[which(datECR["Subregion"] == "ClaySound"),]
+#   r0 <- rPlot(Consequence ~ Exposure, data = datECR, type = 'point', color='Stressor')
+#   r0$facet(x='Habitat', y='Subregion', type = 'grid')
+#   r0$guides(x=list(min=0, max=nstress),
+#             y=list(min=0, max=nstress)) 
+#   r0$addFilters("Subregion")
+#   r0$addControls("color", value = dat$Stressor[1], values=c("Stressor", "Habitat", "Risk"))
+#   
+#   
+#   r0$save('./riskfacets_controls.html', chartId="riskplot", cdn=T)
+#   
+#   
+# 
+#   
+#   d1 <- dPlot(C ~ E, groups='Stressor', data=datECR, type='bubble')
+#   #d1$params$facetx <- "Habitat"
+#   d1$templates$script = system.file( 
+#     "libraries/dimple/layouts/chartFacet.html",
+#     package = "rCharts"
+#   )
+#   d1$set(facet= list(x="Habitat"))
+#   d1$addControls("facetx",
+#                  value="Habitat",
+#                  values=c("Habitat", "Stressor"))
+#   d1$addControls("groups",
+#                  value="Stressor",
+#                  values=c("Stressor", "Habitat"))
+#   d1$addFilters("Subregion")
+#   # setting the facet template
+#   
+#   
+#   r1 <- nPlot(C ~ E, group='Stressor', data=datECR, type='scatterChart')
+#   r1$params$facet="Habitat"
+#   r1$templates$script = system.file("/libraries/nvd3/js/d3-grid.js", package = "rCharts")
+#   r1$templates$script = system.file(
+#     "/libraries/nvd3/layouts/nvd3FacetPlot.html",
+#     package = "rCharts"
+#   )
+#   
+#   r1$save('./riskplot.html', chartId="riskplot", cdn=T)
+#   r1$addFilters('Subregion')
+#   r1$addControls("group", value = "Stressor", values = names(datECR)[c(1,2,7)])
+#   r1$chart(forceY = c(0, nstress))
+#   r1$chart(forceX = c(0, nstress))
+#   r1$chart(showDistX = F) #Freezes x-axis & shows tick 
+#   r1$chart(showDistY = F)
+#   r1$chart(tooltipContent = "#! function(key, x, y, R){ 
+#   return 'Risk: ' + 
+# } !#")
+#   r1$templates$script = "http://timelyportfolio.github.io/rCharts_nvd3_templates/script_multiselect.html"
   
   ##### Load AOI
   aoi <- readOGR(dsn=file.path(ws, "intermediate"), layer="temp_aoi_copy")
@@ -119,67 +180,67 @@ LoadSpace <- function(ws, outpath){
   }
   
   shps <- list.files(file.path(ws, "output/Maps"), pattern="*.shp$")
-  tiffiles <- list.files(file.path(ws, "output/Maps"), pattern="cum_risk.*tif$")
-  ## trim names to just the habitat word
-  tifs <- unlist(lapply(tiffiles, FUN=function(x){
-    a <- unlist(strsplit(x, split="_"))[3]
-    b <- sub(pattern="].tif", replacement="", a, fixed=T)
-    d <- sub(pattern="[", replacement="H_", b, fixed=T)
-    }))
-  tifs <- c(tifs, "ecosys_risk")
-  tiffiles <- c(tiffiles, "ecosys_risk.tif")
-  
-  ## read and process tifs
-  ptm <- proc.time()
-  summlist <- list()
-  ## find 33% and 66% breaks based on max_stressor rating
-  quants <- quantile(c(0,nstress), probs=seq(0,1,1/3), na.rm=T)
-  p33 <- quants[2]
-  p66 <- quants[3]
-  for (g in 1: length(tiffiles)){
-#     nm1 <- unlist(strsplit(tifs[g], split="_"))[3]
-#     nm1 <- sub(pattern=".tif", replacement="", nm1)
-    rast <- raster(file.path(ws, "output/Maps", tiffiles[g]))
-    regionlist <- list()
-    for (k in 1:length(aoi)){
-      region <- aoi[k,]
-      r <- mask(rast, region)
-      vals <- getValues(r)
-      
-      lows <- vals[which(vals <= p33)]
-      meds <- vals[which(vals > p33 & vals <= p66)]
-      highs <- vals[which(vals > p66)]
-      
-      A.low <- length(lows)*gridsize*gridsize
-      A.med <- length(meds)*gridsize*gridsize
-      A.high <- length(highs)*gridsize*gridsize
-
-      #factorx <- factor(cut(vals, breaks=nclass.Sturges(vals)))
-      #df <- as.data.frame(table(factorx))
-      names(region@data) <- tolower(names(region@data))
-      df <- data.frame("Habitat"=tifs[g], "Subregion"=as.character(region@data$name), "Classify"=c("LOW", "MED", "HIGH"), "Area"=NA)
-      
-      df$Area[1] <- A.low
-      df$Area[2] <- A.med
-      df$Area[3] <- A.high
-      
-      #df$Habitat <- tifs[g]
-      #df$Subregion <- as.character(region@data$name)
-      
-      regionlist[[k]] <- df
-      print(proc.time() - ptm)
-    }
-    summlist[[g]] <- do.call("rbind", regionlist)
-    
-  }
-  habsummary <- do.call("rbind", summlist)
-  proc.time() - ptm
-  
-  ## write habitat summary csv and json
-  write.csv(habsummary, file.path(outpath, "habsummary.csv"), row.names=F)
-  habjson <- toJSON(habsummary)
-  habjson <- paste('{ "data":', habjson, "}")
-  writeLines(habjson, file.path(outpath, "habsummary.json"))
+#   tiffiles <- list.files(file.path(ws, "output/Maps"), pattern="cum_risk.*tif$")
+#   ## trim names to just the habitat word
+#   tifs <- unlist(lapply(tiffiles, FUN=function(x){
+#     a <- unlist(strsplit(x, split="_"))[3]
+#     b <- sub(pattern="].tif", replacement="", a, fixed=T)
+#     d <- sub(pattern="[", replacement="H_", b, fixed=T)
+#     }))
+#   tifs <- c(tifs, "ecosys_risk")
+#   tiffiles <- c(tiffiles, "ecosys_risk.tif")
+#   
+#   ## read and process tifs
+#   ptm <- proc.time()
+#   summlist <- list()
+#   ## find 33% and 66% breaks based on max_stressor rating
+#   quants <- quantile(c(0,nstress), probs=seq(0,1,1/3), na.rm=T)
+#   p33 <- quants[2]
+#   p66 <- quants[3]
+#   for (g in 1: length(tiffiles)){
+# #     nm1 <- unlist(strsplit(tifs[g], split="_"))[3]
+# #     nm1 <- sub(pattern=".tif", replacement="", nm1)
+#     rast <- raster(file.path(ws, "output/Maps", tiffiles[g]))
+#     regionlist <- list()
+#     for (k in 1:length(aoi)){
+#       region <- aoi[k,]
+#       r <- mask(rast, region)
+#       vals <- getValues(r)
+#       
+#       lows <- vals[which(vals <= p33)]
+#       meds <- vals[which(vals > p33 & vals <= p66)]
+#       highs <- vals[which(vals > p66)]
+#       
+#       A.low <- length(lows)*gridsize*gridsize
+#       A.med <- length(meds)*gridsize*gridsize
+#       A.high <- length(highs)*gridsize*gridsize
+# 
+#       #factorx <- factor(cut(vals, breaks=nclass.Sturges(vals)))
+#       #df <- as.data.frame(table(factorx))
+#       names(region@data) <- tolower(names(region@data))
+#       df <- data.frame("Habitat"=tifs[g], "Subregion"=as.character(region@data$name), "Classify"=c("LOW", "MED", "HIGH"), "Area"=NA)
+#       
+#       df$Area[1] <- A.low
+#       df$Area[2] <- A.med
+#       df$Area[3] <- A.high
+#       
+#       #df$Habitat <- tifs[g]
+#       #df$Subregion <- as.character(region@data$name)
+#       
+#       regionlist[[k]] <- df
+#       print(proc.time() - ptm)
+#     }
+#     summlist[[g]] <- do.call("rbind", regionlist)
+#     
+#   }
+#   habsummary <- do.call("rbind", summlist)
+#   proc.time() - ptm
+#   
+#   ## write habitat summary csv and json
+#   write.csv(habsummary, file.path(outpath, "habsummary.csv"), row.names=F)
+#   habjson <- toJSON(habsummary)
+#   habjson <- paste('{ "data":', habjson, "}")
+#   writeLines(habjson, file.path(outpath, "habsummary.json"))
   
   #mapdatalist <- list()
   leg.list <- list()
