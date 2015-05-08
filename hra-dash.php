@@ -228,7 +228,7 @@ echo "
   <div role=\"tabpanel\" class=\"tab-pane active\" id=\"maptab\"> 
     <div class=\"row\">
       <div class=\"col-lg-8\">
-        <div id=\"map\"></div>
+        <div class='custom-popup' id=\"map\"></div>
         <!--<h5> select a layer to map:</h5>
         <select id=\"domain\"></select>-->
       </div>
