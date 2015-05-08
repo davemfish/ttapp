@@ -6,10 +6,26 @@
 cd tmp-hra/$1/
 unzip ./workspace.zip -d .
 
-## get name of workspace folder
-
+## get name of workspace folder and cd to it
 cd $(find . -maxdepth 1 -not -name '.' -type d)
-pwd
+
+## check for uppercase dir names and lowercase them
+## (HRA 3.0 had caps, 3.1 is all lowercase)
+## http://stackoverflow.com/questions/17180580/how-to-create-a-bash-script-that-will-lower-case-all-files-in-the-current-folder
+for file in *
+do
+    #Check to see if the filename contains any uppercase characters
+    iscap=`echo $file | awk '{if ($0 ~ /[[:upper:]]/) print }'`
+    if [[ -n $iscap ]]
+    then
+    #If the filename contains upper case characters convert them to lower case
+        newname=`echo $file | tr '[A-Z]' '[a-z]'` #make lower case
+    #Rename file
+        echo "Moving $file\n To $newname\n\n"
+        mv $file $newname
+    fi
+done
+
 ## call some gdal commands
 ## convert ecosystem risk raster to vector
 gdal_calc.py -A output/Maps/ecosys_risk.tif --outfile=output/Maps/ecorisk_mult.tif --calc="A*10000"
