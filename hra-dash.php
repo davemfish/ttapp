@@ -42,8 +42,11 @@ echo "
 
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"./libs/jquery.csv-0.71.js\"></script>
-    <script src=\"http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js\"></script>
-    <link rel=\"stylesheet\" href=\"http://cdn.datatables.net/1.10.5/css/jquery.dataTables.css\">
+    <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
+    <script src=\"http://d3js.org/colorbrewer.v1.min.js\"></script>
+    <script src=\"http://dimplejs.org/dist/dimple.v2.1.2.min.js\"></script>
+    <!--<script src=\"http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js\"></script>-->
+    <!--<link rel=\"stylesheet\" href=\"http://cdn.datatables.net/1.10.5/css/jquery.dataTables.css\">-->
 
     <!-- Latest compiled and minified CSS -->
     <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
@@ -57,10 +60,10 @@ echo "
     <!-- Bootstrap file for file input forms -->
     <script type=\"text/javascript\" src=\"./libs/bootstrap-filestyle.min.js\"> </script>
 
-    <!--<script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>-->
+    
     <!--<script src=\"https://raw.githubusercontent.com/novus/nvd3/master/build/nv.d3.min.js\"></script>-->
 
-    <script src=\"https://www.google.com/jsapi\"></script>
+    <!--<script src=\"https://www.google.com/jsapi\"></script>-->
 
     <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
     <script src=\"https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js\"></script>
@@ -79,9 +82,10 @@ echo "
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
-    <li role=\"presentation\" class=\"disabled\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
-    <li role=\"presentation\" class=\"disabled\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
-    <li role=\"presentation\"><a href=\"#three\" aria-controls=\"three\" role=\"tab\" data-toggle=\"tab\">About</a></li>
+    <li role=\"presentation\" class=\"disabled\"><a href=\"#maptab\" aria-controls=\"maptab\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
+    <li role=\"presentation\" class=\"disabled\"><a href=\"#charttab\" aria-controls=\"charttab\" role=\"tab\" data-toggle=\"tab\">Charts</a></li>
+    <!--<li role=\"presentation\" class=\"disabled\"><a href=\"#pptab\" aria-controls=\"pptab\" role=\"tab\" data-toggle=\"tab\">Post-Process</a></li>-->
+    <li role=\"presentation\"><a href=\"#abouttab\" aria-controls=\"abouttab\" role=\"tab\" data-toggle=\"tab\">About</a></li>
   </ul> ";
 
   echo "
@@ -93,12 +97,16 @@ echo "
       <div class=\"col-lg-8\">
         <input type=hidden name=doit value=y>
         <br></br>
-        <h4>View results of the InVEST Habitat Risk Assessment model by uploading the ....</h4>
-        <br></br>
+        <h4>View results of the HRA model by zipping and uploading your output workspace folder.</h4>
+        <h5><em>Zip this folder:</em></h5>
+        <img src=\"img/hra_zip_screenshot_edit.PNG\" width=\"250\"></img>
+        <p></p>
         <input name=\"zipfile\" type=\"file\" class=\"filestyle\" data-buttonBefore=\"true\" data-buttonText=\"Browse...\">
-        <ul><br>Select <b>....something....</i>.txt</b> from your InVEST workspace</ul>
+        <!--<ul><br>Select <b>\"Your HRA Output Workspace.zip\"</b></ul>-->
         <br>
         <input type=Submit name=junk value=\"Upload Results\">
+      </div>
+      <div class=\"col-lg-4\">
       </div>
       </div>
       <div class=\"row\">
@@ -157,9 +165,9 @@ echo "
       // // zipfile
       $outloadfile = $pathid . "workspace.zip";
       if (move_uploaded_file($_FILES['zipfile']['tmp_name'], $outloadfile)) {
-        echo "<div class=\"alert alert-success\" role=\"alert\">workspace was successfully uploaded.</div>";
+        echo "<div class=\"alert alert-success\" role=\"alert\">zipfile was successfully uploaded.</div>";
       } else {
-        echo "<div class=\"alert alert-danger\" role=\"alert\">workspace cannot be uploaded.</div>";
+        echo "<div class=\"alert alert-danger\" role=\"alert\">zipfile cannot be uploaded.</div>";
       }
 
       // Run local R script
@@ -168,19 +176,22 @@ echo "
       ob_flush();
       echo "<div class=\"alert alert-info\" role=\"alert\">";
       //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
-      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
-      passthru("./io-hra.sh $sessid")
+      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\["
+      passthru("./io-hra.sh $sessid"); 
       echo "</div>";
       flush();
       ob_flush();
 
+      set_time_limit(300);
+
+      echo "<div class=\"alert alert-info\" role=\"alert\">Loading workspace data...</div>";
       echo "
       <script>
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
-          $('#mytabs a[href=\"#one\"]').tab('show')
-      map.invalidateSize(false);
+          $('#mytabs a[href=\"#maptab\"]').tab('show')
+	        map.invalidateSize(false);
         })
       </script> ";
     }
@@ -205,7 +216,7 @@ echo "
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
-          $('#mytabs a[href=\"#one\"]').tab('show')
+          $('#mytabs a[href=\"#maptab\"]').tab('show')
           map.invalidateSize(false);
         })
       </script> ";
@@ -214,73 +225,57 @@ echo "
   echo "
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
+  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"maptab\"> 
     <div class=\"row\">
-      <div class=\"col-lg-7\">
-        <div id=\"map\"></div>
+      <div class=\"col-lg-8\">
+        <div class='custom-popup' id=\"map\"></div>
         <!--<h5> select a layer to map:</h5>
         <select id=\"domain\"></select>-->
       </div>
-      <div class=\"col-lg-5\">
-        <div id=\"chart_div\"></div>
-        
-        <!--<h5> select a subregion to plot:</h5>
-        <select id=\"region\"></select>-->
+      <div class=\"col-lg-3\">
+          <p> <b>Habitat (H_...)</b> layers are colored by their <b style='background-color:lightgray'><font color='blue'>'LOW'</font>, <font color='yellow'>'MED'</font>, <font color='red'>'HIGH'</font></b> Risk classifications.</p>
+          <p> <b>Stressor (S_...)</b> layers, AOI polygons, overall ecosystem risk, and alternate basemap layers 
+          can be turned on from the layers control box in the <b>upper-right of the map.</b></p>
+          <p> <b>Click a point</b> on the map to list the Habitats and Stressors present at that location.</p>
+          <div id='mapinfo' class='info'></div>
       </div>
   </div>
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"two\"> 
-  <div class=\"row\">
-      <div class=\"col-lg-6\">
-        <div id=\"table_div\">
-          <table id=\"habsummary\" class=\"display\">
-            <thead>
-                <tr>
-                    <th>Habitat</th>
-                    <th>Area</th>
-                    <th>Classify</th>
-                    <th>Subregion</th>
-                </tr>
-            </thead>
-     
-            <tfoot>
-                <tr>
-                    <th>Habitat</th>
-                    <th>Area</th>
-                    <th>Classify</th>
-                    <th>Subregion</th>
-                </tr>
-            </tfoot>
-          </table>
-        </div>
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"charttab\"> 
+    <div class=\"row\">
+      <div id=\"Bardiv\" class=\"col-lg-8\">
+        <br>
+        <h4>Plot this subregion:</h4>
+        <select id=\"selectregion\"></select>
+        <br>
+          <div id = \"Dimplediv\"></div>
       </div>
-      <div class=\"col-lg-6\">
-        <div>
-          <!--<a href=\"https://plot.ly/~davemfish/32/\" target=\"_blank\" title=\"LOW, MED, HIGH\" style=\"display: block; text-align: center;\"><img src=\"https://plot.ly/~davemfish/32.png\" alt=\"LOW, MED, HIGH\" style=\"max-width: 100%;\"  onerror=\his.onerror=null;this.src='https://plot.ly/404.png';\" /></a>
-          <script data-plotly=\"davemfish:32\" src=\"https://plot.ly/embed.js\" async></script>-->
-          <iframe width=\"640\" height=\"480\" frameborder=\"0\" seamless=\"seamless\" scrolling=\"no\" src=\"https://plot.ly/~davemfish/32/.embed?width=640&height=480\" ></iframe>
-        </div>
+      <div class=\"col-lg-3\">
+      <br>
+      <p>These figures show the cumulative risk for each habitat within a given subregion.</p> 
+      <p>There is one subplot for every habitat. Within the habitat plot, there are points for every stressor.</p> 
+      <p>Each point is graphed by Exposure and Consequence values. If the risk equation chosen was Euclidean, 
+      the distance from the stressor point to the origin represents the average risk for that habitat-stressor pair within the selected subregion.</p> 
+      <p>Stressors that have high exposure scores and high consequence scores pose the greatest risk to habitats. 
+      <p>Reducing risk through management is likely to be more effective in situations where high risk is driven by high exposure, not high consequence.</p>
       </div>
     </div>
   </div>
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"three\"> 
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"abouttab\"> 
     <div class=\"row\">
       <div class=\"col-lg-7\">
 
         <h3>About</h3>
 
         <p>This application allows an <a href=\"http://www.naturalcapitalproject.org/InVEST.html\"> InVEST</a> user to view model results interactively in a web browser. 
-        All the data displayed in this app come from the <em>grid.shp</em> shapefile in the results zip file of an InVEST output workspace.</p>
-        <p>The raw data from the <em>grid.shp</em> is viewable on the Table tab and on the Map.
-        If your gridded AOI contains more than 3000 cells, the map will display cells as points,
-        which are clustered together at low zoom levels. A cluster's color represents the largest value point within the cluster.
-        Clicking a cluster reveals all its individual points.</p>
-        <p>Not all of the results produced by the Recreation model are displayed in this application.
+        All the data displayed in this app come from the user's InVEST output workspace.</p>
+        <p></p>
+        <p>Not all of the results produced by the HRA model are displayed in this application.
         You may wish to explore and analyze your results further with GIS or data analysis software.</p>
         <h3> Compatibility </h3>
         <p>For best results, please try Google Chrome or Mozilla Firefox web browsers.</p>
-        <p>This app has only been tested with InVEST versions 3.0.0+</p>
+        <p>This app has been tested with InVEST versions 3.1+</p>
         <br>
         <small><i>Built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
         you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></i></small>
@@ -293,7 +288,7 @@ echo "
 
 // If data already exists, map it yah!
 //if (isset($_POST['pathid'])){  // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
-if (file_exists($pathid . "habsummary.csv")) {
+if (file_exists($pathid . "workspace.zip")) {
 
   echo "
     <script>
@@ -314,10 +309,9 @@ if (file_exists($pathid . "habsummary.csv")) {
         //csvPath = sessPath + 'habsummary.csv',
         tablePath = sessPath + 'habsummary.json',
         symbPath = sessPath + 'legend.json',
+        barPath = sessPath + 'barplot.html'
+        riskPath = sessPath + 'datECR_wca.csv'
         lyrs = []
-        //initPath = sessPath + 'init.json',
-        //categoryField = 'cols', //This is the fieldname for marker category (used in the pie and legend)
-        //popupFields = [] //Popup will display these fields
       ;
     </script>
   ";
@@ -332,17 +326,22 @@ $('#upload a').click(function (e) {
   $(this).tab('show')
 })
 
-$('#one a').click(function (e) {
+$('#maptab a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
 
-$('#two a').click(function (e) {
+$('#charttab a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
 
-$('#three a').click(function (e) {
+// $('#pptab a').click(function (e) {
+//   e.preventDefault()
+//   $(this).tab('show')
+// })
+
+$('#abouttab a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
@@ -377,6 +376,8 @@ $('#three a').click(function (e) {
 
     // Layer control in upper-right of map
     var control = new L.control.layers(base).addTo(map);
+    // Info box for outside-the-map popups
+    var mapinfo = document.getElementById('mapinfo');
 ;
 
 
@@ -394,6 +395,7 @@ var maplayer = 'ecosys_risk'
 // click to identify function
 // https://www.mapbox.com/mapbox.js/example/v1.0.0/identify-tool/
 function handleClick(e) {
+    // e.layer.closePopup();
     var html = '';
     // look through each layer in order and see if the clicked point,
     // e.latlng, overlaps with one of the shapes in it.
@@ -409,7 +411,7 @@ function handleClick(e) {
         // and a table of attributes
         if (match.length) {
             html += '<strong>' + lyrs[i].name + '</strong>';
-            if(lyrs[i].name.substring(0,1) == "H" | lyrs[i].name.substring(0,1) == "e"){
+            if(lyrs[i].name[0].substring(0,1) == "H" | lyrs[i].name[0].substring(0,1) == "e"){
               html += propertyTable(match[0].feature.properties);
             } else {
               // html += '<br>'
@@ -421,7 +423,9 @@ function handleClick(e) {
         }
     }
     if (html) {
-        map.openPopup(html, e.latlng);
+        // map.openPopup(html, e.latlng);
+        console.log(html);
+        mapinfo.innerHTML = html;
     }
 }
 
@@ -481,13 +485,6 @@ drawAOI(); // and it builds subregion dropdown
 
 
 
-// load the visualization library from Google and set a listener
-google.load("visualization", "1", {packages:["corechart"]});
-//google.load("visualization", "1.1", {packages:["bar"]});
-google.load("visualization", "1", {packages:["table"]});
-// google.setOnLoadCallback(drawChart);
-
-
 //// A lot happens in here:
 //// Read legend.json - build maplayer dropdown from legend elements; build legend div.
 //// Read csv - build table and chart (chart responds to both dropdowns)
@@ -496,18 +493,19 @@ google.load("visualization", "1", {packages:["table"]});
 //function drawChart() {
   $.getJSON(symbPath, function(symbols){
     var dropdown = [];
+    //console.log(symbols);
     for (var i = 0; i < symbols.length; i++) {
-      if (symbols[i].layer.substring(0,1) == "H"){
+      if (symbols[i].layer[0].substring(0,1) == "H"){
         habnames.push(symbols[i].layer)
         habURLs.push(sessPath + symbols[i].layer + ".geojson")
         // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
         // dropdown.push(symbols[i].layer)
       }
-      if (symbols[i].layer.substring(0,1) == "S"){
+      if (symbols[i].layer[0].substring(0,1) == "S"){
         stressnames.push(symbols[i].layer)
         stressURLs.push(sessPath + symbols[i].layer + ".geojson")
       }
-      if (symbols[i].layer.substring(0,1) == "e"){
+      if (symbols[i].layer[0].substring(0,1) == "e"){
         econame.push(symbols[i].layer)
         ecoURL.push(sessPath + symbols[i].layer + ".geojson")
         // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
@@ -538,8 +536,8 @@ google.load("visualization", "1", {packages:["table"]});
           //   layer.bindPopup(feature.properties.CLASSIFY);
           // }
         }).on('click', handleClick);
-        geojson.addTo(map);
-        geojson.bringToFront();
+        //geojson.addTo(map);
+        //geojson.bringToFront();
         //maplayers[nm] = geojson;
         lyrs.push({ name: nm, layer: geojson })
         control.addOverlay(geojson, nm);
@@ -564,7 +562,8 @@ google.load("visualization", "1", {packages:["table"]});
                     }
             }, // style
           onEachFeature: function (feature, layer) {
-            layer.bindPopup(feature.properties.CLASSIFY);
+            // layer.bindPopup(feature.properties.CLASSIFY);
+            layer.bindPopup();
           }
         }).on('click', handleClick);
         geojson.addTo(map);
@@ -613,48 +612,144 @@ google.load("visualization", "1", {packages:["table"]});
 
   }); // legend ajax
 
+  ////////////////////
+  // Create Risk Plots
+  ////////////////////
 
-   // Load the habitat summary data
-  $('#habsummary').dataTable( {
-    "ajax": tablePath,
-    "columns": [
-            { "data": "Habitat" },
-            { "data": "Area" },
-            { "data": "Classify" },
-            { "data": "Subregion" }
-        ]
-    } );
+  var svg = dimple.newSvg("#Dimplediv", 800, 400);
 
-//   d3.json(tablePath, function(data){
-//     nv.addGraph(function() {
-//       var chart = nv.models.multiBarChart()
-//         .transitionDuration(350)
-//         .reduceXTicks(true)   //If 'false', every single x-axis tick label will be rendered.
-//         .rotateLabels(0)      //Angle to rotate x-axis labels.
-//         .showControls(true)   //Allow user to switch between 'Grouped' and 'Stacked' mode.
-//         .groupSpacing(0.1)    //Distance between each group of bars.
-//       ;
+    d3.csv(riskPath, function (data) {
+    
+    function riskChart(region) {
+        
+      var dat = dimple.filterData(data, "Subregion", region);
+      // Get a unique list of habitats
+      var habitats = dimple.getUniqueValues(dat, "Habitat");
 
-//       chart.xAxis.tickFormat(function(d) {
-//         return d3.format(',f')(data[0]);
+      // get stressors to assign colors
+      var stressors = dimple.getUniqueValues(dat, "Stressor");
+      var cols = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"];
+      console.log(stressors[0]);
+      console.log(cols[0]);
+      // Set the bounds for the charts
+      var row = 0,
+          col = 0,
+          top = 25,
+          left = 60,
+          inMarg = 40,
+          width = 130,
+          height = 110,
+          totalWidth = parseFloat(svg.attr("width"));
 
-//       chart.yAxis.tickFormat(d3.format(',.1f'));
-//       var d = [{
-//         values: data[1],
-//         key: "Area"
-//         color
-//       }]
+      // Draw a chart for each of the habitats
+      habitats.forEach(function (hab) {
+          
+          // Wrap to the row above
+          if (left + ((col + 1) * (width + inMarg)) > totalWidth) {
+            row += 1;
+            col = 0;
+          }
+          
+          // Filter for the Habitat in the iteration
+          var chartData = dimple.filterData(dat, "Habitat", hab);
+          
+          // Use d3 to draw a text label for the habitat
+          svg
+            .append("text")
+                .attr("x", left + (col * (width + inMarg)) + (width / 2))
+                .attr("y", top + (row * (height + inMarg)) + (height / 2) + 12)
+                .style("font-family", "sans-serif")
+                .style("text-anchor", "middle")
+                .style("font-size", "28px")
+                .style("opacity", 0.2)
+                .text(chartData[0].Habitat.substring(0, 7));
+          
+          // Create a chart at the correct point in the trellis
+          var myChart = new dimple.chart(svg, chartData);
+          
+          // Add x 
+          var x = myChart.addMeasureAxis("x", "Exposure");
+          
+          // Add y 
+          var y = myChart.addMeasureAxis("y", "Consequence");
+          
+          // Habitat and Risk are only added for the tooltip, 
+          // color groups are based on the final series 'Stressor'
+          myChart.addSeries(["Habitat", "Risk", "Stressor"], dimple.plot.bubble);
 
-//       d3.select('#chart1 svg')
-//           .datum(exampleData())
-//           .call(chart);
+          // assign colors
+          if (stressors.length < 7) {
+            for (var s = 0; s < stressors.length; s++) {
+              myChart.assignColor(stressors[s], cols[s*2]);
+            }
+          } else {
+            for (var s = 0; s < stressors.length; s++) {
+              myChart.assignColor(stressors[s], cols[s]);
+            }
+          }
+          // myChart.assignColor("PrawnFishery", "Red");
+          // console.log(myChart);          
 
-//       nv.utils.windowResize(chart.update);
+          // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
+          // Draw the chart and adjust settings
+          myChart.draw();
+          x.shapes.selectAll("text").attr("fill", "#5e5e5e");
+          y.shapes.selectAll("text").attr("fill", "#5e5e5e");
+          x.tickFormat = ',.1f';
+          x.ticks = 5;
+          y.ticks = 5;
+          // console.log(x);
+          // x.showGridlines = false;
+          // y.showGridlines = false;
+          // x.shapes.selectAll("text").attr("font-size", "16px");
+          // y.shapes.selectAll("text").attr("font-size", "16px");
+          // x.overrideMax = 4.0;
+          // y.overrideMax = 4.0;
+          // x.overrideMin = 0;
+          // y.overrideMin = 0;
 
-//       return chart;
-//   });
-// });
-//   });
+          myChart.setBounds(
+            left + (col * (width + inMarg)),
+            top + (row * (height + inMarg)),
+            width,
+            height);
+
+          // Once drawn we can access the shapes
+          // If this is not in the first column remove the y text
+          if (col > 0) {
+            y.shapes.selectAll("text").remove();
+            y.titleShape.remove();
+          }
+          // // If this is not in the last row remove the x text
+          // if (row < 2) {
+          //    x.shapes.selectAll("text").remove();
+          // }
+          // Remove the axis labels
+          // y.titleShape.remove();
+          // x.titleShape.remove();
+
+          // Move to the next column
+          col += 1;
+
+      }, this);
+      
+    }; // def riskChart function
+
+    var regions = dimple.getUniqueValues(data, "Subregion");
+    for (var i = 0; i < regions.length; i++) {
+      $("select").append("<option value='" + i + "'>" + regions[i] + "</option");
+    }
+
+    $("select").change(function(){
+      $("#Dimplediv").empty();
+      svg = dimple.newSvg("#Dimplediv", 800, 400);
+
+      subregion = $("#selectregion option:selected").text();
+      riskChart(subregion);
+     });
+
+    riskChart("ClaySound");
+   }); // csv load
 
     // // Build table from csv to display as google vis
 

@@ -31,4 +31,4 @@ done
 ## run some R code
 #wsnm=$(find . -maxdepth 1 -not -name '.' -type d)
 cd ../..
-R -q --vanilla < /home/dfisher5/ttapp/io-hra.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"
+R -q --vanilla < /var/www/html/ttapp/io-hra.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"
