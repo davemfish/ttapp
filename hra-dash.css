@@ -36,18 +36,18 @@
   margin-bottom: 2px;
 }*/
 
-/*Marker clusters*/
-.marker-cluster-pie g.arc{
+/*/*Marker clusters*/
+/*.marker-cluster-pie g.arc{
   fill-opacity: 0.5;
-}
-.marker-cluster-pie-label {
+}*/
+/*.marker-cluster-pie-label {
   font-size: 14px;
   font-weight: bold;
   font-family: sans-serif;
-}
+}*/
 
 /*Markers*/
-.marker {
+/*.marker {
   width: 9px;
   height: 9px;
   border-width: 1px;
@@ -65,10 +65,10 @@
   font-size: 14px;
   font-weight: bold;
   font-family: sans-serif;
-}
+}*/
 
 /*marker categories for PUD*/
-.category-hex606060{
+/*.category-hex606060{
   fill:  #d3d3d3;
   stroke:  #d3d3d3;
   background:  #d3d3d3;
@@ -109,11 +109,11 @@
   stroke: #810F7C;
   background: #810F7C;
   border-color: #810F7C;
-}
+}*/
 
 
 /* marker categories for predictors*/
-.category-hexd3d3d3{
+/*.category-hexd3d3d3{
   fill: none;
   stroke: #d3d3d3;
   background: none;
@@ -154,10 +154,10 @@
   stroke: #A63603;
   background: #A63603;
   border-color: #A63603;
-}
+}*/
 
 /*table.table-condensed*/
-.map-popup {
+/*.map-popup {
     width: 50%;
     border: 0;
     font-size:1em;
@@ -170,10 +170,11 @@
 .leaflet-popup-content table tbody tr{
   font-size:12;
   padding: 0px;
-}
+}*/
+
 
 /*Legend*/
-.legend {
+/*.legend {
     line-height: 18px;
     color: #555;
 }
@@ -183,19 +184,25 @@
     float: left;
     margin-right: 8px;
     opacity: 0.7;
-}
+}*/
 
 .info {
     padding: 8px 10px;
-    /*font: 14px Arial;*/
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
 }
-.info h4 {
-    margin: 0 0 5px;
+/*.info h4 {
+    margin: 0 0 3px;
     color: #777;
+}*/
+#mapinfo .table-condensed{
+  font-size:12;
+}
+#mapinfo hr{
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .disabled{
@@ -203,12 +210,12 @@
 }
 
 /*from rCharts html output*/
-.rChart {
+/*.rChart {
       display: block
       margin: auto auto;
       width: 100%;
       height: 400px;
-    }
+    }*/
 .bs-docs-example:after {
       content: "";
       background: transparent;

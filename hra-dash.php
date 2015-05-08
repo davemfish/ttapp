@@ -233,10 +233,11 @@ echo "
         <select id=\"domain\"></select>-->
       </div>
       <div class=\"col-lg-3\">
-          <p> <b>Habitat</b> layers are colored by their 'LOW', 'MED', 'HIGH' Risk classifications.</p>
-          <p> <b>Stressor</b> layers, AOI polygons, overall ecosystem risk, and alternate basemap layers 
+          <p> <b>Habitat (H_...)</b> layers are colored by their <b style='background-color:lightgray'><font color='blue'>'LOW'</font>, <font color='yellow'>'MED'</font>, <font color='red'>'HIGH'</font></b> Risk classifications.</p>
+          <p> <b>Stressor (S_...)</b> layers, AOI polygons, overall ecosystem risk, and alternate basemap layers 
           can be turned on from the layers control box in the <b>upper-right of the map.</b></p>
-          <p> <b>Click a point</b> on the map to see the Habitats and Stressors present at that location.</p>
+          <p> <b>Click a point</b> on the map to list the Habitats and Stressors present at that location.</p>
+          <div id='mapinfo' class='info'></div>
       </div>
   </div>
   </div>
@@ -375,6 +376,8 @@ $('#abouttab a').click(function (e) {
 
     // Layer control in upper-right of map
     var control = new L.control.layers(base).addTo(map);
+    // Info box for outside-the-map popups
+    var mapinfo = document.getElementById('mapinfo');
 ;
 
 
@@ -392,6 +395,7 @@ var maplayer = 'ecosys_risk'
 // click to identify function
 // https://www.mapbox.com/mapbox.js/example/v1.0.0/identify-tool/
 function handleClick(e) {
+    // e.layer.closePopup();
     var html = '';
     // look through each layer in order and see if the clicked point,
     // e.latlng, overlaps with one of the shapes in it.
@@ -419,7 +423,9 @@ function handleClick(e) {
         }
     }
     if (html) {
-        map.openPopup(html, e.latlng);
+        // map.openPopup(html, e.latlng);
+        console.log(html);
+        mapinfo.innerHTML = html;
     }
 }
 
@@ -556,7 +562,8 @@ drawAOI(); // and it builds subregion dropdown
                     }
             }, // style
           onEachFeature: function (feature, layer) {
-            layer.bindPopup(feature.properties.CLASSIFY);
+            // layer.bindPopup(feature.properties.CLASSIFY);
+            layer.bindPopup();
           }
         }).on('click', handleClick);
         geojson.addTo(map);
