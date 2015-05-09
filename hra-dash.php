@@ -336,6 +336,11 @@ $('#charttab a').click(function (e) {
   $(this).tab('show')
 })
 
+$('#mytabs a[href=\"#charttab\"]').on('shown.bs.tab', function (e) {
+  // alert(e.target); // activated tab
+  console.log('test');
+  makeRiskTab();
+});
 // $('#pptab a').click(function (e) {
 //   e.preventDefault()
 //   $(this).tab('show')
@@ -616,140 +621,145 @@ drawAOI(); // and it builds subregion dropdown
   // Create Risk Plots
   ////////////////////
 
-  var svg = dimple.newSvg("#Dimplediv", 800, 400);
+  function makeRiskTab(){
 
-    d3.csv(riskPath, function (data) {
-    
-    function riskChart(region) {
-        
-      var dat = dimple.filterData(data, "Subregion", region);
-      // Get a unique list of habitats
-      var habitats = dimple.getUniqueValues(dat, "Habitat");
+    var svg = dimple.newSvg("#Dimplediv", 800, 400);
 
-      // get stressors to assign colors
-      var stressors = dimple.getUniqueValues(dat, "Stressor");
-      var cols = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"];
-      console.log(stressors[0]);
-      console.log(cols[0]);
-      // Set the bounds for the charts
-      var row = 0,
-          col = 0,
-          top = 25,
-          left = 60,
-          inMarg = 40,
-          width = 130,
-          height = 110,
-          totalWidth = parseFloat(svg.attr("width"));
-
-      // Draw a chart for each of the habitats
-      habitats.forEach(function (hab) {
-          
-          // Wrap to the row above
-          if (left + ((col + 1) * (width + inMarg)) > totalWidth) {
-            row += 1;
-            col = 0;
-          }
-          
-          // Filter for the Habitat in the iteration
-          var chartData = dimple.filterData(dat, "Habitat", hab);
-          
-          // Use d3 to draw a text label for the habitat
-          svg
-            .append("text")
-                .attr("x", left + (col * (width + inMarg)) + (width / 2))
-                .attr("y", top + (row * (height + inMarg)) + (height / 2) + 12)
-                .style("font-family", "sans-serif")
-                .style("text-anchor", "middle")
-                .style("font-size", "28px")
-                .style("opacity", 0.2)
-                .text(chartData[0].Habitat.substring(0, 7));
-          
-          // Create a chart at the correct point in the trellis
-          var myChart = new dimple.chart(svg, chartData);
-          
-          // Add x 
-          var x = myChart.addMeasureAxis("x", "Exposure");
-          
-          // Add y 
-          var y = myChart.addMeasureAxis("y", "Consequence");
-          
-          // Habitat and Risk are only added for the tooltip, 
-          // color groups are based on the final series 'Stressor'
-          myChart.addSeries(["Habitat", "Risk", "Stressor"], dimple.plot.bubble);
-
-          // assign colors
-          if (stressors.length < 7) {
-            for (var s = 0; s < stressors.length; s++) {
-              myChart.assignColor(stressors[s], cols[s*2]);
-            }
-          } else {
-            for (var s = 0; s < stressors.length; s++) {
-              myChart.assignColor(stressors[s], cols[s]);
-            }
-          }
-          // myChart.assignColor("PrawnFishery", "Red");
-          // console.log(myChart);          
-
-          // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
-          // Draw the chart and adjust settings
-          myChart.draw();
-          x.shapes.selectAll("text").attr("fill", "#5e5e5e");
-          y.shapes.selectAll("text").attr("fill", "#5e5e5e");
-          x.tickFormat = ',.1f';
-          x.ticks = 5;
-          y.ticks = 5;
-          // console.log(x);
-          // x.showGridlines = false;
-          // y.showGridlines = false;
-          // x.shapes.selectAll("text").attr("font-size", "16px");
-          // y.shapes.selectAll("text").attr("font-size", "16px");
-          // x.overrideMax = 4.0;
-          // y.overrideMax = 4.0;
-          // x.overrideMin = 0;
-          // y.overrideMin = 0;
-
-          myChart.setBounds(
-            left + (col * (width + inMarg)),
-            top + (row * (height + inMarg)),
-            width,
-            height);
-
-          // Once drawn we can access the shapes
-          // If this is not in the first column remove the y text
-          if (col > 0) {
-            y.shapes.selectAll("text").remove();
-            y.titleShape.remove();
-          }
-          // // If this is not in the last row remove the x text
-          // if (row < 2) {
-          //    x.shapes.selectAll("text").remove();
-          // }
-          // Remove the axis labels
-          // y.titleShape.remove();
-          // x.titleShape.remove();
-
-          // Move to the next column
-          col += 1;
-
-      }, this);
+      d3.csv(riskPath, function (data) {
       
-    }; // def riskChart function
+      function riskChart(region) {
+          
+        var dat = dimple.filterData(data, "Subregion", region);
+        // Get a unique list of habitats
+        var habitats = dimple.getUniqueValues(dat, "Habitat");
 
-    var regions = dimple.getUniqueValues(data, "Subregion");
-    for (var i = 0; i < regions.length; i++) {
-      $("select").append("<option value='" + i + "'>" + regions[i] + "</option");
-    }
+        // get stressors to assign colors
+        var stressors = dimple.getUniqueValues(dat, "Stressor");
+        var cols = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"];
+        console.log(stressors[0]);
+        console.log(cols[0]);
+        // Set the bounds for the charts
+        var row = 0,
+            col = 0,
+            top = 25,
+            left = 60,
+            inMarg = 40,
+            width = 130,
+            height = 110,
+            totalWidth = parseFloat(svg.attr("width"));
 
-    $("select").change(function(){
-      $("#Dimplediv").empty();
-      svg = dimple.newSvg("#Dimplediv", 800, 400);
+        // Draw a chart for each of the habitats
+        habitats.forEach(function (hab) {
+            
+            // Wrap to the row above
+            if (left + ((col + 1) * (width + inMarg)) > totalWidth) {
+              row += 1;
+              col = 0;
+            }
+            
+            // Filter for the Habitat in the iteration
+            var chartData = dimple.filterData(dat, "Habitat", hab);
+            
+            // Use d3 to draw a text label for the habitat
+            svg
+              .append("text")
+                  .attr("x", left + (col * (width + inMarg)) + (width / 2))
+                  .attr("y", top + (row * (height + inMarg)) + (height / 2) + 12)
+                  .style("font-family", "sans-serif")
+                  .style("text-anchor", "middle")
+                  .style("font-size", "28px")
+                  .style("opacity", 0.2)
+                  .text(chartData[0].Habitat.substring(0, 7));
+            
+            // Create a chart at the correct point in the trellis
+            var myChart = new dimple.chart(svg, chartData);
+            
+            // Add x 
+            var x = myChart.addMeasureAxis("x", "Exposure");
+            
+            // Add y 
+            var y = myChart.addMeasureAxis("y", "Consequence");
+            
+            // Habitat and Risk are only added for the tooltip, 
+            // color groups are based on the final series 'Stressor'
+            myChart.addSeries(["Habitat", "Risk", "Stressor"], dimple.plot.bubble);
 
-      subregion = $("#selectregion option:selected").text();
-      riskChart(subregion);
-     });
+            // assign colors
+            if (stressors.length < 7) {
+              for (var s = 0; s < stressors.length; s++) {
+                myChart.assignColor(stressors[s], cols[s*2]);
+              }
+            } else {
+              for (var s = 0; s < stressors.length; s++) {
+                myChart.assignColor(stressors[s], cols[s]);
+              }
+            }
+            // myChart.assignColor("PrawnFishery", "Red");
+            // console.log(myChart);          
 
-    riskChart("ClaySound");
-   }); // csv load
+            // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
+            // Draw the chart and adjust settings
+            myChart.draw();
+            x.shapes.selectAll("text").attr("fill", "#5e5e5e");
+            y.shapes.selectAll("text").attr("fill", "#5e5e5e");
+            x.tickFormat = ',.1f';
+            x.ticks = 5;
+            y.ticks = 5;
+            // console.log(x);
+            // x.showGridlines = false;
+            // y.showGridlines = false;
+            // x.shapes.selectAll("text").attr("font-size", "16px");
+            // y.shapes.selectAll("text").attr("font-size", "16px");
+            // x.overrideMax = 4.0;
+            // y.overrideMax = 4.0;
+            // x.overrideMin = 0;
+            // y.overrideMin = 0;
+
+            myChart.setBounds(
+              left + (col * (width + inMarg)),
+              top + (row * (height + inMarg)),
+              width,
+              height);
+
+            // Once drawn we can access the shapes
+            // If this is not in the first column remove the y text
+            if (col > 0) {
+              y.shapes.selectAll("text").remove();
+              y.titleShape.remove();
+            }
+            // // If this is not in the last row remove the x text
+            // if (row < 2) {
+            //    x.shapes.selectAll("text").remove();
+            // }
+            // Remove the axis labels
+            // y.titleShape.remove();
+            // x.titleShape.remove();
+
+            // Move to the next column
+            col += 1;
+
+        }, this);
+        
+      }; // def riskChart function
+
+      var regions = dimple.getUniqueValues(data, "Subregion");
+      for (var i = 0; i < regions.length; i++) {
+        $("select").append("<option value='" + i + "'>" + regions[i] + "</option");
+      }
+
+      $("select").change(function(){
+        $("#Dimplediv").empty();
+        svg = dimple.newSvg("#Dimplediv", 800, 400);
+
+        subregion = $("#selectregion option:selected").text();
+        riskChart(subregion);
+       });
+
+      // $("#Dimplediv").empty();
+      // svg = dimple.newSvg("#Dimplediv", 800, 400);
+      riskChart(regions[0]);
+     }); // csv load
+    }; // makeRiskTab function
 
     // // Build table from csv to display as google vis
 
