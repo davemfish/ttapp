@@ -225,7 +225,7 @@ echo "
   echo "
   </div>
 
-  <div role=\"tabpanel\" class=\"tab-pane active\" id=\"maptab\"> 
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"maptab\"> 
     <div class=\"row\">
       <div class=\"col-lg-8\">
         <div class='custom-popup' id=\"map\"></div>
