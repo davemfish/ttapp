@@ -337,7 +337,8 @@ $('#charttab a').click(function (e) {
 })
 
 $('#mytabs a[href=\"#charttab\"]').on('shown.bs.tab', function (e) {
-  // alert(e.target); // activated tab
+  $("#Dimplediv").empty();
+  // svg = dimple.newSvg("#Dimplediv", 800, 400);
   console.log('test');
   makeRiskTab();
 });
@@ -743,11 +744,12 @@ drawAOI(); // and it builds subregion dropdown
       }; // def riskChart function
 
       var regions = dimple.getUniqueValues(data, "Subregion");
+      $("#selectregion").empty();
       for (var i = 0; i < regions.length; i++) {
-        $("select").append("<option value='" + i + "'>" + regions[i] + "</option");
+        $("#selectregion").append("<option value='" + i + "'>" + regions[i] + "</option");
       }
 
-      $("select").change(function(){
+      $("#selectregion").change(function(){
         $("#Dimplediv").empty();
         svg = dimple.newSvg("#Dimplediv", 800, 400);
 
