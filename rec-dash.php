@@ -103,6 +103,7 @@ echo "
 //         <input name=\"logfile\" type=\"file\">
 //         <input type=\"file\" class=\"filestyle\" data-classButton=\"btn btn-primary\" data-input=\"false\" data-classIcon=\"icon-plus\" data-buttonText=\"Browse...\">
 
+
   echo "
   <div class=\"tab-content\">
   <div role=\"tabpanel\" class=\"tab-pane active\" id=\"upload\">
@@ -135,23 +136,21 @@ echo "
       </div>
       </form>
     </div>";
-    // IF 'doit' means if Upload button was clicked.
-    if (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name'])) {
+
+    // IF url was supplied a session id ($_GET[sid]...)
+    // OR upload button was clicked.($_POST[soit]...)
+    if (isset($_GET['sid']) | (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name']))) {
       // File Quality Control
-      // // check for errors
-      if ($_FILES["logfile"]["error"] > 0) {
+      // // check for errors (only if file was uploaded)
+      if (!isset($_GET['sid']) & $_FILES["logfile"]["error"] > 0) {
         echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["logfile"]["error"] . "</div>";
         die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
       }
 
       echo "<div class=\"alert alert-info\" role=\"alert\">starting session... </div>";
-//       if (null != session_id()) {
-//       if(session_id() == '' || !isset($_SESSION)) {
-//         session_start();
-//       } else {
         session_start();
         session_regenerate_id(FALSE);
-//       }
+
       // make a unique folder for each run
       // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
       $sessid = session_id();
@@ -168,15 +167,18 @@ echo "
       $sdir = "$pathid";
       if (!file_exists($sdir)) {
         passthru("mkdir $pathid");
-//         mkdir($pathid);
       }
 
-      // Upload the tables
+      // Copy logfile (if submitted a session ID) OR Upload logile (if submitted a file)
       echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
-      // // logfile
       $outloadfile = $pathid . "rec_logfile.txt";
-      if (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
+      // // copy logfile
+      if (isset($_GET['sid'])) {
+        passthru("cp /mnt/recreation/public_html/data/$_GET[sid]/log.txt $outloadfile");
+      // // or upload logfile
+      } elseif (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
         echo "<div class=\"alert alert-success\" role=\"alert\">logfile was successfully uploaded.</div>";
+      // // or cack it
       } else {
         echo "<div class=\"alert alert-danger\" role=\"alert\">logfile cannot be uploaded.</div>";
       }
@@ -288,8 +290,8 @@ echo "
 
 
 // If data already exists, map it yah!
-//if (isset($_POST['pathid'])){  // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
-if (file_exists($pathid . "rec_logfile.txt")) {
+if (isset($pathid)) {  // this is here because when page is first loaded, the next line gives a warning that pathid is undefined
+  if (file_exists($pathid . "rec_logfile.txt")) {
 
   echo "
     <script>
@@ -912,6 +914,7 @@ function serializeXmlNode(xmlNode) {
 
 <?php
 
+  }
 } else {
 
   echo "
