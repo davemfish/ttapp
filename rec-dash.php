@@ -92,6 +92,7 @@ echo "
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Recreation Dashboard</h3>
+  <div id=\"url-container\"></div>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
@@ -203,6 +204,7 @@ echo "
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
       echo "
       <script>
+      $(\"#url-container\").html(\"<p><a href=\"#\" data-copy=\"vulpes.sefs.uw.edu/ttapp/rec-dash.php?sid=$_GET[sid]\" class=\"copy\">Share results with this link</a></p>\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
