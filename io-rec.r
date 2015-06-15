@@ -38,12 +38,17 @@ Cut2Num <- function(x){
 ### The symbology scheme:
 
 LoadSpace <- function(workspace, outspace){ # x is the session ID
-  logfile <- readLines(con=file.path(workspace, "rec_logfile.txt"), n=-1)
-  blanks <- which(logfile=="")
-  logtable <- logfile[1:(min(blanks) - 1)]
-  sessionline <- logfile[grep(logfile, pattern="Assigned server session id")]
-  sessid <- sub(sessionline, pattern=".*Assigned server session id ", replacement="")
-  sessid <- sub(sessid, pattern="\\.", replacement="")
+  if (recid == "NO"){
+    logfile <- readLines(con=file.path(workspace, "rec_logfile.txt"), n=-1)
+    blanks <- which(logfile=="")
+    logtable <- logfile[1:(min(blanks) - 1)]
+    sessionline <- logfile[grep(logfile, pattern="Assigned server session id")]
+    sessid <- sub(sessionline, pattern=".*Assigned server session id ", replacement="")
+    sessid <- sub(sessid, pattern="\\.", replacement="")
+  } else {
+    sessid <- recid
+  }
+  
   
   ## get results and unzip
   #ws <- file.path(workspace, "results.zip")   ## test locally
