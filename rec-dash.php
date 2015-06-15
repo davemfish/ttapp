@@ -204,7 +204,7 @@ echo "
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
       echo "
       <script>
-      $(\"#url-container\").html(\"<p><a href=\"#\" data-copy=\"vulpes.sefs.uw.edu/ttapp/rec-dash.php?sid=$_GET[sid]\" class=\"copy\">Share results with this link</a></p>\");
+      $(\"#url-container\").html(\"<p><a href=\"vulpes.sefs.uw.edu/ttapp/rec-dash.php?sid=$_GET[sid]\">Share results with this link</a></p>\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
