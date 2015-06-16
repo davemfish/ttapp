@@ -147,6 +147,12 @@ echo "
         echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["logfile"]["error"] . "</div>";
         die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
       }
+      if (isset($_GET['sid'])){
+        if(!file_exists("/mnt/recreation/public_html/data/" . $_GET['sid'] . "/results.zip")){
+          echo "<div class=\"alert alert-info\" role=\"alert\">This session ID does not have results</div>";
+          die;
+        }
+      }
 
       echo "<div class=\"alert alert-info\" role=\"alert\">starting session... </div>";
         session_start();
