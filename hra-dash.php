@@ -390,6 +390,7 @@ $('#abouttab a').click(function (e) {
 // add stuff to the map
 map.addLayer(MapBoxSat);
 //map.addLayer(pgons);
+L.control.scale().addTo(map);
 
 
 // Initialize legend

@@ -429,6 +429,7 @@ if (pointdata){
 }
 
 L.control.layers(base, overlays).addTo(map);
+L.control.scale().addTo(map);
 
 // Initialize legend
 var legend = L.control({position: 'bottomright'});
