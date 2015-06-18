@@ -92,6 +92,7 @@ echo "
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Recreation Dashboard</h3>
+  <div id=\"url-holder\"><p>hold the url</p></div>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
@@ -209,6 +210,7 @@ echo "
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
       echo "
       <script>
+      $(\"#url-holder\").html(\"$_GET[sid]\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
@@ -237,6 +239,7 @@ echo "
       echo "<div class=\"alert alert-info\" role=\"alert\">Loading sample data...</div>";
       echo "
       <script>
+      $(\"#url-holder\").html(\"vulpes.sefs.uw.edu/ttapp/rec-dash.php?sid=$pathid\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
