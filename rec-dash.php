@@ -92,7 +92,7 @@ echo "
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Recreation Dashboard</h3>
-  <div id=\"url-holder\"><p>hold the url</p></div>
+  <div id=\"url-holder\"></div>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
@@ -202,6 +202,16 @@ echo "
         passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"NO\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
       }
       echo "</div>";
+      //$sidpath = $sessid . '/sid.txt';
+      //$sidcontents = file_get_contents("/var/www/html/ttapp/tmp-rec/$sidpath", FILE_USE_INCLUDE_PATH);
+      // get contents of a file into a string
+      //$filename = "/var/www/html/ttapp/tmp-rec/$sidpath";
+      //$handle = fopen($filename, "r");
+      //print $filename;
+      //print filesize($filename);
+      //$sidcontents = fread($handle, filesize($filename));
+      //fclose($handle);
+      //print $sidcontents;
       flush();
       ob_flush();
 
@@ -210,7 +220,7 @@ echo "
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
       echo "
       <script>
-      $(\"#url-holder\").html(\"$_GET[sid]\");
+      $(\"#url-holder\").html(\"\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
