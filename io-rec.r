@@ -48,8 +48,10 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
   } else {
     sessid <- recid
   }
-  
-  
+  fileConn<-file(file.path(workspace, "sid.txt"))
+  writeLines(sessid, fileConn)
+  close(fileConn)
+
   ## get results and unzip
   #ws <- file.path(workspace, "results.zip")   ## test locally
   #unzip(file.path(ws, "results.zip"), exdir="C:/Users/dfisher5/Documents/Shiny/www/ttapp-rec/tmp/testingio")
