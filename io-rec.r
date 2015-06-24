@@ -148,7 +148,7 @@ LoadSpace <- function(workspace, outspace){ # x is the session ID
     df$cellID <- grid@data$cellID
     
     
-    if (init$grid & length(grid) > 3000){ ## if AOI is gridded and > 3000 cells
+    if (init$grid & length(grid) > 4000){ ## if AOI is gridded and > 4000 cells
       ## convert grid cell to point, by centroid
       points <- gCentroid(grid, byid=TRUE)
       points.wgs84 <- spTransform(points, CRS("+proj=longlat +datum=WGS84 +no_defs"))
