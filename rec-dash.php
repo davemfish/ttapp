@@ -140,16 +140,25 @@ echo "
 
     // IF url was supplied a session id ($_GET[sid]...)
     // OR upload button was clicked.($_POST[soit]...)
-    if (isset($_GET['sid']) | (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name']))) {
+    if (isset($_GET['dashid']) | isset($_GET['sid']) | (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name']))) {
       // File Quality Control
       // // check for errors (only if file was uploaded)
-      if (!isset($_GET['sid']) & $_FILES["logfile"]["error"] > 0) {
+      if (!isset($_GET['dashid']) & !isset($_GET['sid']) & $_FILES["logfile"]["error"] > 0) {
         echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["logfile"]["error"] . "</div>";
         die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
       }
+      // if rec session id is provided, check for results.zip for that session
       if (isset($_GET['sid'])){
         if(!file_exists("/mnt/recreation/public_html/data/" . $_GET['sid'] . "/results.zip")){
           echo "<div class=\"alert alert-info\" role=\"alert\">This session ID does not have results</div>";
+          die;
+        }
+      }
+      // if dashboard session id is provided, check for legend.json
+      // that indicates that dashboard's R script completed successfully sometime in the past. 
+      if (isset($_GET['dashid'])){
+        if(!file_exists("./tmp-rec/" . $_GET['dashid'] . "/legend.json")){
+          echo "<div class=\"alert alert-info\" role=\"alert\">This Dashboard Session ID does not have results</div>";
           die;
         }
       }
@@ -158,59 +167,67 @@ echo "
         session_start();
         session_regenerate_id(FALSE);
 
-      // make a unique folder for each run
-      // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
-      $sessid = session_id();
-      $pathid = "./tmp-rec/" . $sessid . "/";
+      // if no dashid provided in url, do this, including run R script
+      if (!isset($_GET['dashid'])){
 
-      echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
-      flush();
-      ob_flush();
+        // make a unique folder for each run
+        // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
+        $sessid = session_id();
+        $pathid = "./tmp-rec/" . $sessid . "/";
 
-      // set the time limit to XX seconds
-      set_time_limit(300);
+        echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
+        flush();
+        ob_flush();
 
-      // Create session directory and cd to it
-      $sdir = "$pathid";
-      if (!file_exists($sdir)) {
-        passthru("mkdir $pathid");
-      }
+        // set the time limit to XX seconds
+        set_time_limit(300);
 
-      // Copy logfile (if submitted a session ID) OR Upload logile (if submitted a file)
-      echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
-      $outloadfile = $pathid . "rec_logfile.txt";
-      // // copy logfile
-      if (isset($_GET['sid'])) {
-        passthru("cp /mnt/recreation/public_html/data/$_GET[sid]/log.txt $outloadfile");
-      // // or upload logfile
-      } elseif (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
-        echo "<div class=\"alert alert-success\" role=\"alert\">logfile was successfully uploaded.</div>";
-      // // or cack it
+        // Create session directory and cd to it
+        $sdir = "$pathid";
+        if (!file_exists($sdir)) {
+          passthru("mkdir $pathid");
+        }
+
+        // Copy logfile (if submitted a session ID) OR Upload logile (if submitted a file)
+        echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
+        $outloadfile = $pathid . "rec_logfile.txt";
+
+        // // copy logfile
+        if (isset($_GET['sid'])) {
+          passthru("cp /mnt/recreation/public_html/data/$_GET[sid]/log.txt $outloadfile");
+        // // or upload logfile
+        } elseif (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
+          echo "<div class=\"alert alert-success\" role=\"alert\">logfile was successfully uploaded.</div>";
+        // // or cack it
+        } else {
+          echo "<div class=\"alert alert-danger\" role=\"alert\">logfile cannot be uploaded.</div>";
+        }
+
+        // Run local R script
+        echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
+        flush();
+        ob_flush();
+        echo "<div class=\"alert alert-info\" role=\"alert\">";
+        //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
+        if (isset($_GET['sid'])) {
+          passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"$_GET[sid]\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
+        } else {
+          passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"NO\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
+        }
+        echo "</div>";
+        flush();
+        ob_flush();
       } else {
-        echo "<div class=\"alert alert-danger\" role=\"alert\">logfile cannot be uploaded.</div>";
+        $pathid = "./tmp-rec/" . $_GET['dashid'] . "/";
+        $did = "vulpes.sefs.uw.edu/ttapp/rec-dash.php?dashid=" . $_GET['dashid'];
       }
-
-      // Run local R script
-      echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
-      flush();
-      ob_flush();
-      echo "<div class=\"alert alert-info\" role=\"alert\">";
-      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
-      if (isset($_GET['sid'])) {
-        passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"$_GET[sid]\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
-      } else {
-        passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"NO\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
-      }
-      echo "</div>";
-      flush();
-      ob_flush();
 
       // after upload and R completes, switch to map tab
           //     $('#mytabs a[href=\"#one\"]').attr('data-toggle', 'tab')
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
       echo "
       <script>
-      $(\"#url-holder\").html(\"$_GET[sid]\");
+      $(\"#url-holder\").html(\"$did\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
@@ -239,7 +256,6 @@ echo "
       echo "<div class=\"alert alert-info\" role=\"alert\">Loading sample data...</div>";
       echo "
       <script>
-      $(\"#url-holder\").html(\"vulpes.sefs.uw.edu/ttapp/rec-dash.php?sid=$pathid\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
