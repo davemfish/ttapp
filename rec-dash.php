@@ -92,7 +92,7 @@ echo "
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Recreation Dashboard</h3>
-  <div id=\"url-holder\"><p>hold the url</p></div>
+  <div id=\"url-holder\"><p></p></div>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
@@ -174,6 +174,7 @@ echo "
         // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
         $sessid = session_id();
         $pathid = "./tmp-rec/" . $sessid . "/";
+        $longurl = "vulpes.sefs.uw.edu/ttapp/rec-dash.php?dashid=" . $sessid;
 
         echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
         flush();
@@ -219,7 +220,7 @@ echo "
         ob_flush();
       } else {
         $pathid = "./tmp-rec/" . $_GET['dashid'] . "/";
-        $did = "vulpes.sefs.uw.edu/ttapp/rec-dash.php?dashid=" . $_GET['dashid'];
+        $longurl = "vulpes.sefs.uw.edu/ttapp/rec-dash.php?dashid=" . $_GET['dashid'];
       }
 
       // after upload and R completes, switch to map tab
@@ -227,7 +228,7 @@ echo "
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
       echo "
       <script>
-      $(\"#url-holder\").html(\"$did\");
+      $(\"#url-holder\").html(\"$longurl\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
