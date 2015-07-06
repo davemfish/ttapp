@@ -66,7 +66,8 @@ echo "
 
     <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
   </head>
-  <body> ";
+  <body> "
+  ;
 
 // <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
 
@@ -92,7 +93,8 @@ echo "
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Recreation Dashboard</h3>
-    <div id=\"url-holder\"></div>
+  <div id=\"url-holder\" style=\"float:right;\"></div>
+    
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
@@ -226,19 +228,8 @@ echo "
       // after upload and R completes, switch to map tab
           //     $('#mytabs a[href=\"#one\"]').attr('data-toggle', 'tab')
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
-      echo "
-      <script>
-      $('#url-holder').html('<button class=\"btn btn-default\" type=\"button\">Share These Results!</button>');
-      $('#url-holder').click(function(){
-        window.prompt(\"Copy to clipboard: Ctrl+C, Enter\", \"theurlgoeshere\");
-      });
-      console.log('switching?');
-        $(function () {
-          $('ul.nav li').removeClass('disabled');
-          $('#mytabs a[href=\"#one\"]').tab('show')
-          map.invalidateSize(false);
-        })
-      </script> ";
+      
+
     }
     // Load Demo Data
     if (isset($_POST['demoit'])) {
@@ -270,8 +261,41 @@ echo "
     }
     //map.invalidateSize(false);
 
+  // closes the upload tab div:
   echo "
   </div>
+
+  <div class=\"modal fade\" id=\"urlModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">
+    <div class=\"modal-dialog\" role=\"document\">
+      <div class=\"modal-content\">
+        <div class=\"modal-header\">
+          <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"OK\"><span aria-hidden=\"true\">&times;</span></button>
+          <h4 class=\"modal-title\" id=\"myModalLabel\">Save and Share your Dashboard session:</h4>
+        </div>
+        <div class=\"modal-body\">
+          <input type=\"text\" value=\"$longurl\"></input>
+          <br>
+          <br>
+          <li><b>Copy</b> this url to view these results again later, skipping the Upload step.</li>
+          <li><b>Share</b> these results by sending around this url!</li>
+          <li><b>Bookmark</b> this url!</li>
+        </div>
+        <div class=\"modal-footer\">
+          <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Okay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  $('#url-holder').html('<button class=\"btn btn-success\" type=\"button\" data-toggle=\"modal\" data-target=\"#urlModal\">Share These Results!</button>');
+  console.log('switching?');
+    $(function () {
+      $('ul.nav li').removeClass('disabled');
+      $('#mytabs a[href=\"#one\"]').tab('show')
+      map.invalidateSize(false);
+    })
+  </script>
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
     <div class=\"row\">
