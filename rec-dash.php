@@ -228,46 +228,9 @@ echo "
       // after upload and R completes, switch to map tab
           //     $('#mytabs a[href=\"#one\"]').attr('data-toggle', 'tab')
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
-      echo "
-        <script>
-        console.log('switching?');
-          $(function () {
-            $('ul.nav li').removeClass('disabled');
-            $('#mytabs a[href=\"#one\"]').tab('show');
-            map.invalidateSize(false);
-          })
-        </script>
-        
-        <div class=\"modal fade\" id=\"urlModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">
-          <div class=\"modal-dialog\" role=\"document\">
-            <div class=\"modal-content\">
-              <div class=\"modal-header\">
-                <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"OK\"><span aria-hidden=\"true\">&times;</span></button>
-                <h4 class=\"modal-title\" id=\"myModalLabel\">Save and Share your Dashboard session:</h4>
-              </div>
-              <div class=\"modal-body\">
-                <input type=\"text\" value=\"$longurl\"></input>
-                <br>
-                <br>
-                <li><b>Copy</b> this url to view these results again later, skipping the Upload step.</li>
-                <li><b>Share</b> these results by sending around this url!</li>
-                <li><b>Bookmark</b> this url!</li>
-              </div>
-              <div class=\"modal-footer\">
-                <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Okay</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <script>
-        $('#url-holder').html('<button class=\"btn btn-success\" type=\"button\" data-toggle=\"modal\" data-target=\"#urlModal\">Share These Results!</button>');
-        </script>
-      ";
-
-      
 
     }
+
     // Load Demo Data
     if (isset($_POST['demoit'])) {
 
@@ -300,9 +263,48 @@ echo "
 
   // closes the upload tab div:
   echo "
+  </div>";
+
+  if (!isset($_POST['demoit'])){
+  echo "
+  <script>
+  console.log('switching?');
+    $(function () {
+      $('ul.nav li').removeClass('disabled');
+      $('#mytabs a[href=\"#one\"]').tab('show');
+      map.invalidateSize(false);
+    })
+  </script>
+
+  <div class=\"modal fade\" id=\"urlModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">
+    <div class=\"modal-dialog\" role=\"document\">
+      <div class=\"modal-content\">
+        <div class=\"modal-header\">
+          <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"OK\"><span aria-hidden=\"true\">&times;</span></button>
+          <h4 class=\"modal-title\" id=\"myModalLabel\">Save and Share your Dashboard session:</h4>
+        </div>
+        <div class=\"modal-body\">
+          <input type=\"text\" value=\"longurl\"></input>
+          <br>
+          <br>
+          <li><b>Copy</b> this url to view these results again later, skipping the Upload step.</li>
+          <li><b>Share</b> these results by sending around this url!</li>
+          <li><b>Bookmark</b> this url!</li>
+        </div>
+        <div class=\"modal-footer\">
+          <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Okay</button>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <script>
+  $('#url-holder').html('<button class=\"btn btn-success\" type=\"button\" data-toggle=\"modal\" data-target=\"#urlModal\">Share These Results!</button>');
+  </script>
+";
+}
 
+  echo "
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
     <div class=\"row\">
