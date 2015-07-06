@@ -92,7 +92,7 @@ echo "
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Recreation Dashboard</h3>
-  <div id=\"url-holder\"><p></p></div>
+    <div id=\"url-holder\"></div>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
@@ -228,12 +228,15 @@ echo "
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
       echo "
       <script>
-      $(\"#url-holder\").html(\"$longurl\");
+      $('#url-holder').html('<button class=\"btn btn-default\" type=\"button\">Share These Results!</button>');
+      $('#url-holder').click(function(){
+        window.prompt(\"Copy to clipboard: Ctrl+C, Enter\", \"theurlgoeshere\");
+      });
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
           $('#mytabs a[href=\"#one\"]').tab('show')
-      map.invalidateSize(false);
+          map.invalidateSize(false);
         })
       </script> ";
     }
