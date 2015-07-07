@@ -220,7 +220,6 @@ echo "
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
       echo "
       <script>
-      $(\"#url-holder\").html(\"\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
@@ -249,7 +248,6 @@ echo "
       echo "<div class=\"alert alert-info\" role=\"alert\">Loading sample data...</div>";
       echo "
       <script>
-      $(\"#url-holder\").html(\"vulpes.sefs.uw.edu/ttapp/rec-dash.php?sid=$pathid\");
       console.log('switching?');
         $(function () {
           $('ul.nav li').removeClass('disabled');
