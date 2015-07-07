@@ -228,6 +228,7 @@ echo "
       // after upload and R completes, switch to map tab
           //     $('#mytabs a[href=\"#one\"]').attr('data-toggle', 'tab')
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
+      
 
     }
 
@@ -265,7 +266,8 @@ echo "
   echo "
   </div>";
 
-  if (!isset($_POST['demoit'])){
+  // if (isset($_GET['dashid']) | isset($_GET['sid']) | (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name']))) {
+  if (isset($longurl)){
   echo "
   <script>
   console.log('switching?');
