@@ -286,7 +286,7 @@ echo "
           <h4 class=\"modal-title\" id=\"myModalLabel\">Save and Share your Dashboard session:</h4>
         </div>
         <div class=\"modal-body\">
-          <input type=\"text\" value=\"longurl\"></input>
+          <input type=\"text\" value=\"$longurl\" label=\"Double-click to Select\"></input>
           <br>
           <br>
           <li><b>Copy</b> this url to view these results again later, skipping the Upload step.</li>
@@ -752,6 +752,7 @@ function drawChart() {
               });
               pgons.addLayer(markers);
             }
+            map.invalidateSize(false);
             map.fitBounds(markers.getBounds());
         }
       });
