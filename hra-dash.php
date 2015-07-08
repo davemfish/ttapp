@@ -125,12 +125,20 @@ echo "
       </form>
     </div>";
     // IF 'doit' means if Upload button was clicked.
-    if (isset($_POST['doit']) & !empty($_FILES['zipfile']['tmp_name'])) {
+    if (isset($_GET['dashid']) | isset($_POST['doit']) & !empty($_FILES['zipfile']['tmp_name'])) {
       // File Quality Control
       // // check for errors
-      if ($_FILES["zipfile"]["error"] > 0) {
+      if (!isset($_GET['dashid']) & $_FILES["zipfile"]["error"] > 0) {
         echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["zipfile"]["error"] . "</div>";
         die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
+      }
+      // if dashboard session id is provided, check for legend.json
+      // that indicates that dashboard's R script completed successfully sometime in the past. 
+      if (isset($_GET['dashid'])){
+        if(!file_exists("./tmp-hra/" . $_GET['dashid'] . "/legend.json")){
+          echo "<div class=\"alert alert-info\" role=\"alert\">This Dashboard Session ID does not have results</div>";
+          die;
+        }
       }
 
       echo "<div class=\"alert alert-info\" role=\"alert\">starting session... </div>";
@@ -141,48 +149,55 @@ echo "
         session_start();
         session_regenerate_id(FALSE);
 //       }
-      // make a unique folder for each run
-      // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
-      $sessid = session_id();
-      $pathid = "./tmp-hra/" . $sessid . "/";
 
-      echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
-      flush();
-      ob_flush();
+      if (!isset($_GET['dashid'])){
+        // make a unique folder for each run
+        // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
+        $sessid = session_id();
+        $pathid = "./tmp-hra/" . $sessid . "/";
+        $longurl = "vulpes.sefs.uw.edu/ttapp/hra-dash.php?dashid=" . $sessid;
 
-      // set the time limit to XX seconds
-      set_time_limit(300);
+        echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
+        flush();
+        ob_flush();
 
-      // Create session directory and cd to it
-      $sdir = "$pathid";
-      if (!file_exists($sdir)) {
-        passthru("mkdir $pathid");
-//         mkdir($pathid);
-      }
+        // set the time limit to XX seconds
+        set_time_limit(300);
 
-      // Upload the tables
-      echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
-      // // zipfile
-      $outloadfile = $pathid . "workspace.zip";
-      if (move_uploaded_file($_FILES['zipfile']['tmp_name'], $outloadfile)) {
-        echo "<div class=\"alert alert-success\" role=\"alert\">zipfile was successfully uploaded.</div>";
+        // Create session directory and cd to it
+        $sdir = "$pathid";
+        if (!file_exists($sdir)) {
+          passthru("mkdir $pathid");
+  //         mkdir($pathid);
+        }
+
+        // Upload the tables
+        echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
+        // // zipfile
+        $outloadfile = $pathid . "workspace.zip";
+        if (move_uploaded_file($_FILES['zipfile']['tmp_name'], $outloadfile)) {
+          echo "<div class=\"alert alert-success\" role=\"alert\">zipfile was successfully uploaded.</div>";
+        } else {
+          echo "<div class=\"alert alert-danger\" role=\"alert\">zipfile cannot be uploaded.</div>";
+        }
+
+        // Run local R script
+        echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
+        flush();
+        ob_flush();
+        echo "<div class=\"alert alert-info\" role=\"alert\">";
+        //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
+        //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\["
+        passthru("./io-hra.sh $sessid"); 
+        echo "</div>";
+        flush();
+        ob_flush();
+
+        set_time_limit(300);
       } else {
-        echo "<div class=\"alert alert-danger\" role=\"alert\">zipfile cannot be uploaded.</div>";
+        $pathid = "./tmp-rec/" . $_GET['dashid'] . "/";
+        $longurl = "vulpes.sefs.uw.edu/ttapp/hra-dash.php?dashid=" . $_GET['dashid'];
       }
-
-      // Run local R script
-      echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
-      flush();
-      ob_flush();
-      echo "<div class=\"alert alert-info\" role=\"alert\">";
-      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
-      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\["
-      passthru("./io-hra.sh $sessid"); 
-      echo "</div>";
-      flush();
-      ob_flush();
-
-      set_time_limit(300);
 
       echo "<div class=\"alert alert-info\" role=\"alert\">Loading workspace data...</div>";
       echo "
@@ -223,8 +238,38 @@ echo "
     }
 
   echo "
-  </div>
+  </div>";
 
+  if (isset($longurl)){
+    echo "
+    <div class=\"modal fade\" id=\"urlModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">
+    <div class=\"modal-dialog\" role=\"document\">
+      <div class=\"modal-content\">
+        <div class=\"modal-header\">
+          <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"OK\"><span aria-hidden=\"true\">&times;</span></button>
+          <h4 class=\"modal-title\" id=\"myModalLabel\">Save and Share your Dashboard session:</h4>
+        </div>
+        <div class=\"modal-body\">
+          <input type=\"text\" value=\"$longurl\" label=\"Double-click to Select\"></input>
+          <br>
+          <br>
+          <li><b>Copy</b> this url to view these results again later, skipping the Upload step.</li>
+          <li><b>Share</b> these results by sending around this url!</li>
+          <li><b>Bookmark</b> this url!</li>
+        </div>
+        <div class=\"modal-footer\">
+          <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Okay</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <script>
+    $('#url-holder').html('<button class=\"btn btn-success\" type=\"button\" data-toggle=\"modal\" data-target=\"#urlModal\">Share These Results!</button>');
+    </script>";
+  }
+
+  echo "
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"maptab\"> 
     <div class=\"row\">
       <div class=\"col-lg-8\">
