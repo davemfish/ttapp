@@ -260,7 +260,6 @@ echo "
         })
       </script> ";
     }
-    //map.invalidateSize(false);
 
   // closes the upload tab div:
   echo "
@@ -274,7 +273,6 @@ echo "
     $(function () {
       $('ul.nav li').removeClass('disabled');
       $('#mytabs a[href=\"#one\"]').tab('show');
-      map.invalidateSize(false);
     })
   </script>
 
