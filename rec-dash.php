@@ -256,7 +256,6 @@ echo "
         $(function () {
           $('ul.nav li').removeClass('disabled');
           $('#mytabs a[href=\"#one\"]').tab('show')
-          map.invalidateSize();
         })
       </script> ";
     }
@@ -397,6 +396,10 @@ $('#one a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
+$('#mytabs a[href=\"#one\"]').on("shown.bs.tab", function() {
+    map.invalidateSize(false);
+    map.fitBounds(savemap);
+});
 
 $('#two a').click(function (e) {
   e.preventDefault()
@@ -467,6 +470,9 @@ var  rmax = 27, //Maximum radius for cluster pies
     };
 
     L.control.layers();
+
+    // object for bounds of AOI to use after calls to map.invalidateSize()
+    savemap = {};
 ;
 
 // add stuff to the map
@@ -750,8 +756,8 @@ function drawChart() {
               });
               pgons.addLayer(markers);
             }
-            map.invalidateSize(false);
-            map.fitBounds(markers.getBounds());
+            savemap = markers.getBounds();
+            map.fitBounds(savemap);
         }
       });
 

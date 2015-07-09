@@ -225,7 +225,6 @@ echo "
         $(function () {
           $('ul.nav li').removeClass('disabled');
           $('#mytabs a[href=\"#maptab\"]').tab('show')
-          map.invalidateSize(false);
         })
       </script>";
     }
@@ -237,11 +236,12 @@ echo "
     echo "
     <script>
       console.log('switching?');
-        $(function () {
-          $('ul.nav li').removeClass('disabled');
-          $('#mytabs a[href=\"#maptab\"]').tab('show')
-        })
-    </script>
+      $(function () {
+        $('ul.nav li').removeClass('disabled');
+        $('#mytabs a[href=\"#maptab\"]').tab('show')
+      })
+    </script>";
+    echo "
 
     <div class=\"modal fade\" id=\"urlModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">
     <div class=\"modal-dialog\" role=\"document\">
@@ -401,6 +401,7 @@ $('#mytabs a[href=\"#maptab\"]').on("shown.bs.tab", function() {
     console.log("invalidate map at tab listener");
     //drawAOI();
     map.invalidateSize(false);
+    map.fitBounds(savemap);
 });
 
 
@@ -435,6 +436,8 @@ $('#mytabs a[href=\"#maptab\"]').on("shown.bs.tab", function() {
     var control = new L.control.layers(base).addTo(map);
     // Info box for outside-the-map popups
     var mapinfo = document.getElementById('mapinfo');
+    // object for bounds of AOI to use after calls to map.invalidateSize()
+    var savemap = {};
 ;
 
 
@@ -528,8 +531,11 @@ function drawAOI(){
         // add AOI to map
         // map.addLayer(aoi);
         console.log("invalidate at draw aoi");
-        //map.invalidateSize(false);
-        map.fitBounds(aoi.getBounds());
+        // map.invalidateSize(false);
+        savemap = aoi.getBounds();
+        console.log(savemap);
+        map.fitBounds(savemap);
+
 
         console.log(aoi);
         // // Build subregion dropdown select from geojson properties
@@ -540,6 +546,7 @@ function drawAOI(){
         // $("#region option[value='" + dropdown.indexOf(aoi.features[1].properties.name) + "']").attr("selected","selected");
   });
 }
+// map.invalidateSize(false);
 drawAOI(); // and it builds subregion dropdown
 
 
