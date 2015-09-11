@@ -87,10 +87,11 @@ echo "
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Coastal Vulnerability Dashboard</h3>
+  <div id=\"url-holder\" style=\"float:right;\"></div>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
-    <li role=\"presentation\" class=\"disabled\"><a href=\"#one\" aria-controls=\"one\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
+    <li role=\"presentation\" class=\"disabled\"><a href=\"#maptab\" aria-controls=\"maptab\" role=\"tab\" data-toggle=\"tab\">Map</a></li>
     <li role=\"presentation\" class=\"disabled\"><a href=\"#two\" aria-controls=\"two\" role=\"tab\" data-toggle=\"tab\">Table</a></li>
     <li role=\"presentation\"><a href=\"#three\" aria-controls=\"three\" role=\"tab\" data-toggle=\"tab\">About</a></li>
   </ul> ";
@@ -136,16 +137,27 @@ echo "
     </div>";
 
   // UPLOAD 
-  if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FILES['aoifile']['tmp_name'])) {
+  // if (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FILES['aoifile']['tmp_name'])) {
+  if (isset($_GET['dashid']) | (isset($_POST['doit']) & !empty($_FILES['expfile']['tmp_name']) & !empty($_FILES['aoifile']['tmp_name']))) {
     // File Quality Control
     // // check for errors
-    if ($_FILES["expfile"]["error"] > 0) {
-      echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["expfile"]["error"] . "</div>";
-      die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
+    if (!isset($_GET['dashid'])) {
+      if ($_FILES["expfile"]["error"] > 0) {
+        echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["expfile"]["error"] . "</div>";
+        die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
+      }
+      if ($_FILES["aoifile"]["error"] > 0) {
+        echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["aoifile"]["error"] . "</div>";
+        die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
+      }
     }
-    if ($_FILES["aoifile"]["error"] > 0) {
-      echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["aoifile"]["error"] . "</div>";
-      die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
+    // if dashboard session id is provided, check for legend.json
+    // that indicates that dashboard's R script completed successfully sometime in the past. 
+    if (isset($_GET['dashid'])){
+      if(!file_exists("./tmp-cv/" . $_GET['dashid'] . "/legend.json")){
+        echo "<div class=\"alert alert-info\" role=\"alert\">This Dashboard Session ID does not have results</div>";
+        die;
+      }
     }
     // // check mime type
   //  $mimes = array('text/plain','text/csv');
@@ -161,63 +173,72 @@ echo "
     session_start();
     session_regenerate_id(FALSE);
 
-    // make a unique folder for each run
-    // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
-    $sessid = session_id();
-    $pathid = "./tmp-cv/" . $sessid . "/";
+    if (!isset($_GET['dashid'])){
+      // make a unique folder for each run
+      // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
+      $sessid = session_id();
+      $pathid = "./tmp-cv/" . $sessid . "/";
+      $longurl = "vulpes.sefs.uw.edu/ttapp/cv-dash.php?dashid=" . $sessid;
 
-    echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
-    flush();
-    ob_flush();
+      echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
+      flush();
+      ob_flush();
 
-    // set the time limit to XX seconds
-    set_time_limit(300);
+      // set the time limit to XX seconds
+      set_time_limit(300);
 
-    // Create session directory and cd to it
-    $sdir = "$pathid";
-    if (!file_exists($sdir)) {
-      passthru("mkdir $pathid");
-//         mkdir($pathid);
-    }
+      // Create session directory and cd to it
+      $sdir = "$pathid";
+      if (!file_exists($sdir)) {
+        passthru("mkdir $pathid");
+  //         mkdir($pathid);
+      }
 
-    // Upload the tables
-    echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
-    // // exposure table
-    $outloadfile = $pathid . "coastal_exposure.csv";
-    if (move_uploaded_file($_FILES['expfile']['tmp_name'], $outloadfile)) {
-      echo "<div class=\"alert alert-success\" role=\"alert\">exposure table was successfully uploaded.</div>";
+      // Upload the tables
+      echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
+      // // exposure table
+      $outloadfile = $pathid . "coastal_exposure.csv";
+      if (move_uploaded_file($_FILES['expfile']['tmp_name'], $outloadfile)) {
+        echo "<div class=\"alert alert-success\" role=\"alert\">exposure table was successfully uploaded.</div>";
+      } else {
+        echo "<div class=\"alert alert-danger\" role=\"alert\">exposure table cannot be uploaded.</div>";
+      }
+      // // aoi raster
+      $outloadfile = $pathid . "00_PRE_aoi.tif";
+      if (move_uploaded_file($_FILES['aoifile']['tmp_name'], $outloadfile)) {
+        echo "<div class=\"alert alert-success\" role=\"alert\">aoi raster was successfully uploaded.</div>";
+      } else {
+        echo "<div class=\"alert alert-danger\" role=\"alert\">aoi raster cannot be uploaded.</div>";
+      }
+
+      // Run local R script
+      echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
+      flush();
+      ob_flush();
+      echo "<div class=\"alert alert-info\" role=\"alert\">";
+      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-cv.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
+      passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-cv.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");
+      echo "</div>";
+      flush();
+      ob_flush();
+
+      set_time_limit(300);
     } else {
-      echo "<div class=\"alert alert-danger\" role=\"alert\">exposure table cannot be uploaded.</div>";
-    }
-    // // aoi raster
-    $outloadfile = $pathid . "00_PRE_aoi.tif";
-    if (move_uploaded_file($_FILES['aoifile']['tmp_name'], $outloadfile)) {
-      echo "<div class=\"alert alert-success\" role=\"alert\">aoi raster was successfully uploaded.</div>";
-    } else {
-      echo "<div class=\"alert alert-danger\" role=\"alert\">aoi raster cannot be uploaded.</div>";
+      $pathid = "./tmp-cv/" . $_GET['dashid'] . "/";
+      $longurl = "vulpes.sefs.uw.edu/ttapp/cv-dash.php?dashid=" . $_GET['dashid'];
     }
 
-    // Run local R script
-    echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
-    flush();
-    ob_flush();
-    echo "<div class=\"alert alert-info\" role=\"alert\">";
-    //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-cv.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
-    passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-cv.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");
-    echo "</div>";
-    flush();
-    ob_flush();
-
-    // after upload and R completes, switch to map tab
-    echo "
-    <script>
-    console.log('switching?');
-      $(function () {
-        $('ul.nav li').removeClass('disabled');
-        $('#mytabs a[href=\"#one\"]').tab('show')
-        map.invalidateSize(false);
-      })
-    </script> ";
+    // // after upload and R completes, switch to map tab
+    // echo "
+    // <script>
+    // console.log('switching?');
+    //   $(function () {
+    //     $('ul.nav li').removeClass('disabled');
+    //     $('#mytabs a[href=\"#one\"]').tab('show')
+    //     map.invalidateSize(false);
+    //   })
+    // </script> ";
+    echo "<div class=\"alert alert-info\" role=\"alert\">Loading workspace data...</div>";
   }
 
   // Load Demo Data
@@ -243,16 +264,53 @@ echo "
     console.log('switching?');
       $(function () {
         $('ul.nav li').removeClass('disabled');
-        $('#mytabs a[href=\"#one\"]').tab('show')
-    map.invalidateSize(false);
+        $('#mytabs a[href=\"#maptab\"]').tab('show')
       })
     </script> ";
   }
 
-    echo "
-  </div>
+  echo "</div>";
 
-  <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
+  if (isset($longurl)){
+    echo "
+    <script>
+      console.log('switching?');
+      $(function () {
+        $('ul.nav li').removeClass('disabled');
+        $('#mytabs a[href=\"#maptab\"]').tab('show')
+      })
+    </script>";
+    echo "
+
+    <div class=\"modal fade\" id=\"urlModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">
+    <div class=\"modal-dialog\" role=\"document\">
+      <div class=\"modal-content\">
+        <div class=\"modal-header\">
+          <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"OK\"><span aria-hidden=\"true\">&times;</span></button>
+          <h4 class=\"modal-title\" id=\"myModalLabel\">Save and Share your Dashboard session:</h4>
+        </div>
+        <div class=\"modal-body\">
+          <input type=\"text\" value=\"$longurl\" label=\"Double-click to Select\"></input>
+          <br>
+          <br>
+          <li><b>Copy</b> this url to view these results again later, skipping the Upload step.</li>
+          <li><b>Share</b> these results by sending around this url!</li>
+          <li><b>Bookmark</b> this url!</li>
+        </div>
+        <div class=\"modal-footer\">
+          <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Okay</button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <script>
+    $('#url-holder').html('<button class=\"btn btn-success\" type=\"button\" data-toggle=\"modal\" data-target=\"#urlModal\">Share These Results!</button>');
+    </script>";
+  }
+
+  echo "
+  <div role=\"tabpanel\" class=\"tab-pane\" id=\"maptab\"> 
     <div class=\"row\">
       <div class=\"col-lg-7\">
         <div id=\"map\"></div>
@@ -336,7 +394,7 @@ $('#upload a').click(function (e) {
   $(this).tab('show')
 })
 
-$('#one a').click(function (e) {
+$('#maptab a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
@@ -350,6 +408,12 @@ $('#three a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
+$('#mytabs a[href=\"#maptab\"]').on("shown.bs.tab", function() {
+    console.log("invalidate map at tab listener");
+    //drawAOI();
+    map.invalidateSize(false);
+    map.fitBounds(savemap);
+});
       
 var  rmax = 27, //Maximum radius for cluster pies
     noclusterzoom = 13,
@@ -514,7 +578,7 @@ function drawChart() {
           var ptid = tableview.getValue(selrows[0]["row"], 0);
 
           console.log(ptid);
-          $('#mytabs a[href="#one"]').tab('show')
+          $('#mytabs a[href="#maptab"]').tab('show')
 
           markerclusters.eachLayer(function(marker) { 
             if (marker["feature"]["properties"]["ID"] === ptid){ 
