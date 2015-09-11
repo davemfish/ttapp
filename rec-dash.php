@@ -66,7 +66,8 @@ echo "
 
     <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
   </head>
-  <body> ";
+  <body> "
+  ;
 
 // <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
 
@@ -92,7 +93,7 @@ echo "
   <div role=\"tabpanel\" id=\"content\"> 
 
   <h3>Recreation Dashboard</h3>
-  <div id=\"url-holder\"></div>
+  <div id=\"url-holder\" style=\"float:right;\"></div>
 
   <ul class=\"nav nav-tabs\" role=\"tablist\" id=\"mytabs\">
     <li role=\"presentation\" class=\"active\"><a href=\"#upload\" aria-controls=\"upload\" role=\"tab\" data-toggle=\"tab\">Upload</a></li>
@@ -140,16 +141,25 @@ echo "
 
     // IF url was supplied a session id ($_GET[sid]...)
     // OR upload button was clicked.($_POST[soit]...)
-    if (isset($_GET['sid']) | (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name']))) {
+    if (isset($_GET['dashid']) | isset($_GET['sid']) | (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name']))) {
       // File Quality Control
       // // check for errors (only if file was uploaded)
-      if (!isset($_GET['sid']) & $_FILES["logfile"]["error"] > 0) {
+      if (!isset($_GET['dashid']) & !isset($_GET['sid']) & $_FILES["logfile"]["error"] > 0) {
         echo "<div class=\"alert alert-danger\" role=\"alert\">" . $_FILES["logfile"]["error"] . "</div>";
         die;   // THIS IS IMPORTANT, or else it continues running, launches the R script, etc!!
       }
+      // if rec session id is provided, check for results.zip for that session
       if (isset($_GET['sid'])){
         if(!file_exists("/mnt/recreation/public_html/data/" . $_GET['sid'] . "/results.zip")){
           echo "<div class=\"alert alert-info\" role=\"alert\">This session ID does not have results</div>";
+          die;
+        }
+      }
+      // if dashboard session id is provided, check for legend.json
+      // that indicates that dashboard's R script completed successfully sometime in the past. 
+      if (isset($_GET['dashid'])){
+        if(!file_exists("./tmp-rec/" . $_GET['dashid'] . "/legend.json")){
+          echo "<div class=\"alert alert-info\" role=\"alert\">This Dashboard Session ID does not have results</div>";
           die;
         }
       }
@@ -158,76 +168,68 @@ echo "
         session_start();
         session_regenerate_id(FALSE);
 
-      // make a unique folder for each run
-      // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
-      $sessid = session_id();
-      $pathid = "./tmp-rec/" . $sessid . "/";
+      // if no dashid provided in url, do this, including run R script
+      if (!isset($_GET['dashid'])){
 
-      echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
-      flush();
-      ob_flush();
+        // make a unique folder for each run
+        // // was using session (like in natcap docs autobuilder), then switched to datetime + who instead
+        $sessid = session_id();
+        $pathid = "./tmp-rec/" . $sessid . "/";
+        $longurl = "vulpes.sefs.uw.edu/ttapp/rec-dash.php?dashid=" . $sessid;
 
-      // set the time limit to XX seconds
-      set_time_limit(300);
+        echo "<div class=\"alert alert-info\" role=\"alert\">Path ID: $pathid </div>";
+        flush();
+        ob_flush();
 
-      // Create session directory and cd to it
-      $sdir = "$pathid";
-      if (!file_exists($sdir)) {
-        passthru("mkdir $pathid");
-      }
+        // set the time limit to XX seconds
+        set_time_limit(300);
 
-      // Copy logfile (if submitted a session ID) OR Upload logile (if submitted a file)
-      echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
-      $outloadfile = $pathid . "rec_logfile.txt";
-      // // copy logfile
-      if (isset($_GET['sid'])) {
-        passthru("cp /mnt/recreation/public_html/data/$_GET[sid]/log.txt $outloadfile");
-      // // or upload logfile
-      } elseif (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
-        echo "<div class=\"alert alert-success\" role=\"alert\">logfile was successfully uploaded.</div>";
-      // // or cack it
+        // Create session directory and cd to it
+        $sdir = "$pathid";
+        if (!file_exists($sdir)) {
+          passthru("mkdir $pathid");
+        }
+
+        // Copy logfile (if submitted a session ID) OR Upload logile (if submitted a file)
+        echo "<div class=\"alert alert-info\" role=\"alert\">uploading inputs...</div>";
+        $outloadfile = $pathid . "rec_logfile.txt";
+
+        // // copy logfile
+        if (isset($_GET['sid'])) {
+          passthru("cp /mnt/recreation/public_html/data/$_GET[sid]/log.txt $outloadfile");
+        // // or upload logfile
+        } elseif (move_uploaded_file($_FILES['logfile']['tmp_name'], $outloadfile)) {
+          echo "<div class=\"alert alert-success\" role=\"alert\">logfile was successfully uploaded.</div>";
+        // // or cack it
+        } else {
+          echo "<div class=\"alert alert-danger\" role=\"alert\">logfile cannot be uploaded.</div>";
+        }
+
+        // Run local R script
+        echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
+        flush();
+        ob_flush();
+        echo "<div class=\"alert alert-info\" role=\"alert\">";
+        //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
+        if (isset($_GET['sid'])) {
+          passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"$_GET[sid]\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
+        } else {
+          passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"NO\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
+        }
+        echo "</div>";
+        flush();
+        ob_flush();
       } else {
-        echo "<div class=\"alert alert-danger\" role=\"alert\">logfile cannot be uploaded.</div>";
+        $pathid = "./tmp-rec/" . $_GET['dashid'] . "/";
+        $longurl = "vulpes.sefs.uw.edu/ttapp/rec-dash.php?dashid=" . $_GET['dashid'];
       }
-
-      // Run local R script
-      echo "<div class=\"alert alert-info\" role=\"alert\">creating geojson files...</div>";
-      flush();
-      ob_flush();
-      echo "<div class=\"alert alert-info\" role=\"alert\">";
-      //passthru("R -q --vanilla '--args sess=\"$sessid\"' < io-rec.r | tee io.r.log | grep -e \"^[^>+]\" -e \"^> ####\" -e \"QAQC:\" -e \"^ERROR:\" -e \"WARN:\"");  // -e "^ " -e "^\[" 
-      if (isset($_GET['sid'])) {
-        passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"$_GET[sid]\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
-      } else {
-        passthru("R -q --vanilla '--args sess=\"$sessid\" recid=\"NO\"' < io-rec.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"");  // -e "^ " -e "^\[" 
-      }
-      echo "</div>";
-      //$sidpath = $sessid . '/sid.txt';
-      //$sidcontents = file_get_contents("/var/www/html/ttapp/tmp-rec/$sidpath", FILE_USE_INCLUDE_PATH);
-      // get contents of a file into a string
-      //$filename = "/var/www/html/ttapp/tmp-rec/$sidpath";
-      //$handle = fopen($filename, "r");
-      //print $filename;
-      //print filesize($filename);
-      //$sidcontents = fread($handle, filesize($filename));
-      //fclose($handle);
-      //print $sidcontents;
-      flush();
-      ob_flush();
 
       // after upload and R completes, switch to map tab
           //     $('#mytabs a[href=\"#one\"]').attr('data-toggle', 'tab')
           // $('#mytabs a[href=\"#two\"]').attr('data-toggle', 'tab')
-      echo "
-      <script>
-      console.log('switching?');
-        $(function () {
-          $('ul.nav li').removeClass('disabled');
-          $('#mytabs a[href=\"#one\"]').tab('show')
-      map.invalidateSize(false);
-        })
-      </script> ";
+
     }
+
     // Load Demo Data
     if (isset($_POST['demoit'])) {
 
@@ -252,14 +254,54 @@ echo "
         $(function () {
           $('ul.nav li').removeClass('disabled');
           $('#mytabs a[href=\"#one\"]').tab('show')
-          map.invalidateSize(false);
         })
       </script> ";
     }
-    //map.invalidateSize(false);
+
+  // closes the upload tab div:
+  echo "
+  </div>";
+
+  // if (isset($_GET['dashid']) | isset($_GET['sid']) | (isset($_POST['doit']) & !empty($_FILES['logfile']['tmp_name']))) {
+  if (isset($longurl)){
+  echo "
+  <script>
+  console.log('switching?');
+    $(function () {
+      $('ul.nav li').removeClass('disabled');
+      $('#mytabs a[href=\"#one\"]').tab('show');
+    })
+  </script>
+
+  <div class=\"modal fade\" id=\"urlModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"myModalLabel\">
+    <div class=\"modal-dialog\" role=\"document\">
+      <div class=\"modal-content\">
+        <div class=\"modal-header\">
+          <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"OK\"><span aria-hidden=\"true\">&times;</span></button>
+          <h4 class=\"modal-title\" id=\"myModalLabel\">Save and Share your Dashboard session:</h4>
+        </div>
+        <div class=\"modal-body\">
+          <input type=\"text\" value=\"$longurl\" label=\"Double-click to Select\"></input>
+          <br>
+          <br>
+          <li><b>Copy</b> this url to view these results again later, skipping the Upload step.</li>
+          <li><b>Share</b> these results by sending around this url!</li>
+          <li><b>Bookmark</b> this url!</li>
+        </div>
+        <div class=\"modal-footer\">
+          <button type=\"button\" class=\"btn btn-default\" data-dismiss=\"modal\">Okay</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  $('#url-holder').html('<button class=\"btn btn-success\" type=\"button\" data-toggle=\"modal\" data-target=\"#urlModal\">Share These Results!</button>');
+  </script>
+";
+}
 
   echo "
-  </div>
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"one\"> 
     <div class=\"row\">
@@ -352,6 +394,10 @@ $('#one a').click(function (e) {
   e.preventDefault()
   $(this).tab('show')
 })
+$('#mytabs a[href=\"#one\"]').on("shown.bs.tab", function() {
+    map.invalidateSize(false);
+    map.fitBounds(savemap);
+});
 
 $('#two a').click(function (e) {
   e.preventDefault()
@@ -422,6 +468,9 @@ var  rmax = 27, //Maximum radius for cluster pies
     };
 
     L.control.layers();
+
+    // object for bounds of AOI to use after calls to map.invalidateSize()
+    savemap = {};
 ;
 
 // add stuff to the map
@@ -705,7 +754,8 @@ function drawChart() {
               });
               pgons.addLayer(markers);
             }
-            map.fitBounds(markers.getBounds());
+            savemap = markers.getBounds();
+            map.fitBounds(savemap);
         }
       });
 
