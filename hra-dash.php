@@ -686,8 +686,15 @@ drawAOI(); // and it builds subregion dropdown
 
     var svg = dimple.newSvg("#Dimplediv", 800, 400);
 
-      d3.csv(riskPath, function (data) {
-      
+    d3.csv(riskPath, function (data) {
+      // find max exposure/consequence for upper limit on axes
+      var expmax = d3.max(data, function(d) { return +d.Exposure;} );
+      console.log(expmax);
+      var conmax = d3.max(data, function(d) { return +d.Consequence;} );
+      console.log(conmax);
+      var axmax = Math.ceil(d3.max([expmax, conmax]));
+      console.log(axmax);
+    
       function riskChart(region) {
           
         var dat = dimple.filterData(data, "Subregion", region);
@@ -764,17 +771,17 @@ drawAOI(); // and it builds subregion dropdown
             x.shapes.selectAll("text").attr("fill", "#5e5e5e");
             y.shapes.selectAll("text").attr("fill", "#5e5e5e");
             x.tickFormat = ',.1f';
-            x.ticks = 5;
-            y.ticks = 5;
+            x.ticks = axmax;
+            y.ticks = axmax;
             // console.log(x);
             // x.showGridlines = false;
             // y.showGridlines = false;
             // x.shapes.selectAll("text").attr("font-size", "16px");
             // y.shapes.selectAll("text").attr("font-size", "16px");
-            // x.overrideMax = 4.0;
-            // y.overrideMax = 4.0;
-            // x.overrideMin = 0;
-            // y.overrideMin = 0;
+            x.overrideMax = axmax;
+            y.overrideMax = axmax;
+            x.overrideMin = 0;
+            y.overrideMin = 0;
 
             myChart.setBounds(
               left + (col * (width + inMarg)),
@@ -820,8 +827,8 @@ drawAOI(); // and it builds subregion dropdown
       // $("#Dimplediv").empty();
       // svg = dimple.newSvg("#Dimplediv", 800, 400);
       riskChart(regions[0]);
-     }); // csv load
-    }; // makeRiskTab function
+    }); // csv load
+  }; // makeRiskTab function
 
     // // Build table from csv to display as google vis
 
