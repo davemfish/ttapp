@@ -729,8 +729,7 @@ drawAOI(); // and it builds subregion dropdown
             var chartData = dimple.filterData(dat, "Habitat", hab);
             
             // Use d3 to draw a text label for the habitat
-            svg
-              .append("text")
+            svg.append("text")
                   .attr("x", left + (col * (width + inMarg)) + (width / 2))
                   .attr("y", top + (row * (height + inMarg)) + (height / 2) + 12)
                   .style("font-family", "sans-serif")
