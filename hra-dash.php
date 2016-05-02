@@ -297,14 +297,17 @@ echo "
         <br>
           <div id = \"Dimplediv\"></div>
       </div>
-      <div class=\"col-lg-3\">
+    </div>
+    <div class=\"row\">
+      <div class=\"col-lg-6\">
       <br>
-      <p>These figures show the cumulative risk for each habitat within a given subregion.</p> 
-      <p>There is one subplot for every habitat. Within the habitat plot, there are points for every stressor.</p> 
-      <p>Each point is graphed by Exposure and Consequence values. If the risk equation chosen was Euclidean, 
-      the distance from the stressor point to the origin represents the average risk for that habitat-stressor pair within the selected subregion.</p> 
-      <p>Stressors that have high exposure scores and high consequence scores pose the greatest risk to habitats. 
-      <p>Reducing risk through management is likely to be more effective in situations where high risk is driven by high exposure, not high consequence.</p>
+      <div class=\"panel panel-default\">
+        <div class=\"panel-body\"> Plots show risk for each habitat within a given subregion.
+        <br></br>
+        There is one panel for each habitat. Colored points represent each stressor. Mouse over points to see values. 
+        <br></br>
+        <a href=\"http://data.naturalcapitalproject.org/nightly-build/invest-users-guide/html/habitat_risk_assessment.html#hra-equations\">Learn more about Risk plots from the InVEST User's Guide</a></div>
+      </div>
       </div>
     </div>
   </div>
@@ -684,7 +687,7 @@ drawAOI(); // and it builds subregion dropdown
 
   function makeRiskTab(){
 
-    var svg = dimple.newSvg("#Dimplediv", 800, 400);
+    var svg = dimple.newSvg("#Dimplediv", 800, 100);
 
     d3.csv(riskPath, function (data) {
       // find max exposure/consequence for upper limit on axes
@@ -694,12 +697,19 @@ drawAOI(); // and it builds subregion dropdown
       console.log(conmax);
       var axmax = Math.ceil(d3.max([expmax, conmax]));
       console.log(axmax);
+      // var hablen = d3.set(data, function(d) {return +d.Habitat;} ).values();
+      // d3.select("#Habitat").selectAll("option").data(d3.map)
+      
+
     
       function riskChart(region) {
           
         var dat = dimple.filterData(data, "Subregion", region);
         // Get a unique list of habitats
         var habitats = dimple.getUniqueValues(dat, "Habitat");
+        // var hablen = d3.map(data, function(d){return d.Habitat; }).keys().length;
+        svg.attr("height", 200*Math.ceil(habitats.length/4));
+        // console.log(hablen);
 
         // get stressors to assign colors
         var stressors = dimple.getUniqueValues(dat, "Stressor");
@@ -710,17 +720,19 @@ drawAOI(); // and it builds subregion dropdown
         var row = 0,
             col = 0,
             top = 25,
-            left = 60,
-            inMarg = 40,
-            width = 130,
-            height = 110,
-            totalWidth = parseFloat(svg.attr("width"));
+            left = 35,
+            inMarg = 20,
+            width = 130, //130,
+            height = 130, //110,
+            totalWidth = parseFloat(svg.attr("width")),
+            legWidth = 75;
+
 
         // Draw a chart for each of the habitats
-        habitats.forEach(function (hab) {
+        function plotHab(hab, index, array){
             
-            // Wrap to the row above
-            if (left + ((col + 1) * (width + inMarg)) > totalWidth) {
+            // Wrap to the row below
+            if (legWidth + left + ((col + 1) * (width + inMarg)) > totalWidth) {
               row += 1;
               col = 0;
             }
@@ -764,7 +776,13 @@ drawAOI(); // and it builds subregion dropdown
             // myChart.assignColor("PrawnFishery", "Red");
             // console.log(myChart);          
 
+            if (index === habitats.length - 1){ 
+                 console.log("Last callback call at index " + index + " with value " + hab ); 
+                 var myLegend = myChart.addLegend(800 - legWidth, 0, legWidth, parseFloat(svg.attr("height")), "Right");
+             }
             // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
+            // myChart.addLegend(10, 10, 60, 300, "Right", "Stressor");
+
             // Draw the chart and adjust settings
             myChart.draw();
             x.shapes.selectAll("text").attr("fill", "#5e5e5e");
@@ -805,7 +823,8 @@ drawAOI(); // and it builds subregion dropdown
             // Move to the next column
             col += 1;
 
-        }, this);
+        }
+        habitats.forEach(plotHab);
         
       }; // def riskChart function
 
