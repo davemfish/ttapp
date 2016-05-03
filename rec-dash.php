@@ -385,29 +385,17 @@ if (isset($pathid)) {  // this is here because when page is first loaded, the ne
 
 
 // load tab content upon click
-$('#upload a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
+$('#tabs li a').each(function(){
+  $(this).click(function(e){
+    e.preventDefault()
+    $(this).tab("show");
+  });
+});
 
-$('#one a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
 $('#mytabs a[href=\"#one\"]').on("shown.bs.tab", function() {
     map.invalidateSize(false);
     map.fitBounds(savemap);
 });
-
-$('#two a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
-
-$('#three a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
 
 // load the init.json -- used to tell Leaflet if points/polys
 var init = (function() {

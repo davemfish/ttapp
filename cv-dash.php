@@ -389,25 +389,13 @@ if (file_exists($pathid . "coastal_exposure.csv") & file_exists($pathid . "00_PR
 
 
 // load tab content upon click
-$('#upload a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
+$('#tabs li a').each(function(){
+  $(this).click(function(e){
+    e.preventDefault()
+    $(this).tab("show");
+  });
+});
 
-$('#maptab a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
-
-$('#two a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
-
-$('#three a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
 $('#mytabs a[href=\"#maptab\"]').on("shown.bs.tab", function() {
     console.log("invalidate map at tab listener");
     //drawAOI();

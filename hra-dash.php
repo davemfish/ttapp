@@ -370,20 +370,12 @@ if (file_exists($pathid . "workspace.zip")) {
 
 
 // load tab content upon click
-$('#upload a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
-
-$('#maptab a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
-
-$('#charttab a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
+$('#tabs li a').each(function(){
+  $(this).click(function(e){
+    e.preventDefault()
+    $(this).tab("show");
+  });
+});
 
 $('#mytabs a[href=\"#charttab\"]').on('shown.bs.tab', function (e) {
   $("#Dimplediv").empty();
@@ -391,15 +383,7 @@ $('#mytabs a[href=\"#charttab\"]').on('shown.bs.tab', function (e) {
   console.log('test');
   makeRiskTab();
 });
-// $('#pptab a').click(function (e) {
-//   e.preventDefault()
-//   $(this).tab('show')
-// })
 
-$('#abouttab a').click(function (e) {
-  e.preventDefault()
-  $(this).tab('show')
-})
 $('#mytabs a[href=\"#maptab\"]').on("shown.bs.tab", function() {
     console.log("invalidate map at tab listener");
     //drawAOI();
