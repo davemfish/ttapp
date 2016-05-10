@@ -771,7 +771,9 @@ drawAOI(); // and it builds subregion dropdown
             myChart.draw();
             x.shapes.selectAll("text").attr("fill", "#5e5e5e");
             y.shapes.selectAll("text").attr("fill", "#5e5e5e");
-            x.tickFormat = ',.1f';
+            // setting these tickFormats after draw() only affects tooltip
+            x.tickFormat = ',.2f';
+            y.tickFormat = ',.2f';
             x.ticks = axmax;
             y.ticks = axmax;
             // console.log(x);
