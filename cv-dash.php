@@ -613,7 +613,7 @@ function drawChart() {
         //var props = feature.properties,
           //fields = popupFields,
          var popupContent = '',
-          id = feature.properties.ID,
+          id = feature.properties.ID+1,
           val = arrayData[id],
           label = arrayData[0],
           poptable = "<table class='table table-condensed'>";
@@ -626,11 +626,11 @@ function drawChart() {
               poptable += "<td>" + val[i] + "</td></tr>";  
             } 
           }
-          poptable += "<tr><td>" + "ID" + "</td><td>" + id + "</td></tr>"
+          poptable += "<tr><td>" + "ID" + "</td><td>" + feature.properties.ID + "</td></tr>"
           
         //popupContent = '<span class="attribute"><span class="label">'+label+':</span> '+val+'</span>';
         //popupContent = '<span class="attribute">'+poptable+'</span>';
-        //console.log(popupContent);
+        console.log(id + " " + val);
         popupContent = '<div class="map-popup">'+ poptable +'</div>';
         layer.bindPopup(popupContent,{offset: L.point(-3,-2)});
       }
