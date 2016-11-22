@@ -139,7 +139,8 @@ echo "
       // that indicates that dashboard's R script completed successfully sometime in the past. 
       if (isset($_GET['dashid'])){
         if(!file_exists("./tmp-hra/" . $_GET['dashid'] . "/legend.json")){
-          echo "<div class=\"alert alert-info\" role=\"alert\">This Dashboard Session ID does not have results</div>";
+          echo "<div class=\"alert alert-info\" role=\"alert\">This Dashboard Session ID does not have results. </div>";
+          echo "<div class=\"alert alert-danger\" role=\"alert\">11-21-2016: Due to server maintenance, sessions created before 11-20-2016 are temporariliy unavailable. Sorry for this inconvenience. Sessions will be restored as soon as possible.</div>";
           die;
         }
       }
