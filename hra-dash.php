@@ -274,7 +274,7 @@ echo "
   echo "
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"maptab\"> 
     <div class=\"row\">
-      <div class=\"col-lg-8\">
+      <div class=\"col-lg-9\">
         <div id=\"map\"></div>
         <!--<h5> select a layer to map:</h5>
         <select id=\"domain\"></select>-->
