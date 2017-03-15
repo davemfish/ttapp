@@ -280,10 +280,12 @@ echo "
         <select id=\"domain\"></select>-->
       </div>
       <div class=\"col-lg-3\">
-          <p> <b>Habitat (H_...)</b> layers are colored by their <b style='background-color:lightgray'><font color='blue'>'LOW'</font>, <font color='yellow'>'MED'</font>, <font color='red'>'HIGH'</font></b> Risk classifications.</p>
-          <p> <b>Stressor (S_...)</b> layers, AOI polygons, overall ecosystem risk, and alternate basemap layers 
-          can be turned on from the layers control box in the <b>upper-right of the map.</b></p>
-          <p> <b>Click a point</b> on the map to list the Habitats and Stressors present at that location.</p>
+          <br>
+          <p><span class=\"glyphicon glyphicon-arrow-left\"></span>&nbsp;&nbsp;Select map layers</p> 
+          <p style=\"text-indent: 25px\"><b>H_ : Habitats </b></p>
+          <p style=\"text-indent: 40px\"><img src=\"img/hab-risk-legend.svg\"></img></p>
+          <p style=\"text-indent: 25px\"><b>S_ : Stressors </b><img src=\"img/stressors-legend.svg\"></img></p>
+          <p><span class=\"glyphicon glyphicon-hand-up\"></span>&nbsp;&nbsp;<b>Click a point</b> on the map to list Habitats and Stressors present at that location.</p>
           <div id='mapinfo' class='info'></div>
       </div>
   </div>
