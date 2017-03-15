@@ -545,374 +545,297 @@ drawAOI(); // and it builds subregion dropdown
 //// Read geoJSON (first with default layer, then in response to dropdown selection)
 //function makePage() {
 //function drawChart() {
-  $.getJSON(symbPath, function(symbols){
-    var dropdown = [];
-    //console.log(symbols);
-    for (var i = 0; i < symbols.length; i++) {
-      if (symbols[i].layer[0].substring(0,1) == "H"){
-        habnames.push(symbols[i].layer)
-        habURLs.push(sessPath + symbols[i].layer + ".geojson")
-        // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
-        // dropdown.push(symbols[i].layer)
-      }
-      if (symbols[i].layer[0].substring(0,1) == "S"){
-        stressnames.push(symbols[i].layer)
-        stressURLs.push(sessPath + symbols[i].layer + ".geojson")
-      }
-      if (symbols[i].layer[0].substring(0,1) == "e"){
-        econame.push(symbols[i].layer)
-        ecoURL.push(sessPath + symbols[i].layer + ".geojson")
-        // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
-        // dropdown.push(symbols[i].layer)
-      }
-      // set the default selection 
-      // $("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
+$.getJSON(symbPath, function(symbols){
+  var dropdown = [];
+  //console.log(symbols);
+  for (var i = 0; i < symbols.length; i++) {
+    if (symbols[i].layer[0].substring(0,1) == "H"){
+      habnames.push(symbols[i].layer)
+      habURLs.push(sessPath + symbols[i].layer + ".geojson")
+      // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
+      // dropdown.push(symbols[i].layer)
     }
-  
-    function loadStress(s){
-      $.getJSON(stressURLs[s], function(data) {
-        nm = stressnames[s];
-        // console.log(j);
-        // console.log(layernames);
-        // console.log(geojsonURLs);
-        var geojson = L.geoJson(data, {
-          style: function(feature){
-                    gridcolor = feature.properties.cols.replace("hex", "#");
-                    return {
-                      fillColor:'#0C0C0B',
-                      color:'#0C0C0B',
-                      fillOpacity:0.3,
-                      opacity:1,
-                      weight:1
-                    }
-            }//, // style
-          // onEachFeature: function (feature, layer) {
-          //   layer.bindPopup(feature.properties.CLASSIFY);
-          // }
-        }).on('click', handleClick);
-        //geojson.addTo(map);
-        //geojson.bringToFront();
-        //maplayers[nm] = geojson;
-        lyrs.push({ name: nm, layer: geojson })
-        control.addOverlay(geojson, nm);
-      });
+    if (symbols[i].layer[0].substring(0,1) == "S"){
+      stressnames.push(symbols[i].layer)
+      stressURLs.push(sessPath + symbols[i].layer + ".geojson")
     }
+    if (symbols[i].layer[0].substring(0,1) == "e"){
+      econame.push(symbols[i].layer)
+      ecoURL.push(sessPath + symbols[i].layer + ".geojson")
+      // $("#domain").append("<option value='" + i + "'>" + symbols[i].layer + "</option");
+      // dropdown.push(symbols[i].layer)
+    }
+    // set the default selection 
+    // $("#domain option[value='" + dropdown.indexOf("ecosys_risk") + "']").attr("selected","selected");
+  }
 
-    function loadHab(h){
-      $.getJSON(habURLs[h], function(data) {
-        nm = habnames[h];
-        // console.log(j);
-        // console.log(layernames);
-        // console.log(geojsonURLs);
-        var geojson = L.geoJson(data, {
-          style: function(feature){
-                    gridcolor = feature.properties.cols.replace("hex", "#");
-                    return {
-                      fillColor:gridcolor,
-                      color:ColorLuminance(gridcolor, 1),
-                      fillOpacity:0.7,
-                      opacity:1,
-                      weight:0.5
-                    }
-            }, // style
-          onEachFeature: function (feature, layer) {
-            // layer.bindPopup(feature.properties.CLASSIFY);
-            layer.bindPopup();
+  function loadStress(s){
+    $.getJSON(stressURLs[s], function(data) {
+      nm = stressnames[s];
+      // console.log(j);
+      // console.log(layernames);
+      // console.log(geojsonURLs);
+      var geojson = L.geoJson(data, {
+        style: function(feature){
+                  gridcolor = feature.properties.cols.replace("hex", "#");
+                  return {
+                    fillColor:'#0C0C0B',
+                    color:'#0C0C0B',
+                    fillOpacity:0.3,
+                    opacity:1,
+                    weight:1
+                  }
+          }//, // style
+        // onEachFeature: function (feature, layer) {
+        //   layer.bindPopup(feature.properties.CLASSIFY);
+        // }
+      }).on('click', handleClick);
+      //geojson.addTo(map);
+      //geojson.bringToFront();
+      //maplayers[nm] = geojson;
+      lyrs.push({ name: nm, layer: geojson })
+      control.addOverlay(geojson, nm);
+    });
+  }
+
+  function loadHab(h){
+    $.getJSON(habURLs[h], function(data) {
+      nm = habnames[h];
+      // console.log(j);
+      // console.log(layernames);
+      // console.log(geojsonURLs);
+      var geojson = L.geoJson(data, {
+        style: function(feature){
+                  gridcolor = feature.properties.cols.replace("hex", "#");
+                  return {
+                    fillColor:gridcolor,
+                    color:ColorLuminance(gridcolor, 1),
+                    fillOpacity:0.7,
+                    opacity:1,
+                    weight:0.5
+                  }
+          }, // style
+        onEachFeature: function (feature, layer) {
+          // layer.bindPopup(feature.properties.CLASSIFY);
+          layer.bindPopup();
+        }
+      }).on('click', handleClick);
+      geojson.addTo(map);
+      geojson.bringToBack();
+      //maplayers[nm] = geojson;
+      lyrs.push({ name: nm, layer: geojson })
+      control.addOverlay(geojson, nm);
+    });
+  }
+
+  for (var h = 0; h < habURLs.length; h++){
+    loadHab(h);
+  }
+  if (h == habURLs.length){
+    for (var s = 0; s < stressURLs.length; s++){
+      loadStress(s);
+    }
+  }
+
+  function loadEco(){
+    $.getJSON(ecoURL[0], function(data) {
+      nm = econame[0];
+
+      var geojson = L.geoJson(data, {
+        style: function(feature){
+                  gridcolor = feature.properties.cols.replace("hex", "#");
+                  return {
+                    fillColor:gridcolor,
+                    color:ColorLuminance(gridcolor, 1),
+                    fillOpacity:0.7,
+                    opacity:1,
+                    weight:0.5
+                  }
+          }//, // style
+        // onEachFeature: function (feature, layer) {
+        //   layer.bindPopup(feature.properties.CLASSIFY);
+        // }
+      }).on('click', handleClick);
+      //geojson.addTo(map);
+      //maplayers[nm] = geojson;
+      lyrs.push({ name: nm, layer: geojson })
+      control.addOverlay(geojson, nm);
+    });
+  }
+  loadEco();
+
+}); // legend ajax
+
+////////////////////
+// Create Risk Plots
+////////////////////
+
+function makeRiskTab(){
+  var svgwidth = 900
+  var svgheight = 100
+
+  var svg = dimple.newSvg("#Dimplediv", svgwidth, svgheight);
+
+  d3.csv(riskPath, function (data) {
+    // find max exposure/consequence for upper limit on axes
+    var expmax = d3.max(data, function(d) { return +d.Exposure;} );
+    // console.log(expmax);
+    var conmax = d3.max(data, function(d) { return +d.Consequence;} );
+    // console.log(conmax);
+    var axmax = Math.ceil(d3.max([expmax, conmax]));
+    // console.log(axmax);
+    // var hablen = d3.set(data, function(d) {return +d.Habitat;} ).values();
+    // d3.select("#Habitat").selectAll("option").data(d3.map)
+    
+    function riskChart(region) {
+        
+      var dat = dimple.filterData(data, "Subregion", region);
+      // Get a unique list of habitats
+      var habitats = dimple.getUniqueValues(dat, "Habitat");
+      // var hablen = d3.map(data, function(d){return d.Habitat; }).keys().length;
+      svg.attr("height", 200*Math.ceil(habitats.length/4));
+      // console.log(hablen);
+
+      // get stressors to assign colors
+      var stressors = dimple.getUniqueValues(dat, "Stressor");
+      var cols = ["#1f78b4", "#a6cee3", "#33a02c", "#b2df8a", "#e31a1c", "#fb9a99", "#ff7f00", "#fdbf6f", "#6a3d9a", "#cab2d6", "#b15928", "#ffff99"];
+      // console.log(stressors[0]);
+      // console.log(cols[0]);
+      // Set the bounds for the charts
+      var row = 0,
+          col = 0,
+          top = 25,
+          left = 50,
+          inMarg = 30,
+          width = 130, //130,
+          height = 130, //110,
+          totalWidth = parseFloat(svg.attr("width")),
+          legWidth = 75; // 
+
+
+      // Draw a chart for each of the habitats
+      function plotHab(hab, index, array){
+          
+          // Wrap to the row below
+          if (legWidth + left + ((col + 1) * (width + inMarg)) > totalWidth) {
+            row += 1;
+            col = 0;
           }
-        }).on('click', handleClick);
-        geojson.addTo(map);
-        geojson.bringToBack();
-        //maplayers[nm] = geojson;
-        lyrs.push({ name: nm, layer: geojson })
-        control.addOverlay(geojson, nm);
-      });
-    }
+          
+          // Filter for the Habitat in the iteration
+          var chartData = dimple.filterData(dat, "Habitat", hab);
+          
+          // Use d3 to draw a text label for the habitat
+          svg.append("text")
+                .attr("x", left + (col * (width + inMarg)) + (width / 2))
+                .attr("y", top + (row * (height + inMarg)) + (height / 2) + 12)
+                .style("font-family", "sans-serif")
+                .style("text-anchor", "middle")
+                .style("font-size", "28px")
+                .style("opacity", 0.2)
+                .text(chartData[0].Habitat.substring(0, 7));
+          
+          // Create a chart at the correct point in the trellis
+          var myChart = new dimple.chart(svg, chartData);
+          
+          // Add x 
+          var x = myChart.addMeasureAxis("x", "Exposure");
+          
+          // Add y 
+          var y = myChart.addMeasureAxis("y", "Consequence");
+          
+          // Habitat and Risk are only added for the tooltip, 
+          // color groups are based on the final series 'Stressor'
+          myChart.addSeries(["Habitat", "Risk", "Stressor"], dimple.plot.bubble);
 
-    for (var h = 0; h < habURLs.length; h++){
-      loadHab(h);
-    }
-    if (h == habURLs.length){
-      for (var s = 0; s < stressURLs.length; s++){
-        loadStress(s);
-      }
-    }
+          // assign colors
+          if (stressors.length < 7) {
+            for (var s = 0; s < stressors.length; s++) {
+              myChart.assignColor(stressors[s], cols[s*2]);
+            }
+          } else {
+            for (var s = 0; s < stressors.length; s++) {
+              myChart.assignColor(stressors[s], cols[s]);
+            }
+          }
+          // myChart.assignColor("PrawnFishery", "Red");
+          // console.log(myChart);          
 
-    function loadEco(){
-      $.getJSON(ecoURL[0], function(data) {
-        nm = econame[0];
+          if (index === habitats.length - 1){ 
+               console.log("Last callback call at index " + index + " with value " + hab ); 
+               var myLegend = myChart.addLegend(parseFloat(svg.attr("width")) - legWidth, 0, legWidth, parseFloat(svg.attr("height")), "Left");
+           }
+          // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
+          // myChart.addLegend(10, 10, 60, 300, "Right", "Stressor");
 
-        var geojson = L.geoJson(data, {
-          style: function(feature){
-                    gridcolor = feature.properties.cols.replace("hex", "#");
-                    return {
-                      fillColor:gridcolor,
-                      color:ColorLuminance(gridcolor, 1),
-                      fillOpacity:0.7,
-                      opacity:1,
-                      weight:0.5
-                    }
-            }//, // style
-          // onEachFeature: function (feature, layer) {
-          //   layer.bindPopup(feature.properties.CLASSIFY);
+          // Draw the chart and adjust settings
+          myChart.draw();
+          x.shapes.selectAll("text").attr("fill", "#5e5e5e");
+          y.shapes.selectAll("text").attr("fill", "#5e5e5e");
+          // setting these tickFormats after draw() only affects tooltip
+          x.tickFormat = ',.2f';
+          y.tickFormat = ',.2f';
+          x.ticks = axmax;
+          y.ticks = axmax;
+          // console.log(x);
+          // x.showGridlines = false;
+          // y.showGridlines = false;
+          // x.shapes.selectAll("text").attr("font-size", "16px");
+          // y.shapes.selectAll("text").attr("font-size", "16px");
+          x.overrideMax = axmax;
+          y.overrideMax = axmax;
+          x.overrideMin = 0;
+          y.overrideMin = 0;
+
+          myChart.setBounds(
+            left + (col * (width + inMarg)),
+            top + (row * (height + inMarg)),
+            width,
+            height);
+
+          // Once drawn we can access the shapes
+          // If this is not in the first column remove the y text
+          if (col > 0) {
+            y.shapes.selectAll("text").remove();
+            y.titleShape.remove();
+          }
+          // // If this is not in the last row remove the x text
+          // if (row < 2) {
+          //    x.shapes.selectAll("text").remove();
           // }
-        }).on('click', handleClick);
-        //geojson.addTo(map);
-        //maplayers[nm] = geojson;
-        lyrs.push({ name: nm, layer: geojson })
-        control.addOverlay(geojson, nm);
-      });
-    }
-    loadEco();
+          // Remove the axis labels
+          // y.titleShape.remove();
+          // x.titleShape.remove();
 
-  }); // legend ajax
+          // Move to the next column
+          col += 1;
 
-  ////////////////////
-  // Create Risk Plots
-  ////////////////////
-
-  function makeRiskTab(){
-
-    var svg = dimple.newSvg("#Dimplediv", 800, 100);
-
-    d3.csv(riskPath, function (data) {
-      // find max exposure/consequence for upper limit on axes
-      var expmax = d3.max(data, function(d) { return +d.Exposure;} );
-      console.log(expmax);
-      var conmax = d3.max(data, function(d) { return +d.Consequence;} );
-      console.log(conmax);
-      var axmax = Math.ceil(d3.max([expmax, conmax]));
-      console.log(axmax);
-      // var hablen = d3.set(data, function(d) {return +d.Habitat;} ).values();
-      // d3.select("#Habitat").selectAll("option").data(d3.map)
+      }
+      habitats.forEach(plotHab);
       
+    }; // def riskChart function
+
+    var regions = dimple.getUniqueValues(data, "Subregion");
+    $("#selectregion").empty();
+    for (var i = 0; i < regions.length; i++) {
+      $("#selectregion").append("<option value='" + i + "'>" + regions[i] + "</option");
+    }
+
+    $("#selectregion").change(function(){
+      $("#Dimplediv").empty();
+      svg = dimple.newSvg("#Dimplediv", svgwidth, svgheight);
+
+      subregion = $("#selectregion option:selected").text();
+      riskChart(subregion);
+     });
+
+    // $("#Dimplediv").empty();
+    // svg = dimple.newSvg("#Dimplediv", 800, 400);
+    riskChart(regions[0]);
+  }); // csv load
+}; // makeRiskTab function
 
     
-      function riskChart(region) {
-          
-        var dat = dimple.filterData(data, "Subregion", region);
-        // Get a unique list of habitats
-        var habitats = dimple.getUniqueValues(dat, "Habitat");
-        // var hablen = d3.map(data, function(d){return d.Habitat; }).keys().length;
-        svg.attr("height", 200*Math.ceil(habitats.length/4));
-        // console.log(hablen);
-
-        // get stressors to assign colors
-        var stressors = dimple.getUniqueValues(dat, "Stressor");
-        var cols = ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"];
-        console.log(stressors[0]);
-        console.log(cols[0]);
-        // Set the bounds for the charts
-        var row = 0,
-            col = 0,
-            top = 25,
-            left = 35,
-            inMarg = 20,
-            width = 130, //130,
-            height = 130, //110,
-            totalWidth = parseFloat(svg.attr("width")),
-            legWidth = 75;
-
-
-        // Draw a chart for each of the habitats
-        function plotHab(hab, index, array){
-            
-            // Wrap to the row below
-            if (legWidth + left + ((col + 1) * (width + inMarg)) > totalWidth) {
-              row += 1;
-              col = 0;
-            }
-            
-            // Filter for the Habitat in the iteration
-            var chartData = dimple.filterData(dat, "Habitat", hab);
-            
-            // Use d3 to draw a text label for the habitat
-            svg.append("text")
-                  .attr("x", left + (col * (width + inMarg)) + (width / 2))
-                  .attr("y", top + (row * (height + inMarg)) + (height / 2) + 12)
-                  .style("font-family", "sans-serif")
-                  .style("text-anchor", "middle")
-                  .style("font-size", "28px")
-                  .style("opacity", 0.2)
-                  .text(chartData[0].Habitat.substring(0, 7));
-            
-            // Create a chart at the correct point in the trellis
-            var myChart = new dimple.chart(svg, chartData);
-            
-            // Add x 
-            var x = myChart.addMeasureAxis("x", "Exposure");
-            
-            // Add y 
-            var y = myChart.addMeasureAxis("y", "Consequence");
-            
-            // Habitat and Risk are only added for the tooltip, 
-            // color groups are based on the final series 'Stressor'
-            myChart.addSeries(["Habitat", "Risk", "Stressor"], dimple.plot.bubble);
-
-            // assign colors
-            if (stressors.length < 7) {
-              for (var s = 0; s < stressors.length; s++) {
-                myChart.assignColor(stressors[s], cols[s*2]);
-              }
-            } else {
-              for (var s = 0; s < stressors.length; s++) {
-                myChart.assignColor(stressors[s], cols[s]);
-              }
-            }
-            // myChart.assignColor("PrawnFishery", "Red");
-            // console.log(myChart);          
-
-            if (index === habitats.length - 1){ 
-                 console.log("Last callback call at index " + index + " with value " + hab ); 
-                 var myLegend = myChart.addLegend(800 - legWidth, 0, legWidth, parseFloat(svg.attr("height")), "Right");
-             }
-            // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
-            // myChart.addLegend(10, 10, 60, 300, "Right", "Stressor");
-
-            // Draw the chart and adjust settings
-            myChart.draw();
-            x.shapes.selectAll("text").attr("fill", "#5e5e5e");
-            y.shapes.selectAll("text").attr("fill", "#5e5e5e");
-            // setting these tickFormats after draw() only affects tooltip
-            x.tickFormat = ',.2f';
-            y.tickFormat = ',.2f';
-            x.ticks = axmax;
-            y.ticks = axmax;
-            // console.log(x);
-            // x.showGridlines = false;
-            // y.showGridlines = false;
-            // x.shapes.selectAll("text").attr("font-size", "16px");
-            // y.shapes.selectAll("text").attr("font-size", "16px");
-            x.overrideMax = axmax;
-            y.overrideMax = axmax;
-            x.overrideMin = 0;
-            y.overrideMin = 0;
-
-            myChart.setBounds(
-              left + (col * (width + inMarg)),
-              top + (row * (height + inMarg)),
-              width,
-              height);
-
-            // Once drawn we can access the shapes
-            // If this is not in the first column remove the y text
-            if (col > 0) {
-              y.shapes.selectAll("text").remove();
-              y.titleShape.remove();
-            }
-            // // If this is not in the last row remove the x text
-            // if (row < 2) {
-            //    x.shapes.selectAll("text").remove();
-            // }
-            // Remove the axis labels
-            // y.titleShape.remove();
-            // x.titleShape.remove();
-
-            // Move to the next column
-            col += 1;
-
-        }
-        habitats.forEach(plotHab);
-        
-      }; // def riskChart function
-
-      var regions = dimple.getUniqueValues(data, "Subregion");
-      $("#selectregion").empty();
-      for (var i = 0; i < regions.length; i++) {
-        $("#selectregion").append("<option value='" + i + "'>" + regions[i] + "</option");
-      }
-
-      $("#selectregion").change(function(){
-        $("#Dimplediv").empty();
-        svg = dimple.newSvg("#Dimplediv", 800, 400);
-
-        subregion = $("#selectregion option:selected").text();
-        riskChart(subregion);
-       });
-
-      // $("#Dimplediv").empty();
-      // svg = dimple.newSvg("#Dimplediv", 800, 400);
-      riskChart(regions[0]);
-    }); // csv load
-  }; // makeRiskTab function
-
-    // // Build table from csv to display as google vis
-
-    // // transform the CSV string into a 2-dimensional array
-    // var arrayData = $.csv.toArrays(csvString, {onParseValue: $.csv.hooks.castToScalar});
-    // //console.log(arrayData);
-
-    // // make DataTable from entire arrayData
-    // var data = new google.visualization.arrayToDataTable(arrayData);
-    // // link to div
-    // var table = new google.visualization.Table(document.getElementById('table_div'));
-    // // make a view with subset of data (in this case view still includes entire data array)
-    // var tableview = new google.visualization.DataView(data);
-
-    // // get the col numbers of all that should appear in table
-    // // var collist = [];
-    // // for (var i = 0; i <= arrayData[0].length - 1; i++) {
-    // //     collist.push(i);
-    // // }
-    // // tableview.setColumns(collist);
-
-    // table.draw(tableview, {showRowNumber: false, page: 'enable', pageSize:25});
-
-
-    // // Build Chart from same DataTable as above
-    // var chartview = new google.visualization.DataView(data);
-
-    // var subregion = $("#region option:selected").text(); // get selected subregion from dropdown
-    // maplayer = $("#domain option:selected").text(); // get selected maplayer from dropdown
-    // // filter view by values of certain columns
-    // chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
-    // chartview.setColumns([0,1]);
-
-    // var options = {
-    //    title: 'Distribution of Risk Scores',
-    //    legend: { position: 'none' },
-    //    colors: ['gray'],
-    // };
-
-    // //var chart = new google.charts.Bar(document.getElementById("chart_div"));
-    // var chart = new google.visualization.ColumnChart(document.getElementById("chart_div"));
-    // //var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
-    // chart.draw(chartview, options);
-
-
-    // // set listener for the subregion dropdown
-    // $("#region").change(function(){
-    //   subregion = $("#region option:selected").text();
-    //   chartview = new google.visualization.DataView(data);
-    //     //console.log(chartview);
-
-    //   chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
-    //   chartview.setColumns([0,1]);
-
-    //    // update the chart
-    //   chart.draw(chartview, options);
-
-    // });
-
-    // // set listener for the maplayer dropdown, chart and map must respond
-    // $("#domain").change(function(){
-    //   // get current selection
-    //   maplayer = $("#domain option:selected").text();
-
-    //   // reset chartview to entire dataTable
-    //   chartview = new google.visualization.DataView(data);
-
-    //   // filter rows by currently selected maplayer and subregion
-    //   chartview.setRows(chartview.getFilteredRows([{column: 2, value: maplayer}, {column: 3, value: subregion}]));
-    //   chartview.setColumns([0,1]);
-
-    //   // redraw the chart
-    //   chart.draw(chartview, options);
-
-    // });
-
-  // }); // end get CSV json
-//};  /// end of drawChart()
-//makePage();
 
 /// All js below is functions for creating the marker cluster symbols
 

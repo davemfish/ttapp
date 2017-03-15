@@ -14,10 +14,10 @@
     min-height: 100%;
     height: 100%;
 }
-#chart_div {
+/*#chart_div {
   width:500px;
   height:400px;
-}
+}*/
 
 .col-md-5.no-float {
     float: none; /* thanks baxabbit */
