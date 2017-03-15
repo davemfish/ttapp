@@ -285,6 +285,7 @@ echo "
           <p style=\"text-indent: 25px\"><b>H_ : Habitats </b></p>
           <p style=\"text-indent: 40px\"><img src=\"img/hab-risk-legend.svg\"></img></p>
           <p style=\"text-indent: 25px\"><b>S_ : Stressors </b><img src=\"img/stressors-legend.svg\"></img></p>
+          <hr>
           <p><span class=\"glyphicon glyphicon-hand-up\"></span>&nbsp;&nbsp;<b>Click a point</b> on the map to list Habitats and Stressors present at that location.</p>
           <div id='mapinfo' class='info'></div>
       </div>
@@ -461,12 +462,16 @@ function handleClick(e) {
         // and a table of attributes
         if (match.length) {
             html += '<strong>' + lyrs[i].name + '</strong>';
-            if(lyrs[i].name[0].substring(0,1) == "H" | lyrs[i].name[0].substring(0,1) == "e"){
+            if(lyrs[i].name[0].substring(0,1) == "H"){
+              console.log(match[0].feature.properties['CLASSIFY'])
               html += propertyTable(match[0].feature.properties);
-            } else {
-              // html += '<br>'
-              html += '<hr color="#d3d3d3" size=1>'
+            } 
+            if(lyrs[i].name[0].substring(0,1) == "e"){
+              html += propertyTable(match[0].feature.properties);
             }
+            if(lyrs[i].name[0].substring(0,1) == "S"){
+              html += '<hr color="#d3d3d3" size=1>'
+            } 
             // if(lyrs[i].name.substring(0,1) == "S"){
             //  html += '<tr></tr>';
             // }
@@ -479,12 +484,11 @@ function handleClick(e) {
     }
 }
 
-// create a simple table from the properties in a feature, like the
-// name of a state or district
+// create a simple table from the properties in a feature
 function propertyTable(o) {
     var t = '<table class="table-condensed">';
     for (var k in o) {
-      if(k != "cols"){
+      if(k != "cols" & k != 'VALUE'){
         // if(k.substring(0,1) == "H"){
         //  t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
         // }
@@ -495,6 +499,21 @@ function propertyTable(o) {
     t += '</table><hr color="#d3d3d3" size=1>';
     return t;
 }
+
+// function propertyTable(o) {
+//     var t = '<table class="table-condensed">';
+//     for (var k in o) {
+//       if(k != "cols"){
+//         // if(k.substring(0,1) == "H"){
+//         //  t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
+//         // }
+//           t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
+//       }
+//     }
+//     // t += '</table><br>'
+//     t += '</table><hr color="#d3d3d3" size=1>';
+//     return t;
+// }
 
 // load AOI geojson, add to map
 // get subregion names from geojson properties, build dropdown select for subregions
