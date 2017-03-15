@@ -291,7 +291,7 @@ echo "
 
   <div role=\"tabpanel\" class=\"tab-pane\" id=\"charttab\"> 
     <div class=\"row\">
-      <div id=\"Bardiv\" class=\"col-lg-8\">
+      <div id=\"Bardiv\" class=\"col-lg-10\">
         <br>
         <h4>Plot this subregion:</h4>
         <select id=\"selectregion\"></select>
@@ -396,36 +396,36 @@ $('#mytabs a[href=\"#maptab\"]').on("shown.bs.tab", function() {
 // Init some global vars
 //var pgons = new L.featureGroup(); // this group holds all the geojson layers
     
-    // Map
-    map = L.map('map', {
-      center: [0, 0],
-      zoom: 2,
-      maxZoom:15
-    });
-    //Basemap
-    EsriSat = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      minZoom: 0,
-      maxZoom: 15,
-      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-    })
-    CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-      minZoom: 0,
-      maxZoom: 15,
-      subdomains: 'abcd',
-      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
-    })
-    
-    base = {
-      "Satellite": EsriSat,
-      "Grayscale": CartoDB_Positron
-    };
+// Map
+map = L.map('map', {
+  center: [0, 0],
+  zoom: 2,
+  maxZoom:15
+});
+//Basemap
+EsriSat = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  minZoom: 0,
+  maxZoom: 15,
+  attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+})
+CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+  minZoom: 0,
+  maxZoom: 15,
+  subdomains: 'abcd',
+  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+})
 
-    // Layer control in upper-right of map
-    var control = new L.control.layers(base).addTo(map);
-    // Info box for outside-the-map popups
-    var mapinfo = document.getElementById('mapinfo');
-    // object for bounds of AOI to use after calls to map.invalidateSize()
-    var savemap = {};
+base = {
+  "Satellite": EsriSat,
+  "Grayscale": CartoDB_Positron
+};
+
+// Layer control in upper-right of map
+var control = new L.control.layers(base).addTo(map);
+// Info box for outside-the-map popups
+var mapinfo = document.getElementById('mapinfo');
+// object for bounds of AOI to use after calls to map.invalidateSize()
+var savemap = {};
 ;
 
 
@@ -671,7 +671,7 @@ $.getJSON(symbPath, function(symbols){
 ////////////////////
 
 function makeRiskTab(){
-  var svgwidth = 900
+  var svgwidth = 1000
   var svgheight = 100
 
   var svg = dimple.newSvg("#Dimplediv", svgwidth, svgheight);
@@ -710,7 +710,7 @@ function makeRiskTab(){
           width = 130, //130,
           height = 130, //110,
           totalWidth = parseFloat(svg.attr("width")),
-          legWidth = 75; // 
+          legWidth = 90; // 
 
 
       // Draw a chart for each of the habitats
@@ -763,7 +763,7 @@ function makeRiskTab(){
 
           if (index === habitats.length - 1){ 
                console.log("Last callback call at index " + index + " with value " + hab ); 
-               var myLegend = myChart.addLegend(parseFloat(svg.attr("width")) - legWidth, 0, legWidth, parseFloat(svg.attr("height")), "Left");
+               var myLegend = myChart.addLegend(4*width + 4*inMarg*2, 10, legWidth, parseFloat(svg.attr("height")), "Right");
            }
           // var myLegend = myChart.addLegend(530, 160, 60, 300, "Right");
           // myChart.addLegend(10, 10, 60, 300, "Right", "Stressor");
