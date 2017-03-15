@@ -423,25 +423,26 @@ var  rmax = 27, //Maximum radius for cluster pies
     });
 
     //Add basemap
-    MapBoxSat = L.tileLayer('https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png', {
+    EsriSat = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       minZoom: 0,
       maxZoom: 15,
-      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     })
-    OpenMapSurfer_Roads = L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/roads/x={x}&y={y}&z={z}', {
+    CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
       minZoom: 0,
       maxZoom: 15,
-      attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      subdomains: 'abcd',
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
     })
     
     base = {
-      "Satellite": MapBoxSat,
-      "Physical/Political": OpenMapSurfer_Roads
+      "Satellite": EsriSat,
+      "Physical/Political": CartoDB_Positron
     };
     
     L.control.layers(base, overlays).addTo(map);
 ;
-map.addLayer(MapBoxSat);
+map.addLayer(EsriSat);
 map.addLayer(markerclusters);
 L.control.scale().addTo(map);
 

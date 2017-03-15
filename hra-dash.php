@@ -402,22 +402,22 @@ $('#mytabs a[href=\"#maptab\"]').on("shown.bs.tab", function() {
       zoom: 2,
       maxZoom:15
     });
-
     //Basemap
-    MapBoxSat = L.tileLayer('https://a.tiles.mapbox.com/v3/geointerest.map-dqz2pa8r/{z}/{x}/{y}.png', {
+    EsriSat = L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       minZoom: 0,
       maxZoom: 15,
-      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     })
-    OpenMapSurfer_Roads = L.tileLayer('http://openmapsurfer.uni-hd.de/tiles/roads/x={x}&y={y}&z={z}', {
+    CartoDB_Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
       minZoom: 0,
       maxZoom: 15,
-      attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      subdomains: 'abcd',
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
     })
     
     base = {
-      "Satellite": MapBoxSat,
-      "Physical/Political": OpenMapSurfer_Roads
+      "Satellite": EsriSat,
+      "Grayscale": CartoDB_Positron
     };
 
     // Layer control in upper-right of map
@@ -430,7 +430,7 @@ $('#mytabs a[href=\"#maptab\"]').on("shown.bs.tab", function() {
 
 
 // add stuff to the map
-map.addLayer(MapBoxSat);
+map.addLayer(EsriSat);
 //map.addLayer(pgons);
 L.control.scale().addTo(map);
 
