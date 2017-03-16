@@ -36,37 +36,33 @@ echo "
 <html>
   <head>
     <meta charset=\"UTF-8\">
+
+    <!-- Leaflet and plugins-->
     <script src=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js\"></script> 
     <link rel=\"stylesheet\" href=\"http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css\" />
+    <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
+    <script src=\"https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js\"></script>
+    <script type=\"text/javascript\" src=\"./libs/leaflet-groupedlayercontrol-gh-pages/dist/leaflet.groupedlayercontrol.min.js\"></script>
+    <!-- <script type=\"text/javascript\" src=\"./libs/leaflet-groupedlayercontrol-gh-pages/dist/leaflet.groupedlayercontrol.min.js.map\"></script> -->
+    <link rel=\"stylesheet\" href=\"./libs/leaflet-groupedlayercontrol-gh-pages/dist/leaflet.groupedlayercontrol.min.css\" />
+
     <link rel=\"stylesheet\" href=\"hra-dash.css\">
 
+    <!-- jquery -->
     <script src=\"http://code.jquery.com/jquery-1.10.1.min.js\"></script>
     <script src=\"./libs/jquery.csv-0.71.js\"></script>
+
+    <!-- D3 and dimplejs -->
     <script src=\"http://d3js.org/d3.v3.min.js\" charset=\"utf-8\"></script>
     <script src=\"http://d3js.org/colorbrewer.v1.min.js\"></script>
     <script src=\"http://dimplejs.org/dist/dimple.v2.1.2.min.js\"></script>
-    <!--<script src=\"http://cdn.datatables.net/1.10.5/js/jquery.dataTables.min.js\"></script>-->
-    <!--<link rel=\"stylesheet\" href=\"http://cdn.datatables.net/1.10.5/css/jquery.dataTables.css\">-->
 
-    <!-- Latest compiled and minified CSS -->
+    <!-- Bootstrap -->
     <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css\">
-
-    <!-- Optional theme -->
     <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css\">
-
-    <!-- Latest compiled and minified JavaScript -->
     <script src=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js\"></script>
-
-    <!-- Bootstrap file for file input forms -->
     <script type=\"text/javascript\" src=\"./libs/bootstrap-filestyle.min.js\"> </script>
-
     
-    <!--<script src=\"https://raw.githubusercontent.com/novus/nvd3/master/build/nv.d3.min.js\"></script>-->
-
-    <!--<script src=\"https://www.google.com/jsapi\"></script>-->
-
-    <script type=\"text/javascript\" src=\"./libs/leaflet-ajax-master/dist/leaflet.ajax.js\"></script>
-    <script src=\"https://api.tiles.mapbox.com/mapbox.js/plugins/leaflet-pip/v0.0.2/leaflet-pip.js\"></script>
   </head>
   <body> ";
 
@@ -424,7 +420,17 @@ base = {
 };
 
 // Layer control in upper-right of map
-var control = new L.control.layers(base).addTo(map);
+var groupedOverlays = {
+  "Habitats": {
+
+  },
+  "Stressors": {
+    
+  }
+};
+
+var control = new L.control.groupedLayers(base, groupedOverlays, {groupCheckboxes: true}).addTo(map);
+// var control = new L.control.layers(base).addTo(map);
 // Info box for outside-the-map popups
 var mapinfo = document.getElementById('mapinfo');
 // object for bounds of AOI to use after calls to map.invalidateSize()
@@ -440,7 +446,7 @@ L.control.scale().addTo(map);
 // Initialize legend
 var legend = L.control({position: 'bottomright'});
 
-// init default maplayer
+// init default maplayer - doesn't break even if layer does not exist
 var maplayer = 'ecosys_risk'
 
 // click to identify function
@@ -500,21 +506,6 @@ function propertyTable(o) {
     return t;
 }
 
-// function propertyTable(o) {
-//     var t = '<table class="table-condensed">';
-//     for (var k in o) {
-//       if(k != "cols"){
-//         // if(k.substring(0,1) == "H"){
-//         //  t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
-//         // }
-//           t += '<tr><td>' + k + '</td><td>' + o[k] + '</td></tr>';
-//       }
-//     }
-//     // t += '</table><br>'
-//     t += '</table><hr color="#d3d3d3" size=1>';
-//     return t;
-// }
-
 // load AOI geojson, add to map
 // get subregion names from geojson properties, build dropdown select for subregions
 //var aoijson = {};
@@ -561,11 +552,7 @@ drawAOI(); // and it builds subregion dropdown
 
 
 //// A lot happens in here:
-//// Read legend.json - build maplayer dropdown from legend elements; build legend div.
-//// Read csv - build table and chart (chart responds to both dropdowns)
-//// Read geoJSON (first with default layer, then in response to dropdown selection)
-//function makePage() {
-//function drawChart() {
+// symbPath is the legend.json
 $.getJSON(symbPath, function(symbols){
   var dropdown = [];
   //console.log(symbols);
@@ -615,7 +602,7 @@ $.getJSON(symbPath, function(symbols){
       //geojson.bringToFront();
       //maplayers[nm] = geojson;
       lyrs.push({ name: nm, layer: geojson })
-      control.addOverlay(geojson, nm);
+      control.addOverlay(geojson, nm, "Stressors");
     });
   }
 
@@ -645,7 +632,7 @@ $.getJSON(symbPath, function(symbols){
       geojson.bringToBack();
       //maplayers[nm] = geojson;
       lyrs.push({ name: nm, layer: geojson })
-      control.addOverlay(geojson, nm);
+      control.addOverlay(geojson, nm, "Habitats");
     });
   }
 
@@ -680,7 +667,7 @@ $.getJSON(symbPath, function(symbols){
       //geojson.addTo(map);
       //maplayers[nm] = geojson;
       lyrs.push({ name: nm, layer: geojson })
-      control.addOverlay(geojson, nm);
+      control.addOverlay(geojson, nm, "Habitats");
     });
   }
   loadEco();
@@ -794,8 +781,8 @@ function makeRiskTab(){
           x.shapes.selectAll("text").attr("fill", "#5e5e5e");
           y.shapes.selectAll("text").attr("fill", "#5e5e5e");
           // setting these tickFormats after draw() only affects tooltip
-          x.tickFormat = ',.2f';
-          y.tickFormat = ',.2f';
+          x.tickFormat = ',.1f';
+          y.tickFormat = ',.1f';
           x.ticks = axmax;
           y.ticks = axmax;
           // console.log(x);
