@@ -672,7 +672,9 @@ $.getJSON(symbPath, function(symbols){
   }
   loadEco();
 
+
 }); // legend ajax
+
 
 ////////////////////
 // Create Risk Plots
