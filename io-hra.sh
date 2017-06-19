@@ -2,6 +2,8 @@
 
 ## this will handle all the initial data input for the hra dashboard
 
+appdir=$(pwd)
+
 ## unzip workspace
 cd tmp-hra/$1/
 unzip ./workspace.zip -d .
@@ -47,4 +49,4 @@ done
 ## run some R code
 #wsnm=$(find . -maxdepth 1 -not -name '.' -type d)
 cd ../..
-R -q --vanilla < /var/www/html/ttapp/io-hra.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"
+R -q --vanilla < $appdir/io-hra.r | tee io.r.log | grep -e \"kadfkjalkjdfadijfaijdfkdfdsa\"
