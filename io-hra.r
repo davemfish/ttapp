@@ -129,69 +129,7 @@ LoadSpace <- function(ws, outpath){
   }
   
   shps <- list.files(file.path(ws, "output/Maps"), pattern="*.shp$")
-#   tiffiles <- list.files(file.path(ws, "output/Maps"), pattern="cum_risk.*tif$")
-#   ## trim names to just the habitat word
-#   tifs <- unlist(lapply(tiffiles, FUN=function(x){
-#     a <- unlist(strsplit(x, split="_"))[3]
-#     b <- sub(pattern="].tif", replacement="", a, fixed=T)
-#     d <- sub(pattern="[", replacement="H_", b, fixed=T)
-#     }))
-#   tifs <- c(tifs, "ecosys_risk")
-#   tiffiles <- c(tiffiles, "ecosys_risk.tif")
-#   
-#   ## read and process tifs
-#   ptm <- proc.time()
-#   summlist <- list()
-#   ## find 33% and 66% breaks based on max_stressor rating
-#   quants <- quantile(c(0,nstress), probs=seq(0,1,1/3), na.rm=T)
-#   p33 <- quants[2]
-#   p66 <- quants[3]
-#   for (g in 1: length(tiffiles)){
-# #     nm1 <- unlist(strsplit(tifs[g], split="_"))[3]
-# #     nm1 <- sub(pattern=".tif", replacement="", nm1)
-#     rast <- raster(file.path(ws, "output/Maps", tiffiles[g]))
-#     regionlist <- list()
-#     for (k in 1:length(aoi)){
-#       region <- aoi[k,]
-#       r <- mask(rast, region)
-#       vals <- getValues(r)
-#       
-#       lows <- vals[which(vals <= p33)]
-#       meds <- vals[which(vals > p33 & vals <= p66)]
-#       highs <- vals[which(vals > p66)]
-#       
-#       A.low <- length(lows)*gridsize*gridsize
-#       A.med <- length(meds)*gridsize*gridsize
-#       A.high <- length(highs)*gridsize*gridsize
-# 
-#       #factorx <- factor(cut(vals, breaks=nclass.Sturges(vals)))
-#       #df <- as.data.frame(table(factorx))
-#       names(region@data) <- tolower(names(region@data))
-#       df <- data.frame("Habitat"=tifs[g], "Subregion"=as.character(region@data$name), "Classify"=c("LOW", "MED", "HIGH"), "Area"=NA)
-#       
-#       df$Area[1] <- A.low
-#       df$Area[2] <- A.med
-#       df$Area[3] <- A.high
-#       
-#       #df$Habitat <- tifs[g]
-#       #df$Subregion <- as.character(region@data$name)
-#       
-#       regionlist[[k]] <- df
-#       print(proc.time() - ptm)
-#     }
-#     summlist[[g]] <- do.call("rbind", regionlist)
-#     
-#   }
-#   habsummary <- do.call("rbind", summlist)
-#   proc.time() - ptm
-#   
-#   ## write habitat summary csv and json
-#   write.csv(habsummary, file.path(outpath, "habsummary.csv"), row.names=F)
-#   habjson <- toJSON(habsummary)
-#   habjson <- paste('{ "data":', habjson, "}")
-#   writeLines(habjson, file.path(outpath, "habsummary.json"))
-  
-  #mapdatalist <- list()
+
   leg.list <- list()
   
   ## for each shapefile in Maps directory
@@ -295,19 +233,5 @@ LoadSpace <- function(ws, outpath){
 #outspace <- paste("/var/www/html/ttapp/tmp-hra/", sess, "/", sep='')
 workspace <- "./"
 outspace <- "../"
-#workspace <- "C:/Users/dfisher5/Documents/Shiny/HRA/data"
-#outspace <- "C:/Users/dfisher5/Documents/Shiny/www/ttapp/tmp-hra/"
+
 LoadSpace(workspace, outspace)
-
-####################################
-
-### trying stuff out with rasters
-
-# r.risk <- raster(file.path(ws, "output/Maps/risk_mult.tif"))
-# ## note only 32 unique floating pt values in this raster of 328,440 cells:
-# length(unique(getValues(r.risk)))
-# 
-# #### using gdal_polygonize is wayyyy faster
-# v.risk <- rasterToPolygons(r.risk, dissolve=T) ## takes a few minutes
-# 
-# writeOGR(obj=v.risk, dsn=paste(ws, "/", "tmp-hra", "risk.geojson", sep=""), layer="layer", driver="GeoJSON")
