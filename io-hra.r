@@ -88,13 +88,13 @@ LoadSpace <- function(ws, outpath){
   
   ##### Load Logfile
   ## gridsize and max stressors
-  logfile <- readLines(con=file.path(ws, list.files(ws, pattern="hra-log-*")), n=-1)
-  blanks <- which(logfile=="")
-  logtable <- logfile[1:(min(blanks) - 1)]
-  l.grid <- logtable[grep(logtable, pattern="grid_size")]
-  gridsize <- as.numeric(tail(unlist(strsplit(l.grid, split=" ")), 1))
-  l.nstress <- logtable[grep(logtable, pattern="max_stress")]
-  nstress <- as.numeric(tail(unlist(strsplit(l.nstress, split=" ")), 1))
+  # logfile <- readLines(con=file.path(ws, list.files(ws, pattern="hra-log-*")), n=-1)
+  # blanks <- which(logfile=="")
+  # logtable <- logfile[1:(min(blanks) - 1)]
+  # l.grid <- logtable[grep(logtable, pattern="grid_size")]
+  # gridsize <- as.numeric(tail(unlist(strsplit(l.grid, split=" ")), 1))
+  # l.nstress <- logtable[grep(logtable, pattern="max_stress")]
+  # nstress <- as.numeric(tail(unlist(strsplit(l.nstress, split=" ")), 1))
   
   ##### Load HTML Table output and make data for risk plots
   theurl <- list.files(file.path(ws, "output/HTML_Plots"), pattern="Sub_Region*", full.names=T)
