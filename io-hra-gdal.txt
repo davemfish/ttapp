@@ -1,9 +1,0 @@
-## run from here:
-## C:\Users\dfisher5\Documents\Shiny\HRA\data
-
-gdal_calc -A ./output/Maps/ecosys_risk.tif --outfile=./scratch/ecorisk_mult.tif --calc="A*10000"    
-gdal_polygonize ./scratch/ecorisk_mult.tif -f "ESRI Shapefile" ./output/Maps/ecosys_risk.shp ecosys_risk risk
-gdal_polygonize ./intermediate/Stressor_Rasters/DocksWharvesMarinas_buff.tif -f "ESRI Shapefile" ./output/Maps/DWM.shp DWM DWM
-gdal_polygonize ./intermediate/Stressor_Rasters/FinfishAquacultureComm_buff.tif -f "ESRI Shapefile" ./output/Maps/FinAqua.shp FinAqua FinAqua
-gdal_polygonize ./intermediate/Stressor_Rasters/RecFishing_buff.tif -f "ESRI Shapefile" ./output/Maps/RecFish.shp RecFish RecFish
-gdal_polygonize ./intermediate/Stressor_Rasters/ShellfishAquacultureComm_buff.tif -f "ESRI Shapefile" ./output/Maps/ShellAqua.shp ShellAqua ShellAqua
