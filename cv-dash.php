@@ -118,6 +118,7 @@ echo "
           
           <br></br>
           <input type=Submit name=junk value=\"Upload Results\">
+          <p>InVEST versions 3.7.0 and later are not compatible with this dashboard.</p>
         </div>
         </div>
         <div class=\"row\">
@@ -343,8 +344,7 @@ echo "
         <br>
         <h3> Compatibility </h3>
         <p>For best results, please try Google Chrome or Mozilla Firefox web browsers.</p>
-        <p>Please note, results from InVEST Coastal Vulnerabilty version 3.1.0 do not include the coastal_exposure.csv file required for this app.
-        This issue is now fixed and a more recent version of InVEST can be <a href=\"http://www.naturalcapitalproject.org/InVEST.html\"> downloaded here </a></p>
+        <p>This dashboard is only compatible with InVEST versions 3.2.0 - 3.6.0. The latest version of InVEST, <a href=\"http://www.naturalcapitalproject.org/InVEST.html\">available here, </a>is not compatible.</p>
         <br>
         <small><i>This application is built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
         you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></i></small>

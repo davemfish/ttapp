@@ -102,6 +102,7 @@ echo "
         <!--<ul><br>Select <b>\"Your HRA Output Workspace.zip\"</b></ul>-->
         <br>
         <input type=Submit name=junk value=\"Upload Results\">
+        <p>InVEST versions 3.7.0 and later are not compatible with this dashboard.</p>
       </div>
       <div class=\"col-lg-4\">
       </div>
@@ -324,7 +325,7 @@ echo "
         You may wish to explore and analyze your results further with GIS or data analysis software.</p>
         <h3> Compatibility </h3>
         <p>For best results, please try Google Chrome or Mozilla Firefox web browsers.</p>
-        <p>This app has been tested with InVEST versions 3.1+</p>
+        <p>This dashboard is only compatible with InVEST versions 3.1.0 - 3.6.0. The latest version of InVEST, <a href=\"http://www.naturalcapitalproject.org/InVEST.html\">available here, </a>is not compatible.</p>
         <br>
         <small><i>Built by the <a href=\"http://naturalcapitalproject.org\">Natural Capital Project</a>. The source code (R and javascript) is available and
         you are encouraged to submit bugs and feature requests at <a href=\"https://github.com/davemfish/ttapp/issues\">https://github.com/davemfish/ttapp/issues</a></i></small>
